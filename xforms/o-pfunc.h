@@ -1,4 +1,4 @@
-/** Header file generated with fdesign on Sat Oct 31 13:38:44 1998.**/
+/** Header file generated with fdesign on Sun Nov  8 11:40:16 1998.**/
 
 #ifndef FD_PlanetaryFunction_h_
 #define FD_PlanetaryFunction_h_

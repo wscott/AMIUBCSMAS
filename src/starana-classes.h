@@ -60,26 +60,27 @@ inline int max(const int i, const int j)
 enum report_type { Total, Full, Graph };
 
 enum _msgtype {
-  RLO_ERROR      = 0x00001,
-  RLO_HABTABLE   = 0x00002,
-  RLO_DATASRC    = 0x00004,
-  RLO_EMPIRETOT  = 0x00008,
-  RLO_FLEETDUP   = 0x00010,
-  RLO_PLAREPORTS = 0x00020,
-  RLO_PLABUILD   = 0x00040,
-  RLO_PLASTATS   = 0x00080,
-  RLO_PLAFLEETS  = 0x00100,
-  RLO_PLAMINSTAT = 0x00200,
-  RLO_PLAPOPSTAT = 0x00400,
-  RLO_PLANETINI  = 0x00800,
-  RLO_FLEETDEST  = 0x01000,
-  RLO_FLEETTRANS = 0x02000,
-  RLO_FLEETCOLON = 0x04000,
-  RLO_FLEETATTK  = 0x08000,
-  RLO_FLEETPARSE = 0x10000,
-  RLO_FLEETCONS  = 0x20000,
-  RLO_PLAQUEUE   = 0x40000,
-  RLO_PLAABUILD  = 0x80000,
+  RLO_ERROR      = 0x000001,
+  RLO_HABTABLE   = 0x000002,
+  RLO_DATASRC    = 0x000004,
+  RLO_EMPIRETOT  = 0x000008,
+  RLO_FLEETDUP   = 0x000010,
+  RLO_PLAREPORTS = 0x000020,
+  RLO_PLABUILD   = 0x000040,
+  RLO_PLASTATS   = 0x000080,
+  RLO_PLAFLEETS  = 0x000100,
+  RLO_PLAMINSTAT = 0x000200,
+  RLO_PLAPOPSTAT = 0x000400,
+  RLO_PLANETINI  = 0x000800,
+  RLO_FLEETDEST  = 0x001000,
+  RLO_FLEETTROK  = 0x002000,
+  RLO_FLEETCOLON = 0x004000,
+  RLO_FLEETATTK  = 0x008000,
+  RLO_FLEETPARSE = 0x010000,
+  RLO_FLEETCONS  = 0x020000,
+  RLO_PLAQUEUE   = 0x040000,
+  RLO_PLAABUILD  = 0x080000,
+  RLO_FLEETTRBAD = 0x100000,
 };
 
 inline
@@ -892,9 +893,11 @@ public:
   object* o(void) const
     { return obj; }
   bool is_starbase(void) const
-    { return (eng == NULL); }
+    { return (h->n_engines == 0); }
   hull* basehull(void) const
     { return h; }
+  int weight(void) const
+    { return mass; }
 };
 
 

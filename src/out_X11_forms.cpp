@@ -475,7 +475,8 @@ void graphics::hide_racialreport(void)
 void graphics::load_racialreport(const int rid)
 {
   race* r = game_map->find_race(rid);
-  int c;
+  int c, i;
+  object* o;
 
   fl_freeze_form(xf_rr->RacialReport);
   fl_freeze_form(xf_rrinfo->RR_RaceInfo);
@@ -483,11 +484,13 @@ void graphics::load_racialreport(const int rid)
   fl_freeze_form(xf_rrcmp->RR_Comparisons);
   fl_freeze_form(xf_rrdo->RR_DesignsObjects);
 
+  // main form
   fl_set_object_label(xf_rr->race_names, r->name() + " (" + r->names() + ")");
 
   fl_set_object_label(xf_rr->race_isanalyzed, (r->do_analysis())? "A" : "");
   fl_set_object_label(xf_rr->race_issource, (r->gave_report())? "R" : "");
 
+  // report-log form
   fl_clear_browser(xf_rrlog->messages);
   for (const message* msg = r->next_message(NULL); 
        msg; msg = r->next_message(msg))
@@ -495,6 +498,35 @@ void graphics::load_racialreport(const int rid)
       fl_add_browser_line(xf_rrlog->messages, "@C" + int_to_str(c) + " " + msg->msg);
     else
       fl_add_browser_line(xf_rrlog->messages, msg->msg);
+
+  // designs form
+  for (i = 0, o = NULL; ; ) {
+    do {
+      o = r->next_object(o);
+    } while (o && !(o->is_design() && !o->d()->is_starbase()));
+
+    if (!o || i == 16)
+      break;
+
+    fl_set_object_label(xf_rrdo->design[i], o->name());
+    fl_set_object_label(xf_rrdo->minerals[i][0], int_to_str(o->minerals().iron));
+    fl_set_object_label(xf_rrdo->minerals[i][1], int_to_str(o->minerals().bora));
+    fl_set_object_label(xf_rrdo->minerals[i][2], int_to_str(o->minerals().germ));
+    fl_set_object_label(xf_rrdo->resources[i], int_to_str(o->resources()));
+    fl_set_object_label(xf_rrdo->weight[i], int_to_str(o->d()->weight()));
+    fl_set_object_label(xf_rrdo->basehull[i], o->d()->basehull()->name);
+    i++;
+  }
+
+  for (; i < 16; i++) {
+    fl_set_object_label(xf_rrdo->design[i], "-- empty slot --");
+    fl_set_object_label(xf_rrdo->minerals[i][0], "--");
+    fl_set_object_label(xf_rrdo->minerals[i][1], "--");
+    fl_set_object_label(xf_rrdo->minerals[i][2], "--");
+    fl_set_object_label(xf_rrdo->resources[i], "--");
+    fl_set_object_label(xf_rrdo->weight[i], "--");
+    fl_set_object_label(xf_rrdo->basehull[i], "- none -");
+  }
 
   fl_unfreeze_form(xf_rr->RacialReport);
   fl_unfreeze_form(xf_rrinfo->RR_RaceInfo);

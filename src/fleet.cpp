@@ -278,16 +278,16 @@ void fleet::check_data(void)
       if (_destin->owner()) {
 	if (_destin->owner() == _owner)
 	  if (_min.total() != 0 || _pop != 0) {
-	    _owner->add_message(RLO_FLEETTRANS, myString(destmsg) + " and unload all cargo");
+	    _owner->add_message(RLO_FLEETTROK, myString(destmsg) + " and unload all cargo");
 
 	    // add fleet to planet's array
 	    _destin->add_fleet(this);
 	  } else if (_maxcargo != 0)
-	    _owner->add_message(RLO_FLEETTRANS, myString(destmsg) + ", ready to pick up stuff");
+	    _owner->add_message(RLO_FLEETTROK, myString(destmsg) + ", ready to pick up stuff");
 
 	else {
 	  if (game_map->are_allies(_owner, _destin->owner()))
-	    _owner->add_message(RLO_FLEETTRANS, myString(destmsg) + " (allied world)");
+	    _owner->add_message(RLO_FLEETTROK, myString(destmsg) + " (allied world)");
 
 	  else
 	    _owner->add_message(RLO_FLEETATTK, myString(destmsg) + " (ENEMY world)");
@@ -303,7 +303,7 @@ void fleet::check_data(void)
     } else if (!deltas) {
       // fleet aims for deep space
       if (_min.total() != 0 || _pop != 0)
-	_owner->add_message(RLO_FLEETTRANS, "Fleet " + _starsname +
+	_owner->add_message(RLO_FLEETTRBAD, "Fleet " + _starsname +
 			    " is going to deep space (but it has cargo!!)");
     }
 
@@ -334,7 +334,7 @@ void fleet::check_data(void)
       else
 	msg = "Fleet " + _starsname + " is NOT going to a planet (but it has cargo)!!";
 
-      _owner->add_message(RLO_FLEETTRANS, msg);
+      _owner->add_message(RLO_FLEETTRBAD, msg);
     }
 
     for (y = 1; y <= game_map->sim_future(); y++) {

@@ -3,6 +3,7 @@ WS = Wayne Smith
 
 Version 0.2g
 
+- activated racial report-log and starship design window.
 - altered internal management of messages: no more direct generation
   of report-log file.
 - added (non-functional) racial report window.

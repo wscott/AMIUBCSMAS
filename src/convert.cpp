@@ -234,7 +234,7 @@ bool convert(const myString& infile, const myString& outfile)
 	}
 
 	if (is_defined(NP_DRIVER)) {
-	  t += myString("\"") + fields[NP_DRIVER] + "\" " + fields[NP_WARP];
+	  t += myString(" \"") + fields[NP_DRIVER] + "\" " + fields[NP_WARP];
 	} else {
 	  t += " \"\" 0";
 	}

@@ -151,17 +151,17 @@ void graphics::display_handle_event(XEvent* ev)
       }
       break;
     case 'v':
-      if (sca_mask && CTRL_PRESSED)
-	mapview->select_fleet_view(MW_NEXT);
-      else
-	mapview->select_planet_view(MW_NEXT);
-      goto setview2;
+      mapview->select_planet_view(MW_NEXT);
+      goto setview_p;
     case 'V':
-      if (sca_mask && CTRL_PRESSED)
-	mapview->select_fleet_view(MW_PREV);
-      else
-	mapview->select_planet_view(MW_PREV);
-      goto setview2;
+      mapview->select_planet_view(MW_PREV);
+      goto setview_p;
+    case 'c':
+      mapview->select_fleet_view(MW_NEXT);
+      goto setview_f;
+    case 'C':
+      mapview->select_fleet_view(MW_PREV);
+      goto setview_f;
     case 'f':
       mapview->when(MW_NEXT);
       auto_redraw_map();
@@ -226,22 +226,27 @@ void graphics::display_handle_event(XEvent* ev)
       view = 11;
 
 setview:
-      if (sca_mask && CTRL_PRESSED)
-	mapview->select_fleet_view(view);
-      else
-	mapview->select_planet_view(view);
-setview2:
-      mapview->set_window_title();
       if (sca_mask && CTRL_PRESSED) {
-	showselected_ffunclist();
-	init_fle_number_menu();
-	load_ffunction();
+	mapview->select_fleet_view(view);
+	goto setview_p;
       } else {
-	showselected_pfunclist();
-	init_pla_number_menu();
-	load_pfunction();
+	mapview->select_planet_view(view);
+	goto setview_f;
       }
-	redraw_map();
+
+setview_p:
+      mapview->set_window_title();
+      showselected_pfunclist();
+      init_pla_number_menu();
+      load_pfunction();
+      redraw_map();
+      break;
+
+setview_f:
+      showselected_ffunclist();
+      init_fle_number_menu();
+      load_ffunction();
+      redraw_map();
       break;
     }
     break;

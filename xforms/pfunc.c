@@ -479,6 +479,7 @@ FD_PlanetSimulation *create_form_PlanetSimulation(void)
     fl_set_object_lsize(obj,FL_LARGE_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   fdui->messages = obj = fl_add_browser(FL_NORMAL_BROWSER,10,40,470,270,"");
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_YELLOW);
   fl_end_form();
 
   fdui->PlanetSimulation->fdui = fdui;
@@ -686,7 +687,7 @@ FD_IntroTitle *create_form_IntroTitle(void)
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fl_set_object_lstyle(obj,FL_FIXEDBOLDITALIC_STYLE);
-  obj = fl_add_text(FL_NORMAL_TEXT,280,40,110,30,"(27 Sep 1998)");
+  obj = fl_add_text(FL_NORMAL_TEXT,280,40,110,30,"(8 Nov 1998)");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_TOMATO);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
@@ -746,7 +747,7 @@ FD_RacialReport *create_form_RacialReport(FD_RR_RaceInfo* tf1,
     fl_addto_tabfolder(obj, "Report-log", tf2->RR_ReportLog);
     fl_addto_tabfolder(obj, "Simulation", tf3->RR_Comparisons);
     fl_addto_tabfolder(obj, "Ship designs", tf4->RR_DesignsObjects);
-  obj = fl_add_text(FL_NORMAL_TEXT,30,10,110,30,"Racial Report:");
+  obj = fl_add_text(FL_NORMAL_TEXT,30,5,110,30,"Racial Report:");
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fl_set_object_lstyle(obj,FL_BOLD_STYLE);
@@ -780,31 +781,37 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
   fdui->RR_RaceInfo = fl_bgn_form(FL_NO_BOX, 610, 290);
   obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
   obj = fl_add_text(FL_NORMAL_TEXT,490,10,80,20,"Player number:");
-    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lalign(obj,FL_ALIGN_RIGHT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,10,10,70,20,"Racial traits:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,160,100,20,"Technology levels:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,130,100,20,"Technology levels:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,10,210,100,20,"Terraforming tech:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,50,100,20,"Colonist efficiency:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,40,100,20,"Colonist efficiency:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,70,100,20,"Factories:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,60,100,20,"Factories:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,110,100,20,"Mines:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,80,100,20,"Mines:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,190,100,20,"Controlled planets:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,160,100,20,"Controlled planets:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,510,30,60,20,"Reliability:");
-    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,140,100,20,"Research cost:");
+    fl_set_object_lalign(obj,FL_ALIGN_RIGHT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,10,110,100,20,"Research cost:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_xyplot(FL_NORMAL_XYPLOT,390,80,210,200,"");
     fl_set_object_boxtype(obj,FL_DOWN_BOX);
     fl_set_object_color(obj,FL_BLACK,FL_WHITE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,90,140,20,"Max resources/100% world:");
+  obj = fl_add_text(FL_NORMAL_TEXT,170,80,140,20,"Max resources/100% world:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,390,60,120,20,"Habitability distribution:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,170,160,100,20,"Total Population:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,10,180,100,20,"Total Fleets:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,170,180,100,20,"Total ships::");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   fl_end_form();
 
@@ -817,11 +824,15 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
 FD_RR_ReportLog *create_form_RR_ReportLog(void)
 {
   FL_OBJECT *obj;
+  FL_OBJECT *workaround;
   FD_RR_ReportLog *fdui = (FD_RR_ReportLog *) fl_calloc(1, sizeof(*fdui));
 
   fdui->RR_ReportLog = fl_bgn_form(FL_NO_BOX, 610, 290);
-  //  obj = fl_add_box(FL_UP_BOX,0,0,610,290,"");
+  workaround = obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
   fdui->messages = obj = fl_add_browser(FL_NORMAL_BROWSER,10,10,590,270,"");
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_YELLOW);
+
+    fl_set_object_color(workaround,FL_BOTTOM_BCOL,7);
   fl_end_form();
 
   fdui->RR_ReportLog->fdui = fdui;
@@ -892,9 +903,9 @@ FD_RR_DesignsObjects *create_form_RR_DesignsObjects(void)
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fdui->minerals[i][0] = obj = fl_add_text(FL_NORMAL_TEXT,170,10 + 16*i,40,16,"Iron");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->minerals[i][0] = obj = fl_add_text(FL_NORMAL_TEXT,210,10 + 16*i,40,16,"Bora");
+    fdui->minerals[i][1] = obj = fl_add_text(FL_NORMAL_TEXT,210,10 + 16*i,40,16,"Bora");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->minerals[i][0] = obj = fl_add_text(FL_NORMAL_TEXT,250,10 + 16*i,40,16,"Germ");
+    fdui->minerals[i][2] = obj = fl_add_text(FL_NORMAL_TEXT,250,10 + 16*i,40,16,"Germ");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fdui->resources[i] = obj = fl_add_text(FL_NORMAL_TEXT,290,10 + 16*i,40,16,"Res");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);

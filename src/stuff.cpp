@@ -261,26 +261,27 @@ void object_display::reset_something(const int what)
 int message::msg_mask = 0;
 
 int message::color_table[31] = {
-  22,   // RLO_ERROR      
-  0,    // RLO_HABTABLE   
-  3,    // RLO_DATASRC    
-  0,    // RLO_EMPIRETOT  
-  17,   // RLO_FLEETDUP   
-  0,    // RLO_PLAREPORTS 
-  12,   // RLO_PLABUILD   
+  1,    // RLO_ERROR      
+  27,   // RLO_HABTABLE   
+  5,    // RLO_DATASRC    
+  7,    // RLO_EMPIRETOT  
+  16,   // RLO_FLEETDUP   
+  7,    // RLO_PLAREPORTS 
+  2,    // RLO_PLABUILD   
   1,    // RLO_PLASTATS   
-  10,   // RLO_PLAFLEETS  
-  2,    // RLO_PLAMINSTAT 
-  4,    // RLO_PLAPOPSTAT 
-  3,    // RLO_PLANETINI  
+  15,   // RLO_PLAFLEETS  
+  24,   // RLO_PLAMINSTAT 
+  6,    // RLO_PLAPOPSTAT 
+  23,   // RLO_PLANETINI  
   7,    // RLO_FLEETDEST  
-  12,   // RLO_FLEETTRANS 
-  12,   // RLO_FLEETCOLON 
-  8,    // RLO_FLEETATTK  
-  17,   // RLO_FLEETPARSE 
+  2,    // RLO_FLEETTROK 
+  18,   // RLO_FLEETCOLON 
+  3,    // RLO_FLEETATTK  
+  24,   // RLO_FLEETPARSE 
   1,    // RLO_FLEETCONS  
-  13,   // RLO_PLAQUEUE
-  27    // RLO_PLAABUILD
+  14,   // RLO_PLAQUEUE
+  3,    // RLO_PLAABUILD
+  23    // RLO_FLEETTRBAD
 };
 
 

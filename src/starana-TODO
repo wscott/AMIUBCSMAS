@@ -9,3 +9,7 @@ aggiungere le funzioni di packeting di un pianeta
 usare CRLF alla fine delle linee -> no, indicare che serve WORDPAD!!!!
 aggiungere member functions apply/selplanet(selfleet) alle pfunctions(ffunctions)
   serve per trasformare in leggibile un parametro numerico
+sistemare la Design window: aggiungerne una seconda per object / bases,
+  aggiungere un titolo, colorare i quadratini
+aggiungere una window per selezionare i message filters
+correggere il parsing dei nomi: NON assumere un blank prima di #

@@ -45,9 +45,16 @@ bool initialize_map(const myString& smff)
     return false;
 
   game_map->init_ownership();
+
+  if (do_display)
+    display->set_intro_loadingfile("Generating report-log....");
+
   game_map->log_all_messages();
 
   // initialize the default view
+  if (do_display)
+    display->set_intro_loadingfile("Initializing display....");
+
   mapview->initialize();
 
   // see if we have some planet view
@@ -204,6 +211,9 @@ void stars_map::sort_universe(void)
   int i, j;
   int region;
 
+  if (do_display)
+    display->set_intro_loadingfile("Planets: initial check....");
+
   for (p = unsorted_ptable; p; p = p->next) {
     if ( p->position() == _xypoint(0, 0) ) {
       log(p->_name + ": has undefined position?!? assuming 1200,1200\n");
@@ -242,8 +252,14 @@ void stars_map::sort_universe(void)
   // perform all checks
   check_planets_step1();
 
+  if (do_display)
+    display->set_intro_loadingfile("Fleets: processing....");
+
   // check fleets
   check_fleets();
+
+  if (do_display)
+    display->set_intro_loadingfile("Planets: simulation....");
 
   // count planets
   for (p = unsorted_ptable; p; p = p->next)
@@ -258,6 +274,10 @@ void stars_map::sort_universe(void)
     }
 
   evolve_planets();
+
+  if (do_display)
+    display->set_intro_loadingfile("Planets: final check....");
+
   check_planets_step2();
   empire_report();
 
@@ -875,10 +895,13 @@ race* stars_map::find_race(const myString& n)
 
 race* stars_map::find_race(const int id) const
 {
-  if (id < 0 || id > number_races)
-    return NULL;
+  int rid = id;
+  while (rid < 0)
+    rid += number_races;
+  while (rid >= number_races)
+    rid -= number_races;
 
-  race* r = race_list[id];
+  race* r = race_list[rid];
 
   return r;
 }

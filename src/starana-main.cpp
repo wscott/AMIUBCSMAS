@@ -37,7 +37,7 @@ int report_log_filter = 0
 
 void usage(void)
 {
-  puts("StarAna 0.2f7 -- 11 Oct 1998 -- usage:\n");
+  puts("StarAna 0.2f11 -- 8 Nov 1998 -- usage:\n");
   puts("starana [-a] [-v] [master .smf file]\n");
   puts("-a    just generate report-log and quit\n");
   puts("-v    open a window to ask for the master file\n");
@@ -52,7 +52,8 @@ int main(int argc, char** argv)
   int i;
 
   // simplify life to windog users
-  setenv("DISPLAY", "localhost:0.0", 0);
+  if (!getenv("DISPLAY"))
+    setenv("DISPLAY", "localhost:0.0", 0);
 
   for (i = 1; i < argc; i++)
     if (argv[i][0] == '-') {
