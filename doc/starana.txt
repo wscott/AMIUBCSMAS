@@ -185,6 +185,9 @@ to be Humanoids if you don't provide any information...).
 The map control window also gives access to additional windows /
 operations.
 
+By right-clicking on the race name you can bring up the racial report
+window, which cnotains information about the specified race.
+
 Two buttons are available for the planetary display control: a newbie
 user is STRONGLY advised to use the "list" function. You can play with
 the editor, but unless you have read (and understood) planets.txt
@@ -236,6 +239,14 @@ set the flag mask. You can enter numeric values for the 10 function
 parameters.
 NOTE: the display (and function used list) are not updated until you
 select another function or hit "apply".
+
+
+- Racial report window(s)
+
+....contain info about the race.....
+[to be written]
+
+
 
 
 - Planet status display

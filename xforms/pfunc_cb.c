@@ -500,3 +500,6 @@ void rrcb_close(FL_OBJECT *ob, long data)
 {
   display->hide_racialreport();
 }
+
+
+/* free object handlers */

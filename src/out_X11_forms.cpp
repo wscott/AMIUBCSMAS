@@ -477,6 +477,7 @@ void graphics::load_racialreport(const int rid)
   race* r = game_map->find_race(rid);
   int c, i;
   object* o;
+  myString str;
 
   fl_freeze_form(xf_rr->RacialReport);
   fl_freeze_form(xf_rrinfo->RR_RaceInfo);
@@ -489,6 +490,59 @@ void graphics::load_racialreport(const int rid)
 
   fl_set_object_label(xf_rr->race_isanalyzed, (r->do_analysis())? "A" : "");
   fl_set_object_label(xf_rr->race_issource, (r->gave_report())? "R" : "");
+
+  // race info form
+  str = r->prt_name() + " (" + r->lrt_name() + ")";
+  fl_set_object_label(xf_rrinfo->prt_lrt, str);
+  fl_set_object_label(xf_rrinfo->playern, int_to_str(rid+1));
+  fl_set_object_label(xf_rrinfo->reliability, int_to_str(r->reliability()));
+  str = "1/" + int_to_str(r->col_resource());
+  fl_set_object_label(xf_rrinfo->col_res, str);
+  fl_set_object_label(xf_rrinfo->factories, r->factory_stats());
+  fl_set_object_label(xf_rrinfo->mines, r->mine_stats());
+  fl_set_object_label(xf_rrinfo->res100pct, int_to_str(r->max_res_per_planet()));
+
+  for (i = 0; i < 6; i++) {
+    switch(r->tech_cost()[i]) {
+    case '0':
+      str = "+0%";
+      break;
+    case '+':
+      str = "+75%";
+      break;
+    case '-':
+      str = "-50%";
+      break;
+    }
+
+    fl_set_object_label(xf_rrinfo->techcost[i], str);
+    fl_set_object_label(xf_rrinfo->techlevel[i], int_to_str(r->tech_level()[i]));
+  }
+
+  fl_set_object_label(xf_rrinfo->techterra[0], int_to_str(r->terraform_tech()[Temp]));
+  fl_set_object_label(xf_rrinfo->techterra[1], int_to_str(r->terraform_tech()[Rad]));
+  fl_set_object_label(xf_rrinfo->techterra[2], int_to_str(r->terraform_tech()[Grav]));
+
+  fl_set_object_label(xf_rrinfo->totalplanets, int_to_str(r->owned_planets));
+  fl_set_object_label(xf_rrinfo->totalpop, 
+		      int_to_str(100 * (r->total_pop[0] + r->total_opop[0])));
+  fl_set_object_label(xf_rrinfo->totalfleets, int_to_str(r->number_fleets));
+  str = "Un:" + int_to_str(r->total_fleets[F_UNARMED]) +
+    + "  Sc:" + int_to_str(r->total_fleets[F_SCOUT]) +
+    + "  Wa:" + int_to_str(r->total_fleets[F_WARSHIP]) +
+    + "  Ut:" + int_to_str(r->total_fleets[F_UTILITY]) +
+    + "  Bo:" + int_to_str(r->total_fleets[F_BOMBER]) +
+    + "  TOT:" + int_to_str(r->total_fleets[F_TOTAL]);
+  fl_set_object_label(xf_rrinfo->shiptypes, str);
+
+  // FL_OBJECT *habdial[3];
+
+  str = int_to_str(r->explored_planets) + "/" + 
+    int_to_str(game_map->number_of_planets()) + " (" +
+    int_to_str(100 * r->explored_planets / game_map->number_of_planets()) + "%)";
+  fl_set_object_label(xf_rrinfo->explored, str);
+  // FL_OBJECT *explored;
+  // FL_OBJECT *habgraph;
 
   // report-log form
   fl_clear_browser(xf_rrlog->messages);

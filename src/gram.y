@@ -488,7 +488,7 @@ racespec: /* NULL */
       curr_race->mine_eff = r->mine_eff;
       curr_race->mine_cost = r->mine_cost;
       curr_race->mine_ctrl = r->mine_ctrl;
-      strcpy(curr_race->tech_cost, r->tech_cost);
+      strcpy(curr_race->techcost, r->techcost);
       memcpy(curr_race->tech, r->tech, sizeof(r->tech));
       curr_race->min_pop_move = r->min_pop_move;
     }
@@ -533,7 +533,7 @@ racespec: /* NULL */
     }
     | racespec TECH_COST STRING
     {
-      strncpy(curr_race->tech_cost, $3, 6);
+      strncpy(curr_race->techcost, $3, 6);
       free($3);
     }
     | racespec TECH expr expr expr expr expr expr

@@ -273,6 +273,9 @@ void stars_map::sort_universe(void)
       p->_owner->planet_table = p;
     }
 
+  for (i = 0; i < number_races; i++)
+    race_list[i]->owned_planets = race_planets[i];
+
   evolve_planets();
 
   if (do_display)
@@ -801,8 +804,13 @@ void stars_map::add_fleet(fleet* f, const int source)
 
   if (p > (const char*)fn && *p == '#') {
     // ok, got the number
-    f->_name = fn.before(p - (const char*)fn - 1);
-    sscanf(++p, "%d", &f->stars_id);
+    sscanf(p+1, "%d", &f->stars_id);
+
+    p--; // skip # and blanks before it
+    while (p > (const char*)fn && isspace(*p))
+      p--;
+
+    f->_name = fn.before(p - (const char*)fn + 1);
 
     // if source == owner then it's not an enemy fleet...
     if (source == owner)

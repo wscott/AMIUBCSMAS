@@ -876,6 +876,13 @@ void graphics::form_initial_update(void)
   }
   select_planetstatus(0);
 
+  // mineral colors: race ship designs
+  for (i = 0; i < 16; i++) {
+    fl_set_object_lcol(xf_rrdo->minerals[i][0], FL_FREE_COL1 + XFCOL_IRON+1);
+    fl_set_object_lcol(xf_rrdo->minerals[i][1], FL_FREE_COL1 + XFCOL_BORA);
+    fl_set_object_lcol(xf_rrdo->minerals[i][2], FL_FREE_COL1 + XFCOL_GERM);
+  }
+
   fl_set_input(xf_mc->future, "0");
   fl_set_input(xf_mc->scaneff, "100");
 

@@ -96,10 +96,10 @@ void fleet::check_data(void)
 
     if (cname == _starsname) {
       cname = _name;
-      _owner->add_message(RLO_FLEETPARSE, "Trying to parse: " + _starsname);
+      _owner->add_message(RLO_FLEETPARSE, "Trying to parse: '" + _starsname + "'");
     } else    
-      _owner->add_message(RLO_FLEETPARSE, "Trying to parse: " + cname +
-			   " (alias of " + _starsname + ")");
+      _owner->add_message(RLO_FLEETPARSE, "Trying to parse: '" + cname +
+			   "' (alias of " + _starsname + ")");
 
     // check for single design
     if ( (d = _owner->find_design(cname)) ) {

@@ -25,22 +25,28 @@ void stars_map::check_planets_step1(void)
       p->add_message(RLO_DATASRC, p->name() + ": authoritative source " + 
 		     race_list[p->auth_source]->name() + " assumed trusted for simulation");
     } else {
-      for (p->rep_age = 20000, i = 0; i < number_races; i++)
-	if (p->r_age[i] < 10000 && p->r_age[i] < p->rep_age) {
-	  p->rep_age = p->r_age[i];
-	  p->trusted_source = i;
-	} else if (p->r_age[i] == p->rep_age) {
-	  if ( (race_list[i]->reliab + 10*(i == p->auth_source)) >
-	       (race_list[p->trusted_source]->reliab + 10*(p->trusted_source == p->auth_source))) {
+      for (p->rep_age = 20000, i = 0; i < number_races; i++) {
+	// add to race explored total (if explored, of course)
+	if (p->r_age[i] < 10000) {
+	  race_list[i]->explored_planets++;
 
-	    p->add_message(RLO_DATASRC, p->name() + ": " + race_list[i]->name() +
-			   " data preferred over " + race_list[p->trusted_source]->name());
-
+	  if (p->r_age[i] < p->rep_age) {
+	    p->rep_age = p->r_age[i];
 	    p->trusted_source = i;
-	  } else
-	    p->add_message(RLO_DATASRC, p->name() + ": " + race_list[p->trusted_source]->name() + 
-			   " data preferred over " + race_list[i]->name() + " data\n");
+	  } else if (p->r_age[i] == p->rep_age) {
+	    if ( (race_list[i]->reliab + 10*(i == p->auth_source)) >
+		 (race_list[p->trusted_source]->reliab + 10*(p->trusted_source == p->auth_source))) {
+
+	      p->add_message(RLO_DATASRC, p->name() + ": " + race_list[i]->name() +
+			     " data preferred over " + race_list[p->trusted_source]->name());
+
+	      p->trusted_source = i;
+	    } else
+	      p->add_message(RLO_DATASRC, p->name() + ": " + race_list[p->trusted_source]->name() + 
+			     " data preferred over " + race_list[i]->name() + " data\n");
+	  }
 	}
+      }
     }
 
     if (p->trusted_source == -1) {
@@ -332,7 +338,24 @@ void stars_map::empire_report(void)
   for (i = 0; i < number_races; i++) {
     r = race_list[i];
 
-    if (!r->can_analyze || race_planets[i] == 0)
+    // reports possible for all races
+    // total number of fleets
+    for (f = r->fleet_table; f; f = f->rnext) {
+      r->number_fleets++;
+
+      for (y = 0; y < 6; y++)
+	r->total_fleets[y] += f->n_ships(y);
+    }
+
+    // if can't analyze spread year 0 pop
+    if (!r->can_analyze) {
+      for (p = race_list[i]->planet_table; p; p = p->rnext)
+	r->total_pop[0] += p->population(0)/ 100;
+
+      continue;
+    }
+
+    if (race_planets[i] == 0) // why bother?
       continue;
 
     msg = "************** Report of " + r->name() + " empire";

@@ -363,6 +363,7 @@ bool convert(const myString& infile, const myString& outfile)
       t = myString(fields[NF_UNARMED]) + " " + myString(fields[NF_SCOUT]) + " " +
 	myString(fields[NF_WARSHIP]) + " " + myString(fields[NF_UTILITY]) + " " +
 	myString(fields[NF_BOMBER]);
+      PRINT("composition", t);
 
       // now check (and add) any additional info
       if (is_defined(NF_IRON) || is_defined(NF_BORA) || 

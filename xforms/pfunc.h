@@ -281,6 +281,23 @@ typedef struct {
 	void *vdata;
 	char *cdata;
 	long  ldata;
+	FL_OBJECT *techterra[3];
+	FL_OBJECT *habgraph;
+	FL_OBJECT *prt_lrt;
+	FL_OBJECT *col_res;
+	FL_OBJECT *factories;
+	FL_OBJECT *mines;
+	FL_OBJECT *res100pct;
+	FL_OBJECT *techcost[6];
+	FL_OBJECT *techlevel[6];
+	FL_OBJECT *totalplanets;
+	FL_OBJECT *totalpop;
+	FL_OBJECT *totalfleets;
+	FL_OBJECT *shiptypes;
+	FL_OBJECT *habdial[3];
+	FL_OBJECT *explored;
+	FL_OBJECT *playern;
+	FL_OBJECT *reliability;
 } FD_RR_RaceInfo;
 
 extern FD_RR_RaceInfo * create_form_RR_RaceInfo(void);

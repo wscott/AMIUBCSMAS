@@ -55,12 +55,13 @@ race::race(const myString& n, const int i) :
 	    _prt(SD), min_pop_move(100), maxpop(1000000),
 	    default_queue(NULL), object_table(NULL),
 	    fleet_table(NULL), planet_table(NULL), 
+	    number_fleets(0), explored_planets(0), owned_planets(0),
 	    curr_year(0)
 {
   hab_min[Grav] = hab_min[Temp] = hab_min[Rad] = -100;
   hab_max[Grav] = hab_max[Temp] = hab_max[Rad] = -100;
 
-  strcpy(tech_cost, "000000");
+  strcpy(techcost, "000000");
 
   for (int j = 0; j < 16; j++)
     lrt_tab[j] = false;
@@ -92,7 +93,42 @@ race::race(const myString& n, const int i) :
     total_rsrch[k] = 0;
   }
 
+  for (int k = 0; k < 6; k++)
+    total_fleets[k] = 0;
   // %%%%%%%%%%%% missing stuff
+}
+
+
+myString race::lrt_name(void) const
+{
+  myString s;
+  int i;
+
+  for (i = 0; i < 14; i++)
+    if (lrt((lrt_type)i)) {
+      if (s.length())
+	s += ' ';
+      s += lrt_names[i];
+    }
+
+  return s;
+}
+
+
+myString race::factory_stats(void) const
+{
+  return int_to_str(fact_res) + "/" +
+    int_to_str(fact_cost) + "/" +
+    int_to_str(fact_ctrl) + " (" +
+    int_to_str(fact_germ) + " germ)";
+}
+
+
+myString race::mine_stats(void) const
+{
+  return int_to_str(mine_eff) + "/" +
+    int_to_str(mine_cost) + "/" +
+    int_to_str(mine_ctrl);
 }
 
 

@@ -777,6 +777,7 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
 {
   FL_OBJECT *obj;
   FD_RR_RaceInfo *fdui = (FD_RR_RaceInfo *) fl_calloc(1, sizeof(*fdui));
+  int i;
 
   fdui->RR_RaceInfo = fl_bgn_form(FL_NO_BOX, 610, 290);
   obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
@@ -786,33 +787,96 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,10,130,100,20,"Technology levels:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,210,100,20,"Terraforming tech:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,150,100,20,"Terraforming tech:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,40,100,20,"Colonist efficiency:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,40,70,20,"Colonist eff.:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,60,100,20,"Factories:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,60,70,20,"Factories:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,80,100,20,"Mines:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,80,70,20,"Mines:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,160,100,20,"Controlled planets:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,240,100,20,"Controlled planets:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,510,30,60,20,"Reliability:");
     fl_set_object_lalign(obj,FL_ALIGN_RIGHT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,10,110,100,20,"Research cost:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_xyplot(FL_NORMAL_XYPLOT,390,80,210,200,"");
+  fdui->habgraph = obj = fl_add_xyplot(FL_NORMAL_XYPLOT,390,80,210,200,"");
     fl_set_object_boxtype(obj,FL_DOWN_BOX);
     fl_set_object_color(obj,FL_BLACK,FL_WHITE);
   obj = fl_add_text(FL_NORMAL_TEXT,170,80,140,20,"Max resources/100% world:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,390,60,120,20,"Habitability distribution:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,170,160,100,20,"Total Population:");
+  obj = fl_add_text(FL_NORMAL_TEXT,170,240,100,20,"Total Population:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,10,180,100,20,"Total Fleets:");
+  obj = fl_add_text(FL_NORMAL_TEXT,10,260,100,20,"Total Fleets:");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,170,180,100,20,"Total ships::");
+
+  fdui->prt_lrt = obj = fl_add_text(FL_NORMAL_TEXT,80,10,180,20,"");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->col_res = obj = fl_add_text(FL_NORMAL_TEXT,80,40,80,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->factories = obj = fl_add_text(FL_NORMAL_TEXT,80,60,120,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->mines = obj = fl_add_text(FL_NORMAL_TEXT,80,80,80,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->res100pct = obj = fl_add_text(FL_NORMAL_TEXT,310,80,70,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->totalplanets = obj = fl_add_text(FL_NORMAL_TEXT,110,240,50,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->totalpop = obj = fl_add_text(FL_NORMAL_TEXT,260,240,110,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->totalfleets = obj = fl_add_text(FL_NORMAL_TEXT,80,260,30,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->shiptypes = obj = fl_add_text(FL_NORMAL_TEXT,110,260,270,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_ITALIC_STYLE);
+  fdui->explored = obj = fl_add_text(FL_NORMAL_TEXT,510,60,90,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->playern = obj = fl_add_text(FL_NORMAL_TEXT,570,10,30,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->reliability = obj = fl_add_text(FL_NORMAL_TEXT,570,30,30,20,"");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+
+  for (i = 0; i < 6; i++) {
+    fdui->techcost[i] = obj = fl_add_text(FL_NORMAL_TEXT,110 + i*40,110,40,20,"");
+      fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+      fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+    fdui->techlevel[i] = obj = fl_add_text(FL_NORMAL_TEXT,110 + i*40,130,40,20,"");
+      fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+      fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  }
+
+  fdui->techterra[0] = obj = fl_add_text(FL_NORMAL_TEXT,110,150,40,20,"");
+    fl_set_object_lcolor(obj,FL_RED);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->techterra[1] = obj = fl_add_text(FL_NORMAL_TEXT,150,150,40,20,"");
+    fl_set_object_lcolor(obj,FL_GREEN);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->techterra[2] = obj = fl_add_text(FL_NORMAL_TEXT,190,150,40,20,"");
+    fl_set_object_lcolor(obj,FL_BLUE);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+
+    /*  fdui->habdial[0] = obj = fl_add_free(FL_NORMAL_FREE,20,170,360,20,"",
+			freeobj_gravdial_handle);
+  fdui->habdial[1] = obj = fl_add_free(FL_NORMAL_FREE,20,190,360,20,"",
+			freeobj_tempdial_handle);
+  fdui->habdial[2] = obj = fl_add_free(FL_NORMAL_FREE,20,210,360,20,"",
+  freeobj_raddial_handle); */
   fl_end_form();
 
   fdui->RR_RaceInfo->fdui = fdui;
@@ -824,15 +888,16 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
 FD_RR_ReportLog *create_form_RR_ReportLog(void)
 {
   FL_OBJECT *obj;
-  FL_OBJECT *workaround;
   FD_RR_ReportLog *fdui = (FD_RR_ReportLog *) fl_calloc(1, sizeof(*fdui));
 
   fdui->RR_ReportLog = fl_bgn_form(FL_NO_BOX, 610, 290);
-  workaround = obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
+  obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
   fdui->messages = obj = fl_add_browser(FL_NORMAL_BROWSER,10,10,590,270,"");
     fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_YELLOW);
+  
+  // workaround
+  obj = fl_add_box(FL_FLAT_BOX,1,1,1,1,"");
 
-    fl_set_object_color(workaround,FL_BOTTOM_BCOL,7);
   fl_end_form();
 
   fdui->RR_ReportLog->fdui = fdui;
@@ -894,24 +959,41 @@ FD_RR_DesignsObjects *create_form_RR_DesignsObjects(void)
   fdui->RR_DesignsObjects = fl_bgn_form(FL_NO_BOX, 610, 290);
   obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
 
+  obj = fl_add_text(FL_NORMAL_TEXT,10,8,20,16,"#");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,30,8,140,16,"Design name");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,170,8,40,16,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,210,8,40,16,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,250,8,40,16,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,290,8,40,16,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,330,8,50,16,"Mass");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,380,8,100,16,"Base hull");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+
   for (i = 0; i < 16; i++) {
     sprintf(val, "%d", i+1);
-    obj = fl_add_text(FL_NORMAL_TEXT,10,10 + 16*i,20,16,val);
+    obj = fl_add_text(FL_NORMAL_TEXT,10,26 + 16*i,20,16,val);
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     sprintf(val, "Design name %d", i+1);
-    fdui->design[i] = obj = fl_add_text(FL_NORMAL_TEXT,30,10 + 16*i,140,16,val);
+    fdui->design[i] = obj = fl_add_text(FL_NORMAL_TEXT,30,26 + 16*i,140,16,val);
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->minerals[i][0] = obj = fl_add_text(FL_NORMAL_TEXT,170,10 + 16*i,40,16,"Iron");
+    fdui->minerals[i][0] = obj = fl_add_text(FL_NORMAL_TEXT,170,26 + 16*i,40,16,"Iron");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->minerals[i][1] = obj = fl_add_text(FL_NORMAL_TEXT,210,10 + 16*i,40,16,"Bora");
+    fdui->minerals[i][1] = obj = fl_add_text(FL_NORMAL_TEXT,210,26 + 16*i,40,16,"Bora");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->minerals[i][2] = obj = fl_add_text(FL_NORMAL_TEXT,250,10 + 16*i,40,16,"Germ");
+    fdui->minerals[i][2] = obj = fl_add_text(FL_NORMAL_TEXT,250,26 + 16*i,40,16,"Germ");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->resources[i] = obj = fl_add_text(FL_NORMAL_TEXT,290,10 + 16*i,40,16,"Res");
+    fdui->resources[i] = obj = fl_add_text(FL_NORMAL_TEXT,290,26 + 16*i,40,16,"Res");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->weight[i] = obj = fl_add_text(FL_NORMAL_TEXT,330,10 + 16*i,50,16,"weight");
+    fdui->weight[i] = obj = fl_add_text(FL_NORMAL_TEXT,330,26 + 16*i,50,16,"Mass");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-    fdui->basehull[i] = obj = fl_add_text(FL_NORMAL_TEXT,380,10 + 16*i,100,16,"(base hull)");
+    fdui->basehull[i] = obj = fl_add_text(FL_NORMAL_TEXT,380,26 + 16*i,100,16,"(base hull)");
       fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   }
   fl_end_form();

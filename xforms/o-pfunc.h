@@ -1,4 +1,4 @@
-/** Header file generated with fdesign on Sun Nov  8 11:40:16 1998.**/
+/** Header file generated with fdesign on Wed Nov 11 10:30:39 1998.**/
 
 #ifndef FD_PlanetaryFunction_h_
 #define FD_PlanetaryFunction_h_
@@ -50,6 +50,12 @@ extern void pfcb_fastkiller(FL_OBJECT *, long);
 
 
 
+extern int freeobj_gravdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+			int, void *);
+extern int freeobj_tempdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+			int, void *);
+extern int freeobj_raddial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+			int, void *);
 
 
 
@@ -318,6 +324,37 @@ typedef struct {
 	void *vdata;
 	char *cdata;
 	long  ldata;
+	FL_OBJECT *terrarad;
+	FL_OBJECT *habgraph;
+	FL_OBJECT *prt_lrt;
+	FL_OBJECT *col_res;
+	FL_OBJECT *factories;
+	FL_OBJECT *mines;
+	FL_OBJECT *res100pct;
+	FL_OBJECT *costen;
+	FL_OBJECT *techen;
+	FL_OBJECT *totalplanets;
+	FL_OBJECT *totalpop;
+	FL_OBJECT *totalfleets;
+	FL_OBJECT *shiptypes;
+	FL_OBJECT *terratemp;
+	FL_OBJECT *gravdial;
+	FL_OBJECT *tempdial;
+	FL_OBJECT *raddial;
+	FL_OBJECT *explored;
+	FL_OBJECT *playern;
+	FL_OBJECT *reliability;
+	FL_OBJECT *costwp;
+	FL_OBJECT *techwe;
+	FL_OBJECT *costpr;
+	FL_OBJECT *techpr;
+	FL_OBJECT *terragrav;
+	FL_OBJECT *costco;
+	FL_OBJECT *techco;
+	FL_OBJECT *costel;
+	FL_OBJECT *techel;
+	FL_OBJECT *costbi;
+	FL_OBJECT *techbi;
 } FD_RR_RaceInfo;
 
 extern FD_RR_RaceInfo * create_form_RR_RaceInfo(void);

@@ -440,6 +440,7 @@ class race {
   friend class map_view;
   friend void check_auth_source(const char* item);
   friend int yyparse(void);
+  friend void graphics::load_racialreport(const int rid);
 
 static int fibonacci[26];
 static myString lrt_names[14];
@@ -465,7 +466,7 @@ static myString prt_names[10];
   int mine_ctrl;
   int tech[SIM_FUTURE][6];
   int tech_tonext[SIM_FUTURE][6];
-  char tech_cost[7];
+  char techcost[7];
   int tech_research[SIM_FUTURE];
   int tform_tech[SIM_FUTURE][3];
   prt_type _prt;
@@ -499,6 +500,13 @@ static myString prt_names[10];
   int total_res[SIM_FUTURE];
   int total_rsrch[SIM_FUTURE];
 
+  // this is year-independent
+  int total_fleets[6];
+  int number_fleets;
+
+  int explored_planets;
+  int owned_planets;
+
   int curr_year;
 
   // report-log messages to put in window
@@ -521,14 +529,21 @@ public:
     { return can_analyze; }
   bool gave_report(void) const
     { return has_report; }
+  int reliability(void) const
+    { return reliab; }
   void output(FILE* of) const;
   //  void report(const report_type rt, FILE* of) const;
   bool lrt(lrt_type lt) const
     { return lrt_tab[lt]; }
   prt_type prt(void) const
     { return _prt; }
+  myString lrt_name(void) const;
+  myString prt_name(void) const
+    { return prt_names[(int)_prt]; }
   int race_id(void) const
     { return id; }
+  int col_resource(void) const
+    { return col_res; }
   int max_res_per_planet(void) const
     { return maxres; }
   int max_pop_per_planet(void) const
@@ -537,6 +552,8 @@ public:
     { return maxfact; }
   int max_mine_per_planet(void) const
     { return maxmine; }
+  myString factory_stats(void) const;
+  myString mine_stats(void) const;  
   object* add_object(const myString& n, const int r, const int i, const int b, const int g);
   object* create_object(const myString& n);
   design* create_design(const myString& n);
@@ -552,6 +569,10 @@ public:
   int pla_penscan_radius(int when = 0) const;
   int pla_scan_radius(int when = 0) const;
   void set_terraform_tech(int when = 0);
+  const char* tech_cost(void) const
+    { return techcost; }
+  const int* tech_level(int when = 0)
+    { return tech[when]; }
   const int* terraform_tech(int when = 0)
     { return tform_tech[when]; }
   void set_minimal_objects(void);
@@ -1245,6 +1266,8 @@ public:
   bool are_allies(const race* r1, const race* r2);
   int number_of_players(void)
     { return number_races; }
+  int number_of_planets(void)
+    { return total_planets; }
   void add_message(const _msgtype mt, const myString& m);
   void all_races_message(const _msgtype mt, const myString& m);
 };
