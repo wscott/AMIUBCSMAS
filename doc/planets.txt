@@ -15,13 +15,15 @@ compose the different pieces of information.
 When a planetary map is requested, a sequence of operations is
 performed to associate some "display data" to every planet. The
 display data defines how the planet will be represented on-screen.
-The display data is composed of 5+1 parts:
-- the circles
-- the marker
-- the lines
-- the data
-- the name
-(- the flag)
+The display data is composed of 6 parts. Each part will 
+be referred to by it first letter in the plantary function editor:
+
+- the circles  C
+- the marker   M
+- the lines    L
+- the data     D
+- the name     N
+- the flag     F
 
 The circles represent circles drawn around the planet, filled to
 indicate scanner ranges and empty for gates, for example.
@@ -35,9 +37,8 @@ The lines are lines starting from the planet towards some destination
 
 The name is placed below the marker/data.
 
-The flag is in parentheses because it doesn't really act on the
-display, but can be used to perform interesting composition of
-functions.
+The flag is not really part of the data that is displayed, but can be
+used to perform interesting composition of functions.
 
 A planetary function takes a planet and then generates the display
 data.  The actual effect depends very much on the function:
@@ -51,31 +52,28 @@ filter the display information associated to a planet according to
 some condition. See at the end of the file for a complete list of
 planetary functions.
 
-Invocation of planetary functions can be dependent on what happened
-before.  There are several modes of operation:
+Invocation of planetary functions can depend on what display
+data is already present. You can specify a condition with the
+modes: Never / Always / Defined (all) / Undefined (some)
 
-skip
-stomp
-and
-or
+'Never' just ignores the function and moves to the next, useful in testing.
+'Always' executes the function on the planet regardless of anything.
+'Defined (all)' executes the function only if all of the requested
+  data items are present.
+'Undefined (some)' is the opposite of 'Defined'. It calls the function 
+  only if some of the requested data items are not already present.
 
-'Skip' just ignores the function and moves to the next, useful in testing.
-'Stomp' executes the function on the planet regardless of anything.
-'And' executes the function only if 'something' is already defined in
-the display data for that planet.
-'Or' is the opposite of and, it calls the function only if 'something'
-is undefined.
+The data items can be specified by the push buttons just right to
+the mode. They are labelled by the first letter of the
+display data item ([C]ircle, [M]arker, etc.) as explained above.
 
-The 'something' can be chosen to be any combination of
-marker/data/name/etc.  It is represented by the push buttons
-immediately to the right of the mode, which are labelled using the
-first letter of the "something".
-A pressed button indicates an activated "something".
 Examples:
-"and" and only "F" (for flag) pressed means that this function
+
+'Defined (all)' and only 'F' (for flag) pressed means that this function
 will be executed on planets which have flag set.
-"or" and only "M" (for marker) will execute function only on
-planets without marker defined.
+'Undefined (some)' and 'M' (for marker) and 'N' (for name) will execute 
+the function only on planets that have no marker or no name (or neither
+of them).
 
 Even worse, a function can have parameters (16 internally, but only 10
 accessible right now). They control the way the function operates. Their name
@@ -90,17 +88,20 @@ them to see how the "bricks" are put together to obtain the result.
 FUNCTIONS vs. FILTERS
 
 There are two main classes of functions: real functions (they ADD
-stuff) and filters (they KILL stuff).  Note that both of them are
-subject to stomp/and/or and so you can create pretty complex things.
+display items, i.e. make them defined) and filters (they REMOVE items,
+making them undefined).  Note that both of them are
+subject to the condition, so you can create pretty complex effects.
+
 Functions do what they say they do, regardless of anything. In
 addition to altering the display information they operate on they also
 set the flag to true for any planet where they do something. If they
 can't operate on the planet (e.g. lack of info) then flag is left
-untouched. Functions stomp any previous data: set marker kills any
+untouched. Functions replace any previous data: "Set marker" kills any
 marker previously defined. "Population" followed by "habitability"
 will result in habitability, with the population data getting
 destroyed. No incompatibility exists for two different "types" of
-display information: set marker doesn't mess with data, circles, etc.
+display information: "set marker" does not touch the data, circles,
+etc. items.
 
 Filters are different. They can be used in two main ways: kill and
 flag.  All filters have a parameter 1 called "fields affect mask"
@@ -139,34 +140,34 @@ First of all, let's set a square marker at all inhabited worlds:
 
 
 * Filter: owner
-* Stomp mode
+* 'Always' condition
 * Race = -1 (anyone)
 * No affect mask (select)
 
 * Set Marker
-* And mode (on flag) - to operate only on planets selected by filter
+* 'Defined' condition (on Flag) - to operate only on planets selected by filter
 * Marker type 3 (a box)
 
 We now have markers on all inhabited worlds, let's add the name to
 those worlds, leaving the uninhabiteds out.
 
 * Set Planet Name
-* And mode (on flag)
+* 'Defined' condition (on Flag)
 
 Ok, now we turn name into owner color with the appropriate function:
 
 * Color: name
-* And mode (on flag)
+* 'Defined' condition (on Flag)
 * Color = 0 (i.e. color of owner)
 
 Now let's add the actual surface minerals pie for the viewpoint:
 
 * Filter: owner
-* Stomp mode (i.e. ignore anything occurred before)
+* 'Always' condition (i.e. ignore anything occurred before)
 * Race = 0 (viewpoint)
 
 * Surface Minerals
-* And mode (on flag) - to operate only on viewpoint's planets
+* 'Defined' condition (on Flag) - to operate only on viewpoint's planets
 * Full circle at 0kT (which means use default value)
 
 Ok, we now have a problem: data and marker are non-exclusive, so if we
@@ -174,19 +175,19 @@ end here we will have the pie of the surface minerals with a white box
 marker on it. Since we don't want the marker we just kill it:
 
 * Filter: unconditional
-* And mode (on flag)
+* 'Defined' condition (on Flag)
 * Affect mask: 000100 (i.e. kill the marker)
 
 In order to have a less sparse map we add a point at all the
 uninhabited planets:
 
 * Set Marker
-* Or mode (on data or marker)
+* 'Undefined' condition (on Data or Marker)
 * Marker type = 1 (i.e. the dot)
 
-The "or" makes the function be executed only on planets that DON'T
-have nor data nor marker associated to them.  If we had set it to be
-"or on name" we would have obtained the same effect.
+The 'Undefined' makes the function be executed only on planets that DON'T
+have neither data nor marker associated to them.  If we had set it to be
+'Undefined (on Name)' we would have obtained the same effect.
 
 Easy, isn't it? :)
 
@@ -664,3 +665,4 @@ then appear on the map.  Then add your source file in the list of the
 PFMODULES in the Makefile and type make. 
 Usually, the easiest way is to find a function already defined which
 'almost' does what you want, copy and then hack it.
+

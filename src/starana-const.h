@@ -1,7 +1,7 @@
 #include "myString.h"
 
-const myString STARANA_VERSION = "0.2g3";
-const myString STARANA_RELDATE = "6 Dec 1998";
+const myString STARANA_VERSION = "0.2g4";
+const myString STARANA_RELDATE = "8 Dec 1998";
 
 
 #define SIM_FUTURE 52

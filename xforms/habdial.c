@@ -73,9 +73,12 @@ int handle_habdial(FL_OBJECT* ob, int event,
   int xmin, xmax;
   int habcenter, habhwidth;
   const habdial_private* environment = (habdial_private*)ob->spec;
+  GC gc = fl_state[fl_get_vclass()].gc[0];
 
   switch(event) {
   case FL_DRAW:
+    XSetLineAttributes(fl_get_display(),gc,1,LineSolid,CapProjecting,JoinRound);
+
     // immune -> all green
     if (environment->habmin == -1) {
       fl_rectf(ob->x, ob->y+1, ob->w, ob->h-2, FL_GREEN);

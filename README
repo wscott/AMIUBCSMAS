@@ -1,5 +1,31 @@
 Welcome to the 25 Nov 1998 version of AMIUBCSMAS/StarAna.
+This readme files summarizes the contents of the other files in this
+directory. If you are new to StarAna, read the file starana.txt
+first of all.
 
+advert.txt
+  The advertisement you have probably already seen. Describes
+  some features of StarAna in a very brief fashion.
+
+fleets.txt
+  Describes the function for specifying fleet views. You should read
+  planets.txt first.
+
+install.txt
+  Help for installing StarAna under Windows and Linux
+
+planets.txt
+  Explains how to assemble functions to generate planetary views.
+
+rules
+  FIXME (Alberto ?) Probably the rules for the simulation.
+
+starana.txt
+  The main help file for StarAna.
+
+technicalia.txt
+  Describes the input file format in detail. Also gives some general
+  information about the internals of StarAna.
 Ok, so you know how to decompress the archive......it's a good sign.
 
 If you downloaded just a component you should know that the package is

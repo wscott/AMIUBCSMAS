@@ -26,7 +26,7 @@ This is the "user guide", you should check:
 
 
 
-WHAT THIS PROGRAM IS
+1. WHAT THIS PROGRAM IS
 
 AMIUBCSMAS/StarAna is a program to:
 
@@ -64,7 +64,7 @@ Mapper, Analyzer and Simulator
 	-> ....were explained above
 
 
-RUNNING STARANA
+2. RUNNING STARANA
 
 WIN95 QUICK START: create a shortcut to "starana" and put it on your
 desktop.  Click on it to obtain a file selector asking you for the
@@ -97,7 +97,7 @@ I usually run from shell in linux, but I use a shortcut in windows.
 
 
 
-USING AMIUBCSMAS/STARANA
+3. USING AMIUBCSMAS/STARANA
 
 Using the program includes three separate steps:
 
@@ -109,14 +109,17 @@ Using the program includes three separate steps:
   report files. The perl script is UNABLE to handle the 2.6i files
   (due to the screwed header) and then you must use auto-conversion.
 
-- running the program to generate the report-log file which includes
-  the checks/simulation/analysis;
+- Starting the program to generate the 'report-log' file that
+  logs the result of the simulation.
 
-- playing with the graphical and report windows to see the various map
-  representations and the simulation results.
+- Evaluating the results by either using at the data in the 'report-log'
+  file or (much better) by letting StarAna display this information
+  graphically in various windows. That will also allow you to judge
+  the current situation in the game, if you are not interested in
+  a simulation of the future.
 
 
-FORMAT OF THE INPUT FILE
+3.1 PREPARING THE INPUT FILES
 
 The format of the input files is quite complex, in order to allow most
 stuff to be given to the program with a human-readable syntax.  Unless
@@ -156,15 +159,59 @@ sa-complex.smf. This example file is for the same universe, but it
 includes all the ship design information needed to properly handle
 fleets.
 
+3.2 GENERATING THE SIMULATION DATA
 
-PLAYING WITH THE MAP DISPLAY
+Normally, you will just type 'starana <master file>' or execute the
+command 'starana -v' from your desktop. That will run the simulation,
+write the results in the file 'report-log' in the current directory
+and then show the map window to help you evaluating the results.
 
-When the map appears on-screen you can play with it in several ways.
-You can use key shortcuts (see list below) or hit the right mouse
-button to bring up the map control window.
+If you just want to examine the results of the simulation as 
+text, you can also use the '-a' option as described above.
 
+3.3 EVALUATING RESULTS
 
-- Map Control Window
+When you startup StarAna, after the simulation finishes
+you will see the map window. In this window, you will be able
+to examine graphically most of the data that is related to the
+game. To control what you see, you can popup several other windows.
+Here's an overview of these windows and their relations:
+
+* Map Window - visualizes data.
+  -> Popup 'Planet Window' by left clicking on planet
+  -> Popup 'Map Control Window' by right clikcing anywhere
+
+* Map Control Window - main control for StarAna
+  -> Popup 'Race Report Window' by right clicking on race name
+  -> Open/close the 'Planetary/Fleet Views/Function Editor' windows by
+     pressing the appropriate List/Edit button
+  -> Quit StarAna by using the button
+
+* Planetary Views - select a way to visualize planetary data
+  -> Open/close the 'Planetery-View Editor' using the button
+
+* Planetary Function Editor - edit a function to visualize planetary data
+
+* Fleet Views - select a way to visualize fleets
+  -> Open/close the 'Fleet-View Editor' using the button
+
+* Fleet Function Editor - edit a function to visualize fleets
+
+* Race Window - show various data related to a race, such
+    as hab range, simulation data, and designs.
+
+* Planet Status display - show information about one planet
+  -> 'Packet firing'
+  -> 'Ship gating'
+
+* Packet firing- form to simulate flinging of mineral packets
+
+* Ship gating - form to simulate damage by overgating
+
+You can also use key shortcuts (see list below) to navigate between
+the windows.
+
+3.3.1 The Map Control Window
 
 This window is the "primary" window for controlling the map display.
 It includes buttons to zoom in and out, scroll around, reset to full
@@ -200,8 +247,7 @@ explanation of the two buttons immediately to the right... :)
 There's a nice "quit" button, in the lower right corner, too....
 
  
-- Planetary view list
-  (Fleet view list windows is identical)
+3.3.2 The Planetary Views
 
 This window is the simplest interface to planetary displays. It gives
 you a list of the available planetary view functions. Just click on
@@ -230,23 +276,38 @@ Somehow more "advanced"
          one view you will not be able to delete the last one.
        
 
-- Planetary function editor
-  (Fleet function editor windows is identical)
+3.3.3 The Planetary Function Editor
 
 Allows you to alter the planetary functions used for the current
-planetary display. Read planets.txt (or fleets.txt).
+planetary display. Read planets.txt .
 
-Clicking on the number brings up the list of functions used, while
-clicking on the name opens a menu of all the available functions.  You
-can control mode with the choice which is below the description and
-set the flag mask. You can enter numeric values for the 10 function
-parameters.
+Basically, a sequence of function is performed to affect the display
+and the map window. You edit just one step at a time.  The number of
+the step is shown on the upper left. If you click this number, you
+will see a list of the current 'program', where you can select other
+steps.  Clicking on the name opens a menu of all the available
+functions.
+
+For the current step, you can specify the condition when the
+function will be applied. The letters CLMNDF refer to display data
+that is associated with a planet. The presence of absence of this
+data can be part of the condition.
+
+For the function itself, you can enter numeric values for the ten
+parameters. The meaning of each parameter is part of the function
+description.
+
 NOTE: the display (and function used list) are not updated until you
 select another function or hit "apply". "Cancel" will undo the changes
 you have done to the function currently displayed.
 
+3.3.4 The Fleet View List and Fleet View Function Editor
 
-- Racial report window(s)
+These windows are very similary to their 'planetary' counterparts.
+Details on how the fleet functions work can be found in the file
+'fleets.txt'.
+
+3.3.5 The Racial report window(s)
 
 The racial report window is a tabbed folder containing the information
 about the race. A good part of it is the stuff you typed in in the
@@ -269,7 +330,7 @@ The folders are:
 	it to force an update of the report-log folder.
 
 
-- Planet status display
+3.3.6 The Planet status display
 
 This window is not accessed from the map control window, but it
 appears automatically if you left-click on the map. Its objective is
@@ -410,7 +471,7 @@ from the simulation (and written in the report-log file).
 MISSING INFO IN PLANET STATUS WINDOW: production queue (this one is a mess)
 
 
-KEYBOARD SHORTCUTS
+3.3.7 KEYBOARD SHORTCUTS
 
 While in the map display window you can access several functions
 directly with keys (note: 'r' means r, while 'R' means shift-r).
@@ -474,7 +535,7 @@ probably PBM as it's awfully easy to implement.
 
 
 
-MISSING STUFF IN THIS VERSION
+4. MISSING STUFF IN THIS VERSION
 
 There still are a problems and missing features.
 

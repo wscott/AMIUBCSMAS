@@ -10,10 +10,10 @@ extern "C" {
 static FL_PUP_ENTRY fdchoice_0[] =
 { 
     /*  itemtext   callback  shortcut   mode */
-    { "skip",	0,	"",	 FL_PUP_NONE},
-    { "stomp",	0,	"",	 FL_PUP_NONE},
-    { "and",	0,	"",	 FL_PUP_NONE},
-    { "or",	0,	"",	 FL_PUP_NONE},
+    { "never",	0,	"",	 FL_PUP_NONE},
+    { "always",	0,	"",	 FL_PUP_NONE},
+    { "defined (all)",	0,	"",	 FL_PUP_NONE},
+    { "undefined (some)",	0,	"",	 FL_PUP_NONE},
     {0}
 };
 
@@ -27,7 +27,6 @@ FD_DisplayFunction *create_form_DisplayFunction(void)
   fdui->description = obj = fl_add_text(FL_NORMAL_TEXT,10,40,350,60,"description");
     fl_set_object_boxtype(obj,FL_FRAME_BOX);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  fdui->mask_circles = obj = fl_add_button(FL_PUSH_BUTTON,160,110,30,20,"C");
   fdui->input_par[0] = obj = fl_add_input(FL_NORMAL_INPUT,120,140,70,20,"Input");
   fdui->input_par[1] = obj = fl_add_input(FL_NORMAL_INPUT,120,160,70,20,"Input");
   fdui->input_par[2] = obj = fl_add_input(FL_NORMAL_INPUT,120,180,70,20,"Input");
@@ -38,9 +37,7 @@ FD_DisplayFunction *create_form_DisplayFunction(void)
   fdui->input_par[7] = obj = fl_add_input(FL_NORMAL_INPUT,290,180,70,20,"Input");
   fdui->input_par[8] = obj = fl_add_input(FL_NORMAL_INPUT,290,200,70,20,"Input");
   fdui->input_par[9] = obj = fl_add_input(FL_NORMAL_INPUT,290,220,70,20,"Input");
-  fdui->mask_marker = obj = fl_add_button(FL_PUSH_BUTTON,220,110,30,20,"M");
-  fdui->mask_flag = obj = fl_add_button(FL_PUSH_BUTTON,310,110,30,20,"F");
-  fdui->mode = obj = fl_add_choice(FL_NORMAL_CHOICE2,60,110,90,20,"");
+  fdui->mode = obj = fl_add_choice(FL_NORMAL_CHOICE2,50,110,110,20,"");
     fl_set_object_boxtype(obj,FL_FRAME_BOX);
    fl_set_choice_entries(obj, fdchoice_0);
    fl_set_choice(obj,1);
@@ -57,9 +54,12 @@ FD_DisplayFunction *create_form_DisplayFunction(void)
     fl_set_object_boxtype(obj,FL_UP_BOX);
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_callback(obj,pfecb_selected,0);
-  fdui->mask_lines = obj = fl_add_button(FL_PUSH_BUTTON,190,110,30,20,"L");
-  fdui->mask_name = obj = fl_add_button(FL_PUSH_BUTTON,280,110,30,20,"N");
-  fdui->mask_data = obj = fl_add_button(FL_PUSH_BUTTON,250,110,30,20,"D");
+  fdui->mask_circles = obj = fl_add_button(FL_PUSH_BUTTON,170,110,30,20,"C");
+  fdui->mask_lines = obj = fl_add_button(FL_PUSH_BUTTON,200,110,30,20,"L");
+  fdui->mask_marker = obj = fl_add_button(FL_PUSH_BUTTON,230,110,30,20,"M");
+  fdui->mask_data = obj = fl_add_button(FL_PUSH_BUTTON,260,110,30,20,"D");
+  fdui->mask_name = obj = fl_add_button(FL_PUSH_BUTTON,290,110,30,20,"N");
+  fdui->mask_flag = obj = fl_add_button(FL_PUSH_BUTTON,320,110,30,20,"F");
   obj = fl_add_button(FL_NORMAL_BUTTON,280,290,80,30,"Close");
     fl_set_object_callback(obj,pfecb_close,0);
   obj = fl_add_button(FL_NORMAL_BUTTON,50,250,30,30,"@2");
