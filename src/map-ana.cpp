@@ -43,7 +43,7 @@ void stars_map::check_planets_step1(void)
 	      p->trusted_source = i;
 	    } else
 	      p->add_message(RLO_DATASRC, p->name() + ": " + race_list[p->trusted_source]->name() + 
-			     " data preferred over " + race_list[i]->name() + " data\n");
+			     " data preferred over " + race_list[i]->name() + " data");
 	  }
 	}
       }

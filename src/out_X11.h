@@ -100,6 +100,7 @@ class graphics {
   int elapsed_title;
 
   int curr_vwp;
+  int curr_rep;
   int curr_comparison_graph;
   bool pfe_menu_changed; // workaround
   bool ffe_menu_changed; // workaround #2

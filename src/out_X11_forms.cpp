@@ -464,6 +464,15 @@ void graphics::hide_racialreport(void)
 }
 
 
+
+inline
+float get_graph_value(const int type, race* r, const int year)
+{
+
+  return 0.0;
+}
+
+
 // draw the graph in Comparisons window taking data from the form itself
 
 void graphics::load_rrcomparisons(const int type = -1)
@@ -471,11 +480,15 @@ void graphics::load_rrcomparisons(const int type = -1)
   float data[16][SIM_FUTURE];
   float years[SIM_FUTURE];
   int dcolor[16];
-  int fields = 0;
+  int fields = 1;
   int npts = game_map->sim_future();
-  int i, r;
+  int i, j, rid;
+  float ymin, ymax, step;
+  race* r;
   bool do_comparison = fl_get_button(xf_rrcmp->compare);
   const char* ylabel;
+
+  fl_freeze_form(xf_rrcmp->RR_Comparisons);
 
   if (type > 0)
     curr_comparison_graph = type;
@@ -484,57 +497,162 @@ void graphics::load_rrcomparisons(const int type = -1)
   for (i = 0; i < npts; i++)
     years[i] = game_map->year() + i;
 
-  switch(curr_comparison_graph) {
-  case RC_RESOURCES:
-    ylabel = "Resources";
+  r = game_map->find_race(curr_rep);
+
+  // separate comparison and non-comparison
+  if (curr_comparison_graph == RC_MINERALS ||
+      curr_comparison_graph == RC_MINING) {
+    switch(curr_comparison_graph) {
+    case RC_MINERALS:
+      ylabel = "Minerals";
+      for (j = 0; j < 3; j++)
+	for (i = 0; i < npts; i++)
+	  data[j][i] = r->total_min[i][j];
+
+      dcolor[0] = XFCOL_IRON;
+      dcolor[1] = XFCOL_BORA;
+      dcolor[2] = XFCOL_GERM;
+      fields = 3;
+      break;
+
+    case RC_MINING:
+      ylabel = "Mining";
+
+      for (j = 0; j < 3; j++)
+	for (i = 0; i < npts; i++)
+	  data[j][i] = r->total_mg[i][j];
+
+      dcolor[0] = XFCOL_IRON;
+      dcolor[1] = XFCOL_BORA;
+      dcolor[2] = XFCOL_GERM;
+      fields = 3;
+      break;
+    }
+
+  } else {
+    // single-valued (with possible comparison)
+    switch(curr_comparison_graph) {
+    case RC_RESOURCES:
+      ylabel = "Resources";
+      break;
+    case RC_POPTOTAL:
+    case RC_POPORBIT:
+    case RC_POPPLANET:
+      ylabel = "Population";
+      break;
+    case RC_POPGROWTH: 
+      ylabel = "Growth";
+      break;
+    case RC_IRONIUM:
+      ylabel = "Ironium";
+      break;
+    case RC_BORANIUM:
+      ylabel = "Boranium";
+      break;
+    case RC_GERMANIUM:
+      ylabel = "Germanium";
+      break;
+    }
 
     if (!do_comparison) {
-      dcolor[0] = FL_WHITE;
+      dcolor[0] = FL_WHITE-FL_FREE_COL1;
       for (i = 0; i < npts; i++)
-	data[0][i] = mapview->viewpoint()->total_res[i];
-
+	switch(type) {
+	case RC_RESOURCES:
+	  data[0][i] = r->total_res[i];
+	  break;
+	case RC_POPTOTAL:
+	  data[0][i] = (r->total_pop[i] + r->total_opop[i]) * 1e-4;
+	  break;
+	case RC_POPORBIT:
+	  data[0][i] = r->total_opop[i] * 1e-4;
+	  break;
+	case RC_POPPLANET:
+	  data[0][i] = r->total_pop[i] * 1e-4;
+	  break;
+	case RC_POPGROWTH: 
+	  data[0][i] = r->total_growth[i] * 100;
+	  break;
+	case RC_IRONIUM:
+	  data[0][i] = r->total_min[i].iron;
+	  break;
+	case RC_BORANIUM:
+	  data[0][i] = r->total_min[i].bora;
+	  break;
+	case RC_GERMANIUM:
+	  data[0][i] = r->total_min[i].germ;
+	  break;
+	}
+    
     } else
-      for (r = 0; r < game_map->number_of_players(); r++) {
-	dcolor[r] = XFCOL_RACES + r;
-	for (i = 0; i < npts; i++)
-	  data[r][i] = game_map->find_race(r)->total_res[i];
+      for (rid = 0, fields = 0; rid < game_map->number_of_players(); rid++) {
+	r = game_map->find_race(rid);
+
+	if (r->do_analysis()) {
+	  dcolor[fields] = XFCOL_RACES + rid;
+	  for (i = 0; i < npts; i++)
+	    switch(type) {
+	    case RC_RESOURCES:
+	      data[fields][i] = r->total_res[i];
+	      break;
+	    case RC_POPTOTAL:
+	      data[fields][i] = (r->total_pop[i] + r->total_opop[i]) * 1e-4;
+	      break;
+	    case RC_POPORBIT:
+	      data[fields][i] = r->total_opop[i] * 1e-4;
+	      break;
+	    case RC_POPPLANET:
+	      data[fields][i] = r->total_pop[i] * 1e-4;
+	      break;
+	    case RC_POPGROWTH: 
+	      data[fields][i] = r->total_growth[i] * 100;
+	      break;
+	    case RC_IRONIUM:
+	      data[fields][i] = r->total_min[i].iron;
+	      break;
+	    case RC_BORANIUM:
+	      data[fields][i] = r->total_min[i].bora;
+	      break;
+	    case RC_GERMANIUM:
+	      data[fields][i] = r->total_min[i].germ;
+	      break;
+	    }
+
+	  fields++;
+	}
       }
-
-    break;
-  case RC_POPTOTAL:
-    break;
-  case RC_POPORBIT:
-    break;
-  case RC_POPPLANET:
-    break;
-  case RC_POPGROWTH:
-    break;
-  case RC_MINERALS:
-    ylabel = "Minerals";
-
-    for (r = 0; r < 3; r++)
-      for (i = 0; i < npts; i++)
-	data[0][i] = mapview->viewpoint()->total_min[i][r];
-
-    dcolor[0] = XFCOL_IRON;
-    dcolor[1] = XFCOL_BORA;
-    dcolor[2] = XFCOL_GERM;
-    break;
-  case RC_IRONIUM:
-    break;
-  case RC_BORANIUM:
-    break;
-  case RC_GERMANIUM:
-    break;
-  case RC_MINING:
-    break;
   }
 
-  fl_set_object_color(xf_rrcmp->racegraph, FL_BLACK, dcolor[0]);
-  fl_set_xyplot_data(xf_rrcmp->racegraph, years, data[0], npts, "", "Turn year", ylabel);
+  // horizontal scale
+  fl_set_xyplot_xbounds(xf_rrcmp->racegraph, years[0], years[npts-1]);
 
-  for (i = 1; i < fields; i++)
-    fl_add_xyplot_overlay(xf_rrcmp->racegraph, i, years, data[i], npts, dcolor[i]);
+  // compute vertical scale
+  fl_set_xyplot_ytics(xf_rrcmp->racegraph, 3, 6);
+  ymin = 1e20;
+  ymax = -1e20;
+  for (j = 0; j < fields; j++)
+    for (i = 0; i < npts; i++) {
+      if (data[j][i] < ymin)
+	ymin = data[j][i];
+      if (data[j][i] > ymax)
+	ymax = data[j][i];
+    }
+
+  step = pow(10, floor(log10(ymax - ymin))-1);
+  ymin = floor(ymin / step) * step;
+  ymax = (floor(ymax / step) + 1)* step;
+  fl_set_xyplot_ybounds(xf_rrcmp->racegraph, ymin, ymax);
+
+  fl_set_xyplot_data(xf_rrcmp->racegraph, years, data[0], 1, "", "Turn year", ylabel);
+
+  for (i = 0; i < fields; i++)
+    fl_add_xyplot_overlay(xf_rrcmp->racegraph, i+1, years, data[i], npts, 
+			  FL_FREE_COL1 + dcolor[i]);
+
+  for (; i < 16; i++)
+    fl_delete_xyplot_overlay(xf_rrcmp->racegraph, i+1);
+
+  fl_unfreeze_form(xf_rrcmp->RR_Comparisons);
 }
 
 
@@ -545,10 +663,11 @@ void graphics::load_racialreport(const int rid)
   object* o;
   myString str;
 
+  curr_rep = rid;
+
   fl_freeze_form(xf_rr->RacialReport);
   fl_freeze_form(xf_rrinfo->RR_RaceInfo);
   fl_freeze_form(xf_rrlog->RR_ReportLog);
-  fl_freeze_form(xf_rrcmp->RR_Comparisons);
   fl_freeze_form(xf_rrdes->RR_Designs);
   fl_freeze_form(xf_rrobj->RR_Objects);
 
@@ -603,7 +722,8 @@ void graphics::load_racialreport(const int rid)
   fl_set_object_label(xf_rrinfo->shiptypes, str);
 
   for (i = 0; i < 3; i++)
-    fl_set_habdial(xf_rrinfo->habdial[i], r->habmin()[i], r->habmax()[i], 0, 0, 0, 0);
+    fl_set_habdial(xf_rrinfo->habdial[i], r->habmin()[i], r->habmax()[i],
+		   0, 0, mapview->viewpoint()->terraform_tech()[i], 0);
 
   str = int_to_str(r->explored_planets) + "/" + 
     int_to_str(game_map->number_of_planets()) + " (" +
@@ -655,7 +775,6 @@ void graphics::load_racialreport(const int rid)
   fl_unfreeze_form(xf_rr->RacialReport);
   fl_unfreeze_form(xf_rrinfo->RR_RaceInfo);
   fl_unfreeze_form(xf_rrlog->RR_ReportLog);
-  fl_unfreeze_form(xf_rrcmp->RR_Comparisons);
   fl_unfreeze_form(xf_rrdes->RR_Designs);
   fl_unfreeze_form(xf_rrobj->RR_Objects);
 }

@@ -747,8 +747,8 @@ FD_RacialReport *create_form_RacialReport(FD_RR_RaceInfo* tf1,
     fl_addto_tabfolder(obj, "Report-log", tf2->RR_ReportLog);
     fl_addto_tabfolder(obj, "Simulation", tf3->RR_Comparisons);
     fl_addto_tabfolder(obj, "Ship designs", tf4->RR_Designs);
-    fl_addto_tabfolder(obj, "Ship designs", tf5->RR_Objects);
-    fl_addto_tabfolder(obj, "Ship designs", tf6->RR_Filtering);
+    fl_addto_tabfolder(obj, "Other designs", tf5->RR_Objects);
+    fl_addto_tabfolder(obj, "Filtering", tf6->RR_Filtering);
   obj = fl_add_text(FL_NORMAL_TEXT,30,5,110,30,"Racial Report:");
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
@@ -874,8 +874,8 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
     fl_set_object_lstyle(obj,FL_BOLD_STYLE);
 
   fdui->habdial[0] = obj = fl_add_habdial(FL_HABNORMAL,20,170,360,20,"");
-  fdui->habdial[1] = obj = fl_add_habdial(FL_HABNORMAL,20,170,360,20,"");
-  fdui->habdial[2] = obj = fl_add_habdial(FL_HABNORMAL,20,170,360,20,"");
+  fdui->habdial[1] = obj = fl_add_habdial(FL_HABNORMAL,20,190,360,20,"");
+  fdui->habdial[2] = obj = fl_add_habdial(FL_HABNORMAL,20,210,360,20,"");
   fl_end_form();
 
   fdui->RR_RaceInfo->fdui = fdui;
@@ -1011,7 +1011,9 @@ FD_RR_Filtering *create_form_RR_Filtering(void)
   FD_RR_Filtering *fdui = (FD_RR_Filtering *) fl_calloc(1, sizeof(*fdui));
 
   fdui->RR_Filtering = fl_bgn_form(FL_NO_BOX, 610, 290);
-  obj = fl_add_box(FL_UP_BOX,0,0,610,290,"");
+  obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
+  //    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_COL1);
+  obj = fl_add_box(FL_FLAT_BOX,2,2,608,288,"");
     fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_COL1);
   fdui->buttons[0] = NULL;
   fdui->buttons[1] = NULL;
@@ -1107,6 +1109,7 @@ FD_RR_Filtering *create_form_RR_Filtering(void)
     fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_TOP_BCOL);
     fl_set_object_lcolor(obj,FL_WHITE);
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    //  obj = fl_add_box(FL_FLAT_BOX,1,1,1,1,"");
   fl_end_form();
 
   fdui->RR_Filtering->fdui = fdui;
@@ -1121,7 +1124,7 @@ FD_RR_Objects *create_form_RR_Objects(void)
   FD_RR_Objects *fdui = (FD_RR_Objects *) fl_calloc(1, sizeof(*fdui));
 
   fdui->RR_Objects = fl_bgn_form(FL_NO_BOX, 610, 290);
-  obj = fl_add_box(FL_UP_BOX,0,0,610,290,"");
+  obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
   obj = fl_add_text(FL_NORMAL_TEXT,40,250,140,20,"Terraforming");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   obj = fl_add_text(FL_NORMAL_TEXT,40,10,140,20,"Starbase design 1");

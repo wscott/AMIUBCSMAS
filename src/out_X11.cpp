@@ -457,7 +457,8 @@ int close_null(FL_FORM* frm, void* data)
 
 graphics::graphics(const int resol, const char* title) : 
           sca_mask(0), gra_xres(resol),
-	  gra_yres(resol), curr_vwp(-1), curr_comparison_graph(1), 
+	  gra_yres(resol), curr_vwp(-1),
+	  curr_rep(-1), curr_comparison_graph(1), 
 	  cbobj(NULL)
 {
   int depth;
@@ -908,11 +909,12 @@ void graphics::form_initial_update(void)
 
   // set message filtering buttons
   for (i = 0; ; i++)
-    if ( (mt = message_get_mask(i)) && xf_rrfilt->buttons[i]) {
-      if (messages_are_filtered(mt))
-	fl_set_button(xf_rrfilt->buttons[i], 0);
-      else
-	fl_set_button(xf_rrfilt->buttons[i], 1);
+    if ( (mt = message_get_mask(i)) ) {
+      if (xf_rrfilt->buttons[i])
+	if (messages_are_filtered(mt))
+	  fl_set_button(xf_rrfilt->buttons[i], 0);
+	else
+	  fl_set_button(xf_rrfilt->buttons[i], 1);
     } else
       break;
 

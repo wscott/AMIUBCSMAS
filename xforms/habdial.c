@@ -122,18 +122,21 @@ int handle_habdial(FL_OBJECT* ob, int event,
 
     if (environment->original > 0) {
       // put black markers for current/original
+      fl_linewidth(1);
+      fl_linestyle(LineSolid);
+
       // current
       xmin = environment->current;
       xmin = (xmin*width + width/2)/100;
-      fl_line(ob->x+xmin+4, ob->y+hahe, -4,  4, FL_BLACK);
-      fl_line(ob->x+xmin, ob->y+hahe+4, -4, -4, FL_BLACK);
-      fl_line(ob->x+xmin-4, ob->y+hahe,  4, -4, FL_BLACK);
-      fl_line(ob->x+xmin, ob->y+hahe-4,  4,  4, FL_BLACK);
+      fl_line(ob->x+xmin+4, ob->y+hahe, ob->x+xmin, ob->y+hahe+4, FL_BLACK);
+      fl_line(ob->x+xmin, ob->y+hahe+4, ob->x+xmin-4, ob->y+hahe, FL_BLACK);
+      fl_line(ob->x+xmin-4, ob->y+hahe, ob->x+xmin, ob->y+hahe-4, FL_BLACK);
+      fl_line(ob->x+xmin, ob->y+hahe-4, ob->x+xmin+4, ob->y+hahe, FL_BLACK);
 
       // original
       xmin = environment->original;
       xmin = (xmin*width + width/2)/100;
-      fl_line(ob->x+xmin, ob->y+hahe-7, 1, 15, FL_BLACK);
+      fl_line(ob->x+xmin, ob->y+hahe-7, ob->x+xmin, ob->y+hahe+7, FL_BLACK);
 
       // draw line from current to original+tform
       if (environment->habmin >= 0) {
@@ -147,7 +150,7 @@ int handle_habdial(FL_OBJECT* ob, int event,
 	xmin = (xmin*width + width/2)/100;
 	xmax = (xmax*width + width/2)/100;
 
-	fl_line(ob->x+xmin, ob->y+hahe, xmax-xmin, 1, FL_BLACK);
+	fl_line(ob->x+xmin, ob->y+hahe, ob->x+xmax, ob->y+hahe, FL_BLACK);
       }
 
       // mark maxtform point
@@ -159,7 +162,7 @@ int handle_habdial(FL_OBJECT* ob, int event,
 	xmax += environment->original;
 	xmax = (xmax*width + width/2)/100;
 
-	fl_line(ob->x+xmax, ob->y+hahe-2, 1, 5, FL_BLACK);
+	fl_line(ob->x+xmax, ob->y+hahe-2, ob->x+xmax, ob->y+hahe+3, FL_BLACK);
       }
     }
     break;

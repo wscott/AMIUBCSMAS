@@ -3,6 +3,7 @@ WS = Wayne Smith
 
 Version 0.3
 
+- closing a secondary window doesn't kill the application anymore.
 - activated race comparison graphs & race habitability ranges.
 - activated filtering form.
 - added fl_habdial to XForms to handle habitability ranges.
