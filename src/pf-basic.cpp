@@ -107,8 +107,8 @@ public:
     int i, r;
     int col = COL_YELLOWHAB;
 
-    if (par[0] > 0 && par[0] <= 16)
-      col = COL_RACES + 4 * (par[0] - 1);
+    if (par[0] > 0 && par[0] <= 24)
+      col = COL_WHITE + 4 * (par[0] - 1);
     else if (p->data_available() && p->owner())
       col = COL_RACES + 4 * p->owner()->race_id();
 
@@ -245,8 +245,8 @@ public:
 
     // do we have name?
     if (d.name_color) {
-      if (par[0] > 0 && par[0] <= 16)
-	d.name_color = COL_RACES + 4 * (par[0] - 1);
+      if (par[0] > 0 && par[0] <= 24)
+	d.name_color = COL_WHITE + 4 * (par[0] - 1);
       else if (p->data_available() && p->owner())
 	d.name_color = COL_RACES + 4 * p->owner()->race_id();
     }
@@ -276,8 +276,8 @@ public:
 
     // do we have a marker?
     if (d.marker_type != MT_NONE) {
-      if (par[0] > 0 && par[0] <= 16)
-	d.marker_color = COL_RACES + 4 * (par[0] - 1);
+      if (par[0] > 0 && par[0] <= 24)
+	d.marker_color = COL_WHITE + 4 * (par[0] - 1);
       else if (p->data_available() && p->owner())
 	d.marker_color = COL_RACES + 4 * p->owner()->race_id();
     }
@@ -307,8 +307,8 @@ public:
 
     // make sure we have single data
     if (d.n_values == 1) {
-      if (par[0] > 0 && par[0] <= 16)
-	d.values[0].color = COL_RACES + 4 * (par[0] - 1);
+      if (par[0] > 0 && par[0] <= 24)
+	d.values[0].color = COL_WHITE + 4 * (par[0] - 1);
       else if (p->data_available() && p->owner())
 	d.values[0].color = COL_RACES + 4 * p->owner()->race_id();
     }

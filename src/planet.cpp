@@ -265,7 +265,7 @@ int planet::compute_percent_from_def(const int d)
  
 int planet::compute_def_from_percent(const int dp)
 {
-  return (int)(log(1 - dp / 10000.0)/log(1 - deftable[_owner->defense_level(0)]));
+  return (int)(0.5 + log(1 - dp / 10000.0)/log(1 - deftable[_owner->defense_level(0)]));
 }
 
 

@@ -153,7 +153,7 @@ stars_map::stars_map(void) :
         row_lengths(NULL), row_owners(NULL), row_posits(NULL),
         number_races(0), cur_alliance(-1),
 	ship_hulls(NULL),
-	actual_sim_future(8), report_log(NULL)
+	actual_sim_future(9), report_log(NULL)
 {
   int i;
 
@@ -361,8 +361,9 @@ void stars_map::init_ownership(void)
 {
   int i;
 
-  if (actual_sim_future < 8)
-    actual_sim_future = 7;
+  actual_sim_future++;
+  if (actual_sim_future < 9)
+    actual_sim_future = 9;
   else if (actual_sim_future > SIM_FUTURE)
     actual_sim_future = SIM_FUTURE;
 

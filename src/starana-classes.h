@@ -59,6 +59,14 @@ struct _xypoint {
     { return _xypoint(x+xy.x, y+xy.y); }
   _xypoint operator-(const _xypoint& xy) const
     { return _xypoint(x-xy.x, y-xy.y); }
+  _xypoint operator+=(const _xypoint& xy)
+    { x += xy.x; y += xy.y;
+      return *this; }
+  _xypoint operator-=(const _xypoint& xy)
+    {  x -= xy.x; y -= xy.y;
+       return *this; }
+  _xypoint operator-(void) const
+    { return _xypoint(-x, -y); }
   _xypoint operator*(const int s) const
     { return _xypoint(x*s, y*s); }
   _xypoint operator/(const int s) const
@@ -76,6 +84,7 @@ struct _lineto {
   int color;
   short int first_tick;   // where to draw first tick (0 for none)
   short int tick_sep;     // distance between ticks (0 for none)
+  int tickdev;            // tick deviation (for arrows)
 };
 
 

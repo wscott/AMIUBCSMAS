@@ -350,7 +350,10 @@ void stars_map::empire_report(void)
     // if can't analyze spread year 0 pop
     if (!r->can_analyze) {
       for (p = race_list[i]->planet_table; p; p = p->rnext)
-	r->total_pop[0] += p->population(0)/ 100;
+	r->total_pop[0] += p->population(0) / 100;
+
+      for (y = 1; y < actual_sim_future; y++)
+	r->total_pop[y] = r->total_pop[0];
 
       continue;
     }

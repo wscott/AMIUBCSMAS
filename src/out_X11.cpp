@@ -706,9 +706,9 @@ void graphics::wait_title_form(void)
     return;
 
   // wait for timer
-  int dt = time(0L) - elapsed_title + 1;
-  if (dt > 0)
-    sleep(dt);
+  int dt = time(0L) - elapsed_title - 2;
+  if (dt < 0)
+    sleep(-dt);
 
   fl_hide_form(xf_titl->IntroTitle);
   XFlush(fl_get_display());

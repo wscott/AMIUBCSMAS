@@ -446,6 +446,11 @@ void pscb_bombplanet(FL_OBJECT *ob, long)
 
 }
 
+void pscb_gateships(FL_OBJECT *ob, long)
+{
+
+}
+
 
 /* callbacks and freeobj handles for form PlanetSimulation */
 void pmcb_close(FL_OBJECT *ob, long data)

@@ -15,6 +15,5 @@ aggiungere fleet functions!!!
 	filter on designs
 *	filter on cargo
 *	filter on empty cargo space
-fare in modo che sulle lines ci sia una direzione (per routing/packets/movement)
-sistemare la storia del sim_future-1 in modo che richiedere 10 anni DIA 10 anni
-sistemare i casini con il calcolo del numero di difese!!!
+* fare in modo che sulle lines ci sia una direzione (per routing/packets/movement)
+* sistemare la storia del sim_future-1 in modo che richiedere 10 anni DIA 10 anni

@@ -658,7 +658,7 @@ int map_view::calc_radius(const double& v,
 void map_view::draw_object(object_display* pd, const int stage)
 {
   int i, t;
-  _xypoint ldir, tickdir, tp, tp1, tp2;
+  _xypoint ldir, tickdirl, tickdirr, tp, tp1, tp2;
   int ldirmod, td, real_ft, real_ts;
 
   // stage indicates WHAT to draw, 16 are defined
@@ -694,17 +694,21 @@ void map_view::draw_object(object_display* pd, const int stage)
 	real_ft = ld.first_tick * gmsc;
 	real_ts = ld.tick_sep * gmsc;
 
-	tickdir = ldir * 4 / ldirmod;
-	t = tickdir.x;
-	tickdir.x = tickdir.y;
-	tickdir.y = -t; // orthogonal to line
+	tickdirl = ldir * 4 / ldirmod;
+	t = tickdirl.x;
+	tickdirl.x = tickdirl.y;
+	tickdirl.y = -t; // orthogonal to line
+	tickdirr = -tickdirl;
+	tickdirl += ldir * (-ld.tickdev)/ ldirmod;
+	tickdirr += ldir * (-ld.tickdev)/ ldirmod;
 
 	for (td = real_ft; td <= ldirmod*1024; td += real_ts) {
 	  tp = pd->xy + ldir * td / ldirmod / 1024; // tick position
-	  tp1 = tp + tickdir;
-	  tp2 = tp - tickdir;
+	  tp1 = tp + tickdirl;
+	  tp2 = tp + tickdirr;
 
-	  display->draw_line(tp1, tp2, ld.color);
+	  display->draw_line(tp, tp1, ld.color);
+	  display->draw_line(tp, tp2, ld.color);
 	}
       }
     }

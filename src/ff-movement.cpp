@@ -10,7 +10,7 @@ public:
   {
     _name = "Destination";
     _type = "Movement";
-    _desc = "This function adds a line which indicates where the fleet going.";
+    _desc = "This function adds a line which indicates where the fleet is going.";
   }
 
   virtual void function(map_view& mw, fleet* f, const int* par, const int when)
@@ -23,9 +23,10 @@ public:
       d.linedest[d.n_lines].dp = mw.map_to_display(f->position(mw.get_map()->sim_future()));
       d.linedest[d.n_lines].color = COL_GREY + 1;
 
-      if (f->warp() <= 10)
+      if (f->warp() <= 10) {
 	d.linedest[d.n_lines].first_tick = d.linedest[d.n_lines].tick_sep = f->warp()*f->warp();
-      else {
+	d.linedest[d.n_lines].tickdev = 3;
+      } else {
 	d.linedest[d.n_lines].first_tick = d.linedest[d.n_lines].tick_sep = 0;
 	// change default color to indicate gating
 	d.linedest[d.n_lines].color = COL_YELLOWHAB + 1;
@@ -63,9 +64,10 @@ public:
       d.linedest[d.n_lines].dp = mw.map_to_display(rp);
       d.linedest[d.n_lines].color = COL_GREY + 1;
 
-      if (f->warp() <= 10)
+      if (f->warp() <= 10) {
 	d.linedest[d.n_lines].first_tick = d.linedest[d.n_lines].tick_sep = f->warp()*f->warp();
-      else {
+	d.linedest[d.n_lines].tickdev = -3;
+      } else {
 	d.linedest[d.n_lines].first_tick = d.linedest[d.n_lines].tick_sep = 0;
 	// change default color to indicate gating
 	d.linedest[d.n_lines].color = COL_YELLOWHAB + 1;

@@ -3,6 +3,9 @@ WS = Wayne Smith
 
 Version 0.3
 
+- added Line: color function for planets, fixed planet obj coloring.
+- fixed calculation of total pop for non-analyzed races.
+- planet/fleet lines now can indicate direction.
 - added many fleet functions.
 - modified fleet name/number positioning to be above syumbol.
 - activated objects window.

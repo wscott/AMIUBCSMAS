@@ -1,4 +1,4 @@
-#define SIM_FUTURE 51
+#define SIM_FUTURE 52
 
 // planet report type
 

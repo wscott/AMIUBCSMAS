@@ -18,7 +18,7 @@ void begin_include_file(const char* fname);
 
 %%
 
-[ \t]               ;
+[ \t\r]             ;
 
 "\n"                infile_lineno++;
 

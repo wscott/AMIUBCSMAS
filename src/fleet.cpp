@@ -129,7 +129,7 @@ void fleet::check_data(void)
 	  break; // over
 
 	// name.....
-	while (*p && isalpha(*p))
+	while (*p && !isdigit(*p))
 	  *np++ = *p++;
 	*np = 0;
 

@@ -63,6 +63,7 @@ extern int freeobj_raddial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 extern void pscb_closewindow(FL_OBJECT *, long);
 extern void pscb_firepacket(FL_OBJECT *, long);
 extern void pscb_bombplanet(FL_OBJECT *, long);
+extern void pscb_gateships(FL_OBJECT *, long);
 extern void pscb_setminscale(FL_OBJECT *, long);
 extern void pscb_settestobject(FL_OBJECT *, long);
 extern void pscb_viewsimulation(FL_OBJECT *, long);
@@ -244,12 +245,12 @@ typedef struct {
 	FL_OBJECT *population[2];
 	FL_OBJECT *ndefenses[2];
 	FL_OBJECT *defcoverage[2];
-	FL_OBJECT *colkill[8];
-	FL_OBJECT *mineral[8];
-	FL_OBJECT *travel[8];
-	FL_OBJECT *warp[8];
-	FL_OBJECT *defdestroy[8];
-	FL_OBJECT *terraform[8];
+	FL_OBJECT *colkill[4];
+	FL_OBJECT *mineral[4];
+	FL_OBJECT *travel[4];
+	FL_OBJECT *warp[4];
+	FL_OBJECT *defdestroy[4];
+	FL_OBJECT *terraform[4];
 	FL_OBJECT *framedue;
 	FL_OBJECT *driverwarp[2];
 	FL_OBJECT *increasewarp1;
