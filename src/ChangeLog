@@ -1,8 +1,12 @@
 nothing = Alberto Barsella
 WS = Wayne Smith
 
-Version 0.2g
+Version 0.3
 
+- activated race comparison graphs & race habitability ranges.
+- activated filtering form.
+- added fl_habdial to XForms to handle habitability ranges.
+- added Objects form and Filtering form (non-functional).
 - fixed various stuff (such as composition in convert.cpp).
 - activated racial info screen (partially).
 - activated racial report-log and starship design window.

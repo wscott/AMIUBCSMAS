@@ -285,21 +285,46 @@ int message::color_table[31] = {
 };
 
 
-void filter_out_messages(const _msgtype mt)
+void filter_out_messages(const int mt)
 {
   message::msg_mask |= mt;
+}
+
+
+void filter_in_messages(const int mt)
+{
+  message::msg_mask &= ~mt;
+}
+
+
+bool messages_are_filtered(const int mt)
+{
+  return message::msg_mask & mt;
+}
+
+
+int message_get_mask(const int i)
+{
+  if (i < RLO_MAXMESSAGE)
+    return 1 << i;
+  else
+    return 0;
+}
+
+
+int message_type_number(int mt)
+{
+  int i = 0;
+  for (; !(mt & 1); i++, mt>>=1);
+
+  return i;
 }
 
 
 
 int message::color(void) const
 {
-  int t = (int)type;
-  int i = 0;
-
-  for (; !(t & 1); i++, t>>=1);
-
-  return color_table[i];
+  return color_table[message_type_number(type)];
 }
 
 
@@ -316,7 +341,7 @@ message_table::~message_table(void)
 }
 
 
-void message_table::add(const _msgtype mt, const myString& msg)
+void message_table::add(const int mt, const myString& msg)
 {
   message* m = new message(mt, msg);
 

@@ -689,14 +689,14 @@ race* stars_map::add_race(const myString& arg0)
 
 
 
-void stars_map::add_message(const _msgtype mt, const myString& m)
+void stars_map::add_message(const int mt, const myString& m)
 {
   logmsgs.add(mt, m);
 }
 
 
 
-void stars_map::all_races_message(const _msgtype mt, const myString& m)
+void stars_map::all_races_message(const int mt, const myString& m)
 {
   int i;
 

@@ -42,22 +42,22 @@ lex.c: lex.l
 	$(LEX) $(LXFLAGS) $*.l
 	mv $*.yy.c $*.c
 
-XFSOURCES = ../xforms/pfunc.c ../xforms/pfunc_cb.c
+XFSOURCES = ../xforms/pfunc.c ../xforms/pfunc_cb.c ../xforms/habdial.c
 
 XFOBJS = $(XFSOURCES:.c=.o)
 
 xformsinterface:
 	$(MAKE) -C ../xforms
 
-lex.o: lex.c gram.h starana-classes.h myString.h
+lex.o: lex.c gram.h starana-classes.h myString.h starana-const.h
 	$(CPP) $(CPPFLAGS) -c $*.c
 
-gram.o: gram.c gram.h starana-classes.h myString.h
+gram.o: gram.c gram.h starana-classes.h myString.h starana-const.h
 	$(CPP) $(CPPFLAGS) -c $*.c
 
 OBJS = $(SOURCES:.cpp=.o)
 
-$(OBJS): starana-classes.h out_X11.h myString.h
+$(OBJS): starana-classes.h out_X11.h myString.h starana-const.h
 
 starana: xformsinterface $(OBJS) gram.o lex.o
 	$(CPP) -o starana $(OBJS) gram.o lex.o $(XFOBJS) $(LIBRARIES)

@@ -5,6 +5,7 @@ extern "C" {
 }
 #include <stdlib.h>
 #include "pfunc.h"
+#include "../src/starana-const.h"
 
 static FL_PUP_ENTRY fdchoice_0[] =
 { 
@@ -359,12 +360,9 @@ FD_PlanetStatus *create_form_PlanetStatus(void)
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
   fdui->germconc = obj = fl_add_text(FL_NORMAL_TEXT,390,305,30,20,"gC");
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->gravitydial = obj = fl_add_free(FL_INACTIVE_FREE,20,375,400,20,"",
-			freeobj_gravitydial_handle);
-  fdui->tempdial = obj = fl_add_free(FL_INACTIVE_FREE,20,395,400,20,"",
-			freeobj_termpdial_handle);
-  fdui->raddial = obj = fl_add_free(FL_INACTIVE_FREE,20,415,400,20,"",
-			freeobj_raddial_handle);
+  fdui->envdial[0] = obj = fl_add_habdial(FL_HABNORMAL,20,375,400,20,"");
+  fdui->envdial[1] = obj = fl_add_habdial(FL_HABNORMAL,20,395,400,20,"");
+  fdui->envdial[2] = obj = fl_add_habdial(FL_HABNORMAL,20,415,400,20,"");
   fdui->close = obj = fl_add_button(FL_NORMAL_BUTTON,360,450,70,30,"Close");
     fl_set_object_callback(obj,pscb_closewindow,0);
   obj = fl_add_labelframe(FL_EMBOSSED_FRAME,160,80,270,50,"Starbase");
@@ -734,7 +732,9 @@ FD_IntroTitle *create_form_IntroTitle(void)
 FD_RacialReport *create_form_RacialReport(FD_RR_RaceInfo* tf1,
 					  FD_RR_ReportLog* tf2,
 					  FD_RR_Comparisons* tf3,
-					  FD_RR_DesignsObjects* tf4)
+					  FD_RR_Designs* tf4,
+					  FD_RR_Objects* tf5,
+					  FD_RR_Filtering* tf6)
 {
   FL_OBJECT *obj;
   FD_RacialReport *fdui = (FD_RacialReport *) fl_calloc(1, sizeof(*fdui));
@@ -746,7 +746,9 @@ FD_RacialReport *create_form_RacialReport(FD_RR_RaceInfo* tf1,
     fl_addto_tabfolder(obj, "Race design", tf1->RR_RaceInfo);
     fl_addto_tabfolder(obj, "Report-log", tf2->RR_ReportLog);
     fl_addto_tabfolder(obj, "Simulation", tf3->RR_Comparisons);
-    fl_addto_tabfolder(obj, "Ship designs", tf4->RR_DesignsObjects);
+    fl_addto_tabfolder(obj, "Ship designs", tf4->RR_Designs);
+    fl_addto_tabfolder(obj, "Ship designs", tf5->RR_Objects);
+    fl_addto_tabfolder(obj, "Ship designs", tf6->RR_Filtering);
   obj = fl_add_text(FL_NORMAL_TEXT,30,5,110,30,"Racial Report:");
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
@@ -871,12 +873,9 @@ FD_RR_RaceInfo *create_form_RR_RaceInfo(void)
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
     fl_set_object_lstyle(obj,FL_BOLD_STYLE);
 
-    /*  fdui->habdial[0] = obj = fl_add_free(FL_NORMAL_FREE,20,170,360,20,"",
-			freeobj_gravdial_handle);
-  fdui->habdial[1] = obj = fl_add_free(FL_NORMAL_FREE,20,190,360,20,"",
-			freeobj_tempdial_handle);
-  fdui->habdial[2] = obj = fl_add_free(FL_NORMAL_FREE,20,210,360,20,"",
-  freeobj_raddial_handle); */
+  fdui->habdial[0] = obj = fl_add_habdial(FL_HABNORMAL,20,170,360,20,"");
+  fdui->habdial[1] = obj = fl_add_habdial(FL_HABNORMAL,20,170,360,20,"");
+  fdui->habdial[2] = obj = fl_add_habdial(FL_HABNORMAL,20,170,360,20,"");
   fl_end_form();
 
   fdui->RR_RaceInfo->fdui = fdui;
@@ -913,11 +912,11 @@ static FL_PUP_ENTRY fdchoice_displaywhat_2[] =
     { "Population (total)",	0,	"",	 FL_PUP_NONE},
     { "Population (orbit)",	0,	"",	 FL_PUP_NONE},
     { "Population (planet)",	0,	"",	 FL_PUP_NONE},
+    { "Population growth",	0,	"",	 FL_PUP_NONE},
     { "Minerals",	0,	"",	 FL_PUP_NONE},
     { "Ironium",	0,	"",	 FL_PUP_NONE},
     { "Boranium",	0,	"",	 FL_PUP_NONE},
     { "Germanium",	0,	"",	 FL_PUP_NONE},
-    { "Population growth",	0,	"",	 FL_PUP_NONE},
     { "Mining Rates",	0,	"",	 FL_PUP_NONE},
     {0}
 };
@@ -934,12 +933,14 @@ FD_RR_Comparisons *create_form_RR_Comparisons(void)
     fl_set_object_color(obj,FL_BLACK,FL_WHITE);
     fl_set_object_lcolor(obj,FL_GREEN);
   fdui->displaywhat = obj = fl_add_choice(FL_NORMAL_CHOICE2,390,20,200,30,"");
-   fl_set_choice_align(obj, FL_ALIGN_LEFT);
-   fl_set_choice_entries(obj, fdchoice_displaywhat_2);
-   fl_set_choice(obj,1);
+    fl_set_choice_align(obj, FL_ALIGN_LEFT);
+    fl_set_choice_entries(obj, fdchoice_displaywhat_2);
+    fl_set_choice(obj,1);
+    fl_set_object_callback(obj,rrccb_selectgraph,1);
   obj = fl_add_text(FL_NORMAL_TEXT,390,60,200,40,"NOTE: comparison is available only in\nthe case of single-value displays.");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
   fdui->compare = obj = fl_add_lightbutton(FL_PUSH_BUTTON,390,110,120,30,"Comparison");
+    fl_set_object_callback(obj,rrccb_selectgraph,-1);
   fl_end_form();
 
   fdui->RR_Comparisons->fdui = fdui;
@@ -948,15 +949,15 @@ FD_RR_Comparisons *create_form_RR_Comparisons(void)
 }
 /*---------------------------------------*/
 
-FD_RR_DesignsObjects *create_form_RR_DesignsObjects(void)
+FD_RR_Designs *create_form_RR_Designs(void)
 {
   FL_OBJECT *obj;
   int i;
   char val[64];
 
-  FD_RR_DesignsObjects *fdui = (FD_RR_DesignsObjects *) fl_calloc(1, sizeof(*fdui));
+  FD_RR_Designs *fdui = (FD_RR_Designs *) fl_calloc(1, sizeof(*fdui));
 
-  fdui->RR_DesignsObjects = fl_bgn_form(FL_NO_BOX, 610, 290);
+  fdui->RR_Designs = fl_bgn_form(FL_NO_BOX, 610, 290);
   obj = fl_add_box(FL_FLAT_BOX,0,0,610,290,"");
 
   obj = fl_add_text(FL_NORMAL_TEXT,10,8,20,16,"#");
@@ -998,8 +999,286 @@ FD_RR_DesignsObjects *create_form_RR_DesignsObjects(void)
   }
   fl_end_form();
 
-  fdui->RR_DesignsObjects->fdui = fdui;
+  fdui->RR_Designs->fdui = fdui;
 
   return fdui;
 }
 /*---------------------------------------*/
+
+FD_RR_Filtering *create_form_RR_Filtering(void)
+{
+  FL_OBJECT *obj;
+  FD_RR_Filtering *fdui = (FD_RR_Filtering *) fl_calloc(1, sizeof(*fdui));
+
+  fdui->RR_Filtering = fl_bgn_form(FL_NO_BOX, 610, 290);
+  obj = fl_add_box(FL_UP_BOX,0,0,610,290,"");
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_COL1);
+  fdui->buttons[0] = NULL;
+  fdui->buttons[1] = NULL;
+  fdui->buttons[2] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,10,180,40,"Data source determination\nfor planets.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_MAGENTA);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_DATASRC);
+  fdui->buttons[3] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,210,150,180,40,"Numerical values for empire\ntotals simulation.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_WHITE);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_EMPIRETOT);
+  fdui->buttons[4] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,250,180,40,"Fleet duplicates resolution.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_MCOL);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETDUP);
+  fdui->buttons[5] = NULL;
+  fdui->buttons[6] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,90,180,40,"Planetary queue production.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_GREEN);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLAQUEUE);
+  fdui->buttons[7] = NULL;
+  fdui->buttons[8] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,210,250,180,40,"Cargo/population unloading for\nfleets reaching a planet.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_LEFT_BCOL);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLAFLEETS);
+  fdui->buttons[9] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,210,180,40,"Mineral shortage/analysis\nfor planet.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_DARKORANGE);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLAMINSTAT);
+  fdui->buttons[10] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,250,180,40,"Population analysis (growth,\nfilling, suggestions) for planet.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_CYAN);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLAPOPSTAT);
+  fdui->buttons[11] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,50,180,40,"Planetary initial analysis & check.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_WHEAT);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLANETINI);
+  fdui->buttons[12] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,10,180,40,"Guessing of fleet origin and\ndestination.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_WHITE);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETDEST);
+  fdui->buttons[13] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,50,180,40,"Fleet 'normal' transport orders\n(i.e. to owned or friendly planets).");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_GREEN);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETTROK);
+  fdui->buttons[14] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,90,180,40,"Fleet 'colonization' orders\n(i.e. to uninhabited planets).");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_PALEGREEN);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETCOLON);
+  fdui->buttons[15] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,130,180,40,"Fleet 'attack' orders\n(i.e. to enemy planets).");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_YELLOW);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETATTK);
+  fdui->buttons[16] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,210,180,40,"Fleet name parsing internals.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_DARKORANGE);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETPARSE);
+  fdui->buttons[17] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,210,210,180,40,"Fleet consistency checks and\nfailed name parsing.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_RED);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETCONS);
+  fdui->buttons[18] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,170,180,40,"Current planetary production\nqueue.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_TOP_BCOL);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLAQUEUE);
+  fdui->buttons[19] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,10,130,180,40,"Autobuild objects conversions\nin planet queue.");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_YELLOW);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_PLAABUILD);
+  fdui->buttons[20] = obj = fl_add_lightbutton(FL_PUSH_BUTTON,420,170,180,40,"Fleet 'suspicious' orders\n(e.g. stationary freighters).");
+    fl_set_object_boxtype(obj,FL_NO_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_WHITE);
+    fl_set_object_lcolor(obj,FL_WHEAT);
+    fl_set_object_callback(obj,rrfcb_setfiltering,RLO_FLEETTRBAD);
+  obj = fl_add_text(FL_NORMAL_TEXT,210,10,200,90,"** NOTE **\nThe new message filtering selections\nwill apply only when windows are\nregenerated (i.e. by re-selecting\n a race or a planet).");
+    fl_set_object_boxtype(obj,FL_SHADOW_BOX);
+    fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_TOP_BCOL);
+    fl_set_object_lcolor(obj,FL_WHITE);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fl_end_form();
+
+  fdui->RR_Filtering->fdui = fdui;
+
+  return fdui;
+}
+/*---------------------------------------*/
+
+FD_RR_Objects *create_form_RR_Objects(void)
+{
+  FL_OBJECT *obj;
+  FD_RR_Objects *fdui = (FD_RR_Objects *) fl_calloc(1, sizeof(*fdui));
+
+  fdui->RR_Objects = fl_bgn_form(FL_NO_BOX, 610, 290);
+  obj = fl_add_box(FL_UP_BOX,0,0,610,290,"");
+  obj = fl_add_text(FL_NORMAL_TEXT,40,250,140,20,"Terraforming");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,10,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,10,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,10,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,10,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,10,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,10,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,10,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,30,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,30,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,30,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,30,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,30,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,30,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,30,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,50,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,50,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,50,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,50,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,50,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,50,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,50,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,70,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,70,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,70,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,70,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,70,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,70,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,70,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,90,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,90,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,90,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,90,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,90,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,90,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,90,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,110,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,110,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,110,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,110,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,110,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,110,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,110,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,130,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,130,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,130,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,130,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,130,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,130,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,130,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,150,140,20,"Starbase design 1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,150,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,150,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,150,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,150,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,340,150,100,20,"(base hull)");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,20,150,20,20,"1");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,190,140,20,"Factory");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,190,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,190,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,190,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,190,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,210,140,20,"Mine");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,210,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,210,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,210,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,210,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,40,230,140,20,"Defense");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,230,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,230,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,230,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,230,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,180,250,40,20,"Iron");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,250,40,20,"Bora");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,260,250,40,20,"Germ");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,300,250,40,20,"Res");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fl_end_form();
+
+  fdui->RR_Objects->fdui = fdui;
+
+  return fdui;
+}
+/*---------------------------------------*/
+

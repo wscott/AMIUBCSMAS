@@ -235,19 +235,12 @@ void graphics::load_planetstatus(void)
   }
 
   // set values in environment_dial (ALWAYS viewpoint)
-  for (i = 0; i < 3; i++) {
-    curr_ps->environment_dials[i].original = p->oristats()[i];
-    curr_ps->environment_dials[i].current = p->stats(w)[i];
-    curr_ps->environment_dials[i].tform = mapview->viewpoint()->terraform_tech()[i];
-    curr_ps->environment_dials[i].maxtform = (mapview->viewpoint()->lrt(TT)? 30 : 15);
-    curr_ps->environment_dials[i].habmin = mapview->viewpoint()->habmin()[i];
-    curr_ps->environment_dials[i].habmax = mapview->viewpoint()->habmax()[i];
-  }
-
-  // force redraw of dials
-  fl_redraw_object(curr_ps->gravitydial);
-  fl_redraw_object(curr_ps->tempdial);
-  fl_redraw_object(curr_ps->raddial);
+  for (i = 0; i < 3; i++)
+    fl_set_habdial(curr_ps->envdial[i], 
+		   mapview->viewpoint()->habmin()[i], mapview->viewpoint()->habmax()[i],
+		   p->stats(w)[i], p->oristats()[i],
+		   mapview->viewpoint()->terraform_tech()[i], 
+		   (mapview->viewpoint()->lrt(TT)? 30 : 15));
 
   n = int_to_str(p->population(w));
   fl_set_object_label(curr_ps->population, n.chars());
@@ -471,6 +464,79 @@ void graphics::hide_racialreport(void)
 }
 
 
+// draw the graph in Comparisons window taking data from the form itself
+
+void graphics::load_rrcomparisons(const int type = -1)
+{
+  float data[16][SIM_FUTURE];
+  float years[SIM_FUTURE];
+  int dcolor[16];
+  int fields = 0;
+  int npts = game_map->sim_future();
+  int i, r;
+  bool do_comparison = fl_get_button(xf_rrcmp->compare);
+  const char* ylabel;
+
+  if (type > 0)
+    curr_comparison_graph = type;
+
+  // prepare x axis
+  for (i = 0; i < npts; i++)
+    years[i] = game_map->year() + i;
+
+  switch(curr_comparison_graph) {
+  case RC_RESOURCES:
+    ylabel = "Resources";
+
+    if (!do_comparison) {
+      dcolor[0] = FL_WHITE;
+      for (i = 0; i < npts; i++)
+	data[0][i] = mapview->viewpoint()->total_res[i];
+
+    } else
+      for (r = 0; r < game_map->number_of_players(); r++) {
+	dcolor[r] = XFCOL_RACES + r;
+	for (i = 0; i < npts; i++)
+	  data[r][i] = game_map->find_race(r)->total_res[i];
+      }
+
+    break;
+  case RC_POPTOTAL:
+    break;
+  case RC_POPORBIT:
+    break;
+  case RC_POPPLANET:
+    break;
+  case RC_POPGROWTH:
+    break;
+  case RC_MINERALS:
+    ylabel = "Minerals";
+
+    for (r = 0; r < 3; r++)
+      for (i = 0; i < npts; i++)
+	data[0][i] = mapview->viewpoint()->total_min[i][r];
+
+    dcolor[0] = XFCOL_IRON;
+    dcolor[1] = XFCOL_BORA;
+    dcolor[2] = XFCOL_GERM;
+    break;
+  case RC_IRONIUM:
+    break;
+  case RC_BORANIUM:
+    break;
+  case RC_GERMANIUM:
+    break;
+  case RC_MINING:
+    break;
+  }
+
+  fl_set_object_color(xf_rrcmp->racegraph, FL_BLACK, dcolor[0]);
+  fl_set_xyplot_data(xf_rrcmp->racegraph, years, data[0], npts, "", "Turn year", ylabel);
+
+  for (i = 1; i < fields; i++)
+    fl_add_xyplot_overlay(xf_rrcmp->racegraph, i, years, data[i], npts, dcolor[i]);
+}
+
 
 void graphics::load_racialreport(const int rid)
 {
@@ -483,7 +549,8 @@ void graphics::load_racialreport(const int rid)
   fl_freeze_form(xf_rrinfo->RR_RaceInfo);
   fl_freeze_form(xf_rrlog->RR_ReportLog);
   fl_freeze_form(xf_rrcmp->RR_Comparisons);
-  fl_freeze_form(xf_rrdo->RR_DesignsObjects);
+  fl_freeze_form(xf_rrdes->RR_Designs);
+  fl_freeze_form(xf_rrobj->RR_Objects);
 
   // main form
   fl_set_object_label(xf_rr->race_names, r->name() + " (" + r->names() + ")");
@@ -535,13 +602,13 @@ void graphics::load_racialreport(const int rid)
     + "  TOT:" + int_to_str(r->total_fleets[F_TOTAL]);
   fl_set_object_label(xf_rrinfo->shiptypes, str);
 
-  // FL_OBJECT *habdial[3];
+  for (i = 0; i < 3; i++)
+    fl_set_habdial(xf_rrinfo->habdial[i], r->habmin()[i], r->habmax()[i], 0, 0, 0, 0);
 
   str = int_to_str(r->explored_planets) + "/" + 
     int_to_str(game_map->number_of_planets()) + " (" +
     int_to_str(100 * r->explored_planets / game_map->number_of_planets()) + "%)";
   fl_set_object_label(xf_rrinfo->explored, str);
-  // FL_OBJECT *explored;
   // FL_OBJECT *habgraph;
 
   // report-log form
@@ -562,31 +629,35 @@ void graphics::load_racialreport(const int rid)
     if (!o || i == 16)
       break;
 
-    fl_set_object_label(xf_rrdo->design[i], o->name());
-    fl_set_object_label(xf_rrdo->minerals[i][0], int_to_str(o->minerals().iron));
-    fl_set_object_label(xf_rrdo->minerals[i][1], int_to_str(o->minerals().bora));
-    fl_set_object_label(xf_rrdo->minerals[i][2], int_to_str(o->minerals().germ));
-    fl_set_object_label(xf_rrdo->resources[i], int_to_str(o->resources()));
-    fl_set_object_label(xf_rrdo->weight[i], int_to_str(o->d()->weight()));
-    fl_set_object_label(xf_rrdo->basehull[i], o->d()->basehull()->name);
+    fl_set_object_label(xf_rrdes->design[i], o->name());
+    fl_set_object_label(xf_rrdes->minerals[i][0], int_to_str(o->minerals().iron));
+    fl_set_object_label(xf_rrdes->minerals[i][1], int_to_str(o->minerals().bora));
+    fl_set_object_label(xf_rrdes->minerals[i][2], int_to_str(o->minerals().germ));
+    fl_set_object_label(xf_rrdes->resources[i], int_to_str(o->resources()));
+    fl_set_object_label(xf_rrdes->weight[i], int_to_str(o->d()->weight()));
+    fl_set_object_label(xf_rrdes->basehull[i], o->d()->basehull()->name);
     i++;
   }
 
   for (; i < 16; i++) {
-    fl_set_object_label(xf_rrdo->design[i], "-- empty slot --");
-    fl_set_object_label(xf_rrdo->minerals[i][0], "--");
-    fl_set_object_label(xf_rrdo->minerals[i][1], "--");
-    fl_set_object_label(xf_rrdo->minerals[i][2], "--");
-    fl_set_object_label(xf_rrdo->resources[i], "--");
-    fl_set_object_label(xf_rrdo->weight[i], "--");
-    fl_set_object_label(xf_rrdo->basehull[i], "- none -");
+    fl_set_object_label(xf_rrdes->design[i], "-- empty slot --");
+    fl_set_object_label(xf_rrdes->minerals[i][0], "--");
+    fl_set_object_label(xf_rrdes->minerals[i][1], "--");
+    fl_set_object_label(xf_rrdes->minerals[i][2], "--");
+    fl_set_object_label(xf_rrdes->resources[i], "--");
+    fl_set_object_label(xf_rrdes->weight[i], "--");
+    fl_set_object_label(xf_rrdes->basehull[i], "- none -");
   }
+
+  // load comparisons
+  load_rrcomparisons();
 
   fl_unfreeze_form(xf_rr->RacialReport);
   fl_unfreeze_form(xf_rrinfo->RR_RaceInfo);
   fl_unfreeze_form(xf_rrlog->RR_ReportLog);
   fl_unfreeze_form(xf_rrcmp->RR_Comparisons);
-  fl_unfreeze_form(xf_rrdo->RR_DesignsObjects);
+  fl_unfreeze_form(xf_rrdes->RR_Designs);
+  fl_unfreeze_form(xf_rrobj->RR_Objects);
 }
 
 

@@ -108,14 +108,14 @@ planet::planet(const planet& p)
 }
 
 
-void planet::add_message(const _msgtype mt, const myString& m)
+void planet::add_message(const int mt, const myString& m)
 {
   msg_table[curr_year].add(mt, m);
 }
 
 
 
-void planet::add_gmessage(const _msgtype mt, const myString& m)
+void planet::add_gmessage(const int mt, const myString& m)
 {
   global_msgs.add(mt, m);
 }

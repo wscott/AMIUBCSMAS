@@ -486,7 +486,7 @@ void race::check_data(void)
 
 
 
-void race::add_message(const _msgtype mt, const myString& m)
+void race::add_message(const int mt, const myString& m)
 {
   logmsgs.add(mt, m);
 }

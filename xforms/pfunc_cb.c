@@ -236,27 +236,6 @@ int freeobj_germaniumdial_handle(FL_OBJECT *ob, int ev, FL_Coord mx, FL_Coord my
   return 0;
 }
 
-int freeobj_gravitydial_handle(FL_OBJECT *ob, int ev, FL_Coord mx, FL_Coord my,
-			int key, void *xev)
-{
-  display->draw_environment_handler(ob, 0);
-  return 0;
-}
-
-int freeobj_termpdial_handle(FL_OBJECT *ob, int ev, FL_Coord mx, FL_Coord my,
-			int key, void *xev)
-{
-  display->draw_environment_handler(ob, 1);
-  return 0;
-}
-
-int freeobj_raddial_handle(FL_OBJECT *ob, int ev, FL_Coord mx, FL_Coord my,
-			int key, void *xev)
-{
-  display->draw_environment_handler(ob, 2);
-  return 0;
-}
-
 void pscb_closewindow(FL_OBJECT *ob, long data)
 {
   display->select_planetstatus(ob->form, 0);
@@ -502,4 +481,19 @@ void rrcb_close(FL_OBJECT *ob, long data)
 }
 
 
-/* free object handlers */
+void rrccb_selectgraph(FL_OBJECT *ob, long data)
+{
+  if (data > 0)
+    display->load_rrcomparisons(fl_get_choice(ob));
+  else
+    display->load_rrcomparisons();
+}
+
+
+void rrfcb_setfiltering(FL_OBJECT *ob, long data)
+{
+  if (fl_get_button(ob))
+    filter_in_messages(data);
+  else
+    filter_out_messages(data);
+}

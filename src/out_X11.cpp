@@ -448,9 +448,17 @@ void graphics::create_palette(void)
 
 
 
+static
+int close_null(FL_FORM* frm, void* data)
+{
+  return FL_OK;
+}
+
+
 graphics::graphics(const int resol, const char* title) : 
           sca_mask(0), gra_xres(resol),
-	  gra_yres(resol), curr_vwp(-1), cbobj(NULL)
+	  gra_yres(resol), curr_vwp(-1), curr_comparison_graph(1), 
+	  cbobj(NULL)
 {
   int depth;
   XVisualInfo visualinfo;
@@ -485,8 +493,23 @@ graphics::graphics(const int resol, const char* title) :
   xf_rrinfo = create_form_RR_RaceInfo();
   xf_rrlog = create_form_RR_ReportLog();
   xf_rrcmp = create_form_RR_Comparisons();
-  xf_rrdo = create_form_RR_DesignsObjects();
-  xf_rr = create_form_RacialReport(xf_rrinfo, xf_rrlog, xf_rrcmp, xf_rrdo);
+  xf_rrdes = create_form_RR_Designs();
+  xf_rrobj = create_form_RR_Objects();
+  xf_rrfilt = create_form_RR_Filtering();
+  xf_rr = create_form_RacialReport(xf_rrinfo, xf_rrlog, xf_rrcmp, xf_rrdes, xf_rrobj, xf_rrfilt);
+
+  // prevent closeform to kill application
+  fl_set_form_atclose(xf_mc->MapControl, close_null, NULL);
+  fl_set_form_atclose(xf_pfe->DisplayFunction, close_null, NULL);
+  fl_set_form_atclose(xf_ffe->DisplayFunction, close_null, NULL);
+  fl_set_form_atclose(xf_ps[0]->PlanetStatus, close_null, NULL);
+  fl_set_form_atclose(xf_ps[1]->PlanetStatus, close_null, NULL);
+  fl_set_form_atclose(xf_pm[0]->PlanetSimulation, close_null, NULL);
+  fl_set_form_atclose(xf_pm[1]->PlanetSimulation, close_null, NULL);
+  fl_set_form_atclose(xf_pv->ObjectViews, close_null, NULL);
+  fl_set_form_atclose(xf_fv->ObjectViews, close_null, NULL);
+  fl_set_form_atclose(xf_pak->PacketFiring, close_null, NULL);
+  fl_set_form_atclose(xf_rr->RacialReport, close_null, NULL);
 
   x_display = fl_get_display();
   if (!x_display) {
@@ -695,7 +718,7 @@ void graphics::wait_title_form(void)
 void graphics::form_initial_update(void)
 {
   char mainmenu[512];
-  int i, j;
+  int i, j, mt;
   const char* c;
   // put all the appropriate stuff in the forms (race names/colors/pfuncs)
   
@@ -878,10 +901,20 @@ void graphics::form_initial_update(void)
 
   // mineral colors: race ship designs
   for (i = 0; i < 16; i++) {
-    fl_set_object_lcol(xf_rrdo->minerals[i][0], FL_FREE_COL1 + XFCOL_IRON+1);
-    fl_set_object_lcol(xf_rrdo->minerals[i][1], FL_FREE_COL1 + XFCOL_BORA);
-    fl_set_object_lcol(xf_rrdo->minerals[i][2], FL_FREE_COL1 + XFCOL_GERM);
+    fl_set_object_lcol(xf_rrdes->minerals[i][0], FL_FREE_COL1 + XFCOL_IRON+1);
+    fl_set_object_lcol(xf_rrdes->minerals[i][1], FL_FREE_COL1 + XFCOL_BORA);
+    fl_set_object_lcol(xf_rrdes->minerals[i][2], FL_FREE_COL1 + XFCOL_GERM);
   }
+
+  // set message filtering buttons
+  for (i = 0; ; i++)
+    if ( (mt = message_get_mask(i)) && xf_rrfilt->buttons[i]) {
+      if (messages_are_filtered(mt))
+	fl_set_button(xf_rrfilt->buttons[i], 0);
+      else
+	fl_set_button(xf_rrfilt->buttons[i], 1);
+    } else
+      break;
 
   fl_set_input(xf_mc->future, "0");
   fl_set_input(xf_mc->scaneff, "100");
@@ -1150,115 +1183,6 @@ void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
   XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe+4, ob->x+xmin-4, ob->y+hahe);
   XDrawLine(x_display, win, gc, ob->x+xmin-4, ob->y+hahe, ob->x+xmin, ob->y+hahe-4);
   XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe-4, ob->x+xmin+4, ob->y+hahe);
-
-  // restore grey
-  XSetForeground(x_display, gc, fl_get_flcolor(FL_COL1));
-}
-
-
-void graphics::draw_environment_handler(FL_OBJECT* ob, const int i)
-{
-  GC gc = fl_state[fl_get_vclass()].gc[0];
-  Window win = fl_winget();
-  int width = ob->w - 2;
-  int hahe = ob->h / 2;
-  int xmin, xmax;
-  int habcenter, habhwidth;
-  const _envdial& environment = curr_ps->environment_dials[i];
-
-  // immune -> all green
-  if (environment.habmin == -1) {
-    XSetForeground(x_display, gc, fl_get_flcolor(FL_GREEN));
-    XFillRectangle(x_display, win, gc, ob->x, ob->y+1, ob->w, ob->h-2);
-
-  } else {
-    habcenter = (environment.habmax + environment.habmin) / 2;
-    habhwidth = (environment.habmax - environment.habmin) / 2;
-
-    XSetForeground(x_display, gc, fl_get_flcolor(FL_RED));
-    XFillRectangle(x_display, win, gc, ob->x, ob->y+1, ob->w, ob->h-2);
-
-    // yellow band
-    if (environment.tform != 0) {
-      xmin = environment.habmin - environment.tform;
-      xmax = environment.habmax + environment.tform;
-      if (xmin < 0)
-	xmin = 0;
-      if (xmax > 100)
-	xmax = 100;
-
-      xmin = (xmin*width + width/2)/100;
-      xmax = (xmax*width + width/2)/100;
-
-      XSetForeground(x_display, gc, fl_get_flcolor(FL_YELLOW));
-      XFillRectangle(x_display, win, gc, ob->x+xmin, ob->y+1, xmax-xmin, ob->h-2);
-    }
-
-    // green band
-    xmin = environment.habmin;
-    xmax = environment.habmax;
-
-    xmin = (xmin*width + width/2)/100;
-    xmax = (xmax*width + width/2)/100;
-
-    XSetForeground(x_display, gc, fl_get_flcolor(FL_PALEGREEN));
-    XFillRectangle(x_display, win, gc, ob->x+xmin, ob->y+1, xmax-xmin, ob->h-2);
-
-    // inner green band
-    xmin = habcenter - habhwidth/2;
-    xmax = habcenter + habhwidth/2;
-
-    xmin = (xmin*width + width/2)/100;
-    xmax = (xmax*width + width/2)/100;
-
-    XSetForeground(x_display, gc, fl_get_flcolor(FL_GREEN));
-    XFillRectangle(x_display, win, gc, ob->x+xmin, ob->y+1, xmax-xmin, ob->h-2);
-  }
-
-  if (environment.original > 0) {
-    // put black markers for current/original
-    XSetForeground(x_display, gc, fl_get_flcolor(FL_BLACK));  
-
-    // current
-    xmin = environment.current;
-    xmin = (xmin*width + width/2)/100;
-    XDrawLine(x_display, win, gc, ob->x+xmin+4, ob->y+hahe, ob->x+xmin, ob->y+hahe+4);
-    XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe+4, ob->x+xmin-4, ob->y+hahe);
-    XDrawLine(x_display, win, gc, ob->x+xmin-4, ob->y+hahe, ob->x+xmin, ob->y+hahe-4);
-    XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe-4, ob->x+xmin+4, ob->y+hahe);
-
-    // original
-    xmin = environment.original;
-    xmin = (xmin*width + width/2)/100;
-    XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe-7, ob->x+xmin, ob->y+hahe+7);
-
-    // draw line from current to original+tform
-    if (environment.habmin >= 0) {
-      xmax = habcenter - environment.original;
-      if (abs(xmax) > environment.tform)
-	xmax = sign(xmax) * environment.tform;
-
-      xmax += environment.original;
-      xmin = environment.current;
-
-      xmin = (xmin*width + width/2)/100;
-      xmax = (xmax*width + width/2)/100;
-      
-      XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe, ob->x+xmax, ob->y+hahe);
-    }
-
-    // mark maxtform point
-    if (environment.habmin >= 0) {
-      xmax = habcenter - environment.original;
-      if (abs(xmax) > environment.maxtform)
-	xmax = sign(xmax) * environment.maxtform;
-
-      xmax += environment.original;
-      xmax = (xmax*width + width/2)/100;
-
-      XDrawLine(x_display, win, gc, ob->x+xmax, ob->y+hahe+2, ob->x+xmax, ob->y+hahe-2);
-    }
-  }
 
   // restore grey
   XSetForeground(x_display, gc, fl_get_flcolor(FL_COL1));

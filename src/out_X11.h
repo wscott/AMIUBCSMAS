@@ -94,10 +94,13 @@ class graphics {
   FD_RR_RaceInfo* xf_rrinfo;
   FD_RR_ReportLog* xf_rrlog;
   FD_RR_Comparisons* xf_rrcmp;
-  FD_RR_DesignsObjects* xf_rrdo;
+  FD_RR_Designs* xf_rrdes;
+  FD_RR_Objects* xf_rrobj;
+  FD_RR_Filtering* xf_rrfilt;
   int elapsed_title;
 
   int curr_vwp;
+  int curr_comparison_graph;
   bool pfe_menu_changed; // workaround
   bool ffe_menu_changed; // workaround #2
 
@@ -125,7 +128,6 @@ public:
   void set_mineraldial_scale(const int i);
   void load_mineralobject(void);
   void draw_mineral_handler(FL_OBJECT* ob, const int i);
-  void draw_environment_handler(FL_OBJECT* ob, const int i);
   void draw_fat_circle_arc(const int xp, const int yp, const int r, const int c1, const int thetamin = 0, const int thetaspan = 360*64); 
   void draw_triangle_pie(const _xypoint& p, const _xypoint& dir, const int r, const int c1, const int thetamin = 0, const int thetaspan = 360*64);
   void draw_circle(const _xypoint& p, const int r, const int col, const int colfill);
@@ -153,6 +155,7 @@ public:
   void hide_planetbombing(void);
   void show_racialreport(void);
   void hide_racialreport(void);
+  void load_rrcomparisons(const int type = -1);
   void load_racialreport(const int rid);
   void toggle_mapcontrol(void);
   bool in_planet_windows(FL_OBJECT* ob);

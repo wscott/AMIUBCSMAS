@@ -1,6 +1,8 @@
 #ifndef FD_DisplayFunction_h_
 #define FD_DisplayFunction_h_
 
+#include "habdial.h"
+
 /* freeobject support structures */
 
 struct _mindial {
@@ -8,15 +10,6 @@ struct _mindial {
   int next;
   int conc;
   int mining;
-};
-
-struct _envdial {
-  int current;
-  int original;
-  int tform;
-  int maxtform;
-  int habmin;
-  int habmax;
 };
 
 /** Callback routines and free object handlers **/
@@ -81,6 +74,10 @@ extern void pfcb_cheapkiller(FL_OBJECT *, long);
 extern void pfcb_close(FL_OBJECT *, long);
 
 extern void rrcb_close(FL_OBJECT *, long);
+
+extern void rrccb_selectgraph(FL_OBJECT *, long);
+
+extern void rrfcb_setfiltering(FL_OBJECT *, long);
 
 /**** Forms and Objects ****/
 
@@ -179,9 +176,7 @@ typedef struct {
 	FL_OBJECT *ironiumdial;
 	FL_OBJECT *boraniumdial;
 	FL_OBJECT *germaniumdial;
-	FL_OBJECT *gravitydial;
-	FL_OBJECT *tempdial;
-	FL_OBJECT *raddial;
+	FL_OBJECT *envdial[3];
 	FL_OBJECT *close;
 	FL_OBJECT *minscale;
 	FL_OBJECT *testobject;
@@ -193,7 +188,6 @@ typedef struct {
         int mineraldial_scale;
         int mineralobjects_lastowner;
         _mindial mineral_dials[3];
-        _envdial environment_dials[3];
 } FD_PlanetStatus;
 
 extern FD_PlanetStatus * create_form_PlanetStatus(void);
@@ -325,7 +319,7 @@ typedef struct {
 extern FD_RR_Comparisons * create_form_RR_Comparisons(void);
 
 typedef struct {
-	FL_FORM *RR_DesignsObjects;
+	FL_FORM *RR_Designs;
 	void *vdata;
 	char *cdata;
 	long  ldata;
@@ -334,9 +328,27 @@ typedef struct {
         FL_OBJECT *resources[16];
         FL_OBJECT *weight[16];
         FL_OBJECT *basehull[16];
-} FD_RR_DesignsObjects;
+} FD_RR_Designs;
 
-extern FD_RR_DesignsObjects * create_form_RR_DesignsObjects(void);
+extern FD_RR_Designs * create_form_RR_Designs(void);
+
+typedef struct {
+	FL_FORM *RR_Filtering;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+        FL_OBJECT* buttons[21];
+} FD_RR_Filtering;
+
+extern FD_RR_Filtering * create_form_RR_Filtering(void);
+typedef struct {
+	FL_FORM *RR_Objects;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_RR_Objects;
+
+extern FD_RR_Objects * create_form_RR_Objects(void);
 
 typedef struct {
 	FL_FORM *RacialReport;
@@ -348,6 +360,6 @@ typedef struct {
 	FL_OBJECT *race_names;
 } FD_RacialReport;
 
-extern FD_RacialReport * create_form_RacialReport(FD_RR_RaceInfo* tf1, FD_RR_ReportLog* tf2, FD_RR_Comparisons* tf3, FD_RR_DesignsObjects* tf4);
+extern FD_RacialReport * create_form_RacialReport(FD_RR_RaceInfo* tf1, FD_RR_ReportLog* tf2, FD_RR_Comparisons* tf3, FD_RR_Designs* tf4, FD_RR_Objects* tf5, FD_RR_Filtering* tf6);
 
 #endif /* FD_DisplayFunction_h_ */

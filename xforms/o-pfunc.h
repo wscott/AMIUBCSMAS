@@ -1,4 +1,4 @@
-/** Header file generated with fdesign on Wed Nov 11 10:30:39 1998.**/
+/** Header file generated with fdesign on Fri Nov 13 22:33:00 1998.**/
 
 #ifndef FD_PlanetaryFunction_h_
 #define FD_PlanetaryFunction_h_
@@ -56,6 +56,8 @@ extern int freeobj_tempdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
 extern int freeobj_raddial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
+
+
 
 
 
@@ -378,12 +380,28 @@ typedef struct {
 
 extern FD_RR_Comparisons * create_form_RR_Comparisons(void);
 typedef struct {
-	FL_FORM *RR_DesignsObjects;
+	FL_FORM *RR_Designs;
 	void *vdata;
 	char *cdata;
 	long  ldata;
-} FD_RR_DesignsObjects;
+} FD_RR_Designs;
 
-extern FD_RR_DesignsObjects * create_form_RR_DesignsObjects(void);
+extern FD_RR_Designs * create_form_RR_Designs(void);
+typedef struct {
+	FL_FORM *RR_Filtering;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_RR_Filtering;
+
+extern FD_RR_Filtering * create_form_RR_Filtering(void);
+typedef struct {
+	FL_FORM *RR_Objects;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_RR_Objects;
+
+extern FD_RR_Objects * create_form_RR_Objects(void);
 
 #endif /* FD_PlanetaryFunction_h_ */
