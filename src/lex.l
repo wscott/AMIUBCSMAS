@@ -246,15 +246,16 @@ include\ .+         {
 			yyerror("Includes nested too deeply");
 
 		      myString incl(yytext);
-		      vector<myString> fns;
+		      myString fname;
+		      vector<TmyString> fns;
 
 		      fns = incl.split(myRegexp::RXwhite, 2);
 
 		      /* check path */
 		      if (fns[1][0] != '/')
-			fns[1] = infile_path + fns[1];
+			fname = infile_path + (const char*)fns[1];
 
-		      begin_include_file(fns[1]);
+		      begin_include_file(fname);
                     }
 
 starsinclude\ .+    {
@@ -263,21 +264,23 @@ starsinclude\ .+    {
 
 		      /* separate the two names (3?) */
 		      myString incl(yytext);
-		      vector<myString> fns;
+		      myString fname1;
+		      myString fname2;
+		      vector<TmyString> fns;
 
 		      fns = incl.split(myRegexp::RXwhite, 4);
 
 		      /* check path */
 		      if (fns[1][0] != '/')
-			fns[1] = infile_path + fns[1];
+			fname1 = infile_path + (const char*)fns[1];
 		      if (fns[2][0] != '/')
-			fns[2] = infile_path + fns[2];
+			fname2 = infile_path + (const char*)fns[2];
 
 		      // perform the conversion on the fly
-		      if (!convert(fns[2], fns[1]))
+		      if (!convert(fname2, fname1))
 			yyerror("Error performing conversion");
 
-		      begin_include_file(fns[1]);
+		      begin_include_file(fname1);
                     }
 
 <<EOF>>             {

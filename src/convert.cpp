@@ -338,7 +338,7 @@ bool convert(const myString& infile, const myString& outfile)
       // destination (if ship is not halted)
       myString dest(fields[NF_DESTINATION]);
       if (dest.length()) {
-	vector<myString> dt;
+	vector<TmyString> dt;
 
 	if (dest.matches(myRegexp("[0-9]+\\.[0-9]+"))) {
 	  dt = dest.split(myString("."), 2);

@@ -10,6 +10,6 @@ clean:
 
 habdial.o: habdial.c habdial.h
 
-pfunc.o: pfunc.c pfunc.h habdial.h ../src/starana-const.h
+pfunc.o: pfunc.c pfunc.h habdial.h ../src/starana-const.h ../src/myString.h
 
 pfunc_cb.o: pfunc_cb.c pfunc.h ../src/starana-classes.h ../src/myString.h

@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 
-vector<myString> myString::split(const myString& sep, int max = 0)
+vector<TmyString> myString::split(const myString& sep, int max = 0)
 {
   size_type pos = 0;
   size_type p;
-  vector<myString> res;
+  vector<TmyString> res;
 
   while (1) {
     p = s.find(sep, pos);
@@ -36,10 +36,10 @@ vector<myString> myString::split(const myString& sep, int max = 0)
 }
 
 
-vector<myString> myString::split(const myRegexp& sep, int max = 0)
+vector<TmyString> myString::split(const myRegexp& sep, int max = 0)
 {
   size_type pos = 0;
-  vector<myString> res;
+  vector<TmyString> res;
   int b, e;
 
   while (1) {

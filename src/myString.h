@@ -5,14 +5,41 @@
 #ifndef _MYSTRING_INCLUDED
 #define _MYSTRING_INCLUDED
 
-#include <string>
-#include <vector>
-#include <sys/types.h>
 extern "C" {
+#include <sys/types.h>
 #include <regex.h>
 }
+#include <string>
+#include <vector>
+
 
 class myRegexp;
+class myString;
+
+
+// workaround for gcc problem
+class TmyString {
+  string s;
+
+public:
+  TmyString(void) : s("")
+    { }
+  ~TmyString(void)
+    { }
+  TmyString(const string& s2) : s(s2)
+    { }
+  TmyString(const char* s2) : s(s2)
+    { }
+  TmyString(const TmyString& s2) : s(s2.s)
+    { }
+  TmyString& operator=(const TmyString& s2)
+    { s = s2.s;
+      return *this; }
+  operator myString(void);
+  operator const char*(void) const
+    { return s.c_str(); }
+};
+
 
 class myString {
   typedef string::size_type size_type;
@@ -63,8 +90,8 @@ public:
     { return s.substr(i+1, string::npos); }
   myString at(size_type i, size_type len = string::npos) const
     { return s.substr(i, len); }
-  vector<myString> split(const myString& sep, int max = 0);
-  vector<myString> split(const myRegexp& sep, int max = 0);
+  vector<TmyString> split(const myString& sep, int max = 0);
+  vector<TmyString> split(const myRegexp& sep, int max = 0);
   bool matches(const myString& s2, size_type pos = 0) const
     { return !s.compare(s2.s, pos, string::npos); }
   bool matches(const myRegexp& rx, size_type pos = 0) const;
@@ -114,6 +141,12 @@ static const myRegexp RXidentifier;     // = "[A-Za-z_][A-Za-z0-9_]*"
 };
 
 
+
+inline
+TmyString::operator myString(void)
+{
+  return myString(s);
+}
 
 inline
 myString operator+(const char* c, const myString& s)

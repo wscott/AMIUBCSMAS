@@ -3,6 +3,13 @@ WS = Wayne Smith
 
 Version 0.3
 
+
+- fixed file search path with -v option.
+- fixed compilation problem with GCC and mString vectors.
+
+
+Version 0.2g
+
 - Shift-Crtl-Alt are now correctly handled.
 - added and activated ship gating form (formulae from CRobers,
   B.Butler, SBPosey).

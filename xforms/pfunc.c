@@ -635,13 +635,13 @@ FD_IntroTitle *create_form_IntroTitle(void)
     fl_set_object_lcolor(obj,FL_YELLOW);
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,160,40,120,30,"version 0.2f19");
+  obj = fl_add_text(FL_NORMAL_TEXT,160,40,120,30,"version "+STARANA_VERSION);
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_TOMATO);
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fl_set_object_lstyle(obj,FL_FIXEDBOLDITALIC_STYLE);
-  obj = fl_add_text(FL_NORMAL_TEXT,280,40,110,30,"(30 Nov 1998)");
+  obj = fl_add_text(FL_NORMAL_TEXT,280,40,110,30,"("+STARANA_RELDATE+")");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_TOMATO);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);

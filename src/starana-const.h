@@ -1,3 +1,9 @@
+#include "myString.h"
+
+const myString STARANA_VERSION = "0.2g2";
+const myString STARANA_RELDATE = "3 Dec 1998";
+
+
 #define SIM_FUTURE 52
 
 // planet report type

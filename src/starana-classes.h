@@ -1,10 +1,6 @@
 // #define DISABLE_BACKINGSTORE
 // #define DEFAULT_FULLYVISUAL
 
-// this must become libstdc++ sooner or later (myString.h)
-// #include <g++/String.h>
-#include "myString.h"
-
 #include <vector>
 
 #include <math.h>
@@ -12,6 +8,9 @@
 #include <stdlib.h>
 
 #include "starana-const.h"
+// myString.h is included by starana-const.h
+// #include "myString.h"
+
 
 
 class planet;

@@ -36,7 +36,7 @@ bool initialize_map(const myString& smff)
   if (oi == string::npos) // no path
     infile_path = "";
   else
-    infile_path = myString(smff)(0, oi+1);
+    infile_path = myString(smff)(0, oi);
 
   // open report log
   game_map->open_report_log(infile_path + "report-log");

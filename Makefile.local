@@ -6,7 +6,7 @@ YACC = bison
 LXFLAGS =
 YFLAGS = -d -v -t
 
-# linux (I tried on RedHat 5.1)
+# linux (I work with RedHat 5.2)
 OPTIONS=
 INCLUDES= -I/usr/X11R6/include
 LIBRARIES= -L/usr/X11R6/lib -lX11 -lforms
