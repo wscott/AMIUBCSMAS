@@ -405,7 +405,8 @@ void graphics::load_planetstatus(void)
       fl_add_browser_line(curr_pm->messages, "Analysis: " + msg->msg);
 
   load_packetfiring();
-  load_planetbombing();
+  load_shipgating();
+  //  load_planetbombing();
 
   fl_unfreeze_form(curr_ps->PlanetStatus);
   fl_unfreeze_form(curr_pm->PlanetSimulation);
@@ -784,6 +785,176 @@ void graphics::load_planetbombing(void)
 
 
 
+void graphics::show_shipgating(void)
+{
+  if ( !fl_form_is_visible(xf_sg->ShipGating) )
+    fl_show_form(xf_sg->ShipGating, FL_PLACE_SIZE, FL_FULLBORDER, "Ship Gating");
+  else
+    XRaiseWindow(x_display, xf_sg->ShipGating->window);
+  XFlush(fl_get_display());
+}
+
+
+
+void graphics::hide_shipgating(void)
+{
+  if ( fl_form_is_visible(xf_sg->ShipGating) )
+    fl_hide_form(xf_sg->ShipGating);
+  XFlush(fl_get_display());
+}
+
+
+
+void graphics::gating_recompute(void)
+{
+  char str[64];
+  int i, j, damage, distance, n, sd, sm, source, dest;
+  int range[2], mass[2];
+  planet* p[2];
+  double mdam1, mdam2, masssurvive, rangesurvive, survive;
+  double massdamage = 0.0, rangedamage = 0.0;
+
+  // fetch gate stats
+  for (i = 0; i < 2; i++) {
+    p[i] = mapview->get_active_planet(i);
+    j = fl_get_choice(xf_sg->gatetouse[i]);
+
+    if (j == 1) {
+      // use default stats
+      mass[i] = p[i]->gate_mass();
+      range[i] = p[i]->gate_range();
+    } else {
+      mass[i] = gate_mass[j-2];
+      range[i] = gate_distance[j-2];
+    }
+  }
+
+  distance = p[0]->distance(p[1]);
+
+  // use direction to choose source & destination
+  source = 0;
+  dest = 1;
+
+  if (xf_sg->dir) {
+    source = 1;
+    dest = 0;
+  }
+
+  // make sure we DO have gates
+  if (range[0] == 0 || range[1] == 0) {
+    for (i = 0; i < 4; i++) {
+      fl_set_object_label(xf_sg->arrived[i], "---");
+      fl_set_object_label(xf_sg->damage[i], "---");
+    }
+  } else {
+    // we have gates, compute damage
+    for (i = 0; i < 4; i++) {
+      n = atoi(fl_get_input(xf_sg->amount[i]));
+
+      if (n > 0) {
+	sd = fl_get_choice(xf_sg->shipdesign[i]);
+	sm = xf_sg->dmass[sd-1];
+
+	if (range[source] > 0)
+	  rangedamage = (double)(distance - range[source])/(4*range[source]);
+
+	if (mass[source] == -1)
+	  mdam1 = 1.0;
+	else
+	  mdam1 = min(1.0, (double)(5*mass[source] - sm) / (4*mass[source]));
+
+	if (mass[dest] == -1)
+	  mdam2 = 1.0;
+	else
+	  mdam2 = min(1.0, (double)(5*mass[dest] - sm) / (4*mass[dest]));
+
+	massdamage = 1.0 - mdam1 * mdam2;
+
+	damage = (int)(100 * (massdamage + (1.0-massdamage) * rangedamage));
+
+	masssurvive = (1.0 - 2.0/3.0) * (mdam1 * mdam2) + 2.0/3.0;
+	rangesurvive = (1.0 - 2.0/3.0) * (1.0 - rangedamage * rangedamage) + 2.0/3.0;
+
+	survive = (double)n * (masssurvive - (1.0 - rangesurvive));
+
+	sprintf(str, "%.1f", survive);
+	fl_set_object_label(xf_sg->arrived[i], str);
+	fl_set_object_label(xf_sg->damage[i], int_to_str(damage) + "%");
+      }
+    }
+  }
+}
+
+
+
+void graphics::gating_switchdirection(void)
+{
+  xf_sg->dir = !xf_sg->dir;
+
+  if (xf_sg->dir)
+    fl_set_object_label(xf_sg->gatedirection, "@4");
+  else
+    fl_set_object_label(xf_sg->gatedirection, "@6");
+
+  gating_recompute();
+}
+
+
+
+void graphics::load_shipgating(void)
+{
+  int i, j;
+  planet* p[2];
+  object* o;
+  myString msg;
+
+  // planet w/ gate stats
+  for (i = 0; i < 2; i++) {
+    p[i] = mapview->get_active_planet(i);
+
+    fl_set_object_label(xf_sg->planetname[i], p[i]->name());
+
+    if (p[i]->gate_mass() || p[i]->gate_range())
+      msg = ( (p[i]->gate_mass() > 0)? int_to_str(p[i]->gate_mass()) : myString("oo") ) 
+	    + " / " +
+	    ( (p[i]->gate_range() > 0)? int_to_str(p[i]->gate_range()) : myString("oo") );
+    else
+      msg = "- none -";
+
+    fl_set_object_label(xf_sg->planetgate[i], msg);
+  }
+
+  fl_set_choice(xf_sg->gatetouse[0], 1);
+  fl_set_choice(xf_sg->gatetouse[1], 1);
+
+  fl_set_object_label(xf_sg->planetdistance, int_to_str(p[0]->distance(p[1])) + "l.y.");
+
+  // load ship designs
+  for (j = 0; j < 4; j++)
+    fl_clear_choice(xf_sg->shipdesign[j]);
+
+  race* r = mapview->viewpoint();
+
+  for (i = 0, o = NULL; ; ) {
+    do {
+      o = r->next_object(o);
+    } while (o && !(o->is_design() && !o->d()->is_starbase()));
+
+    if (!o || i == 16)
+      break;
+
+    for (j = 0; j < 4; j++)
+      fl_addto_choice(xf_sg->shipdesign[j], o->name());
+
+    xf_sg->dmass[i] = o->d()->weight();
+    i++;
+  }
+
+  gating_recompute();
+}
+
+
+
 void graphics::show_racialreport(void)
 {
   if ( !fl_form_is_visible(xf_rr->RacialReport) )
@@ -802,14 +973,6 @@ void graphics::hide_racialreport(void)
   XFlush(fl_get_display());
 }
 
-
-
-inline
-float get_graph_value(const int type, race* r, const int year)
-{
-
-  return 0.0;
-}
 
 
 // draw the graph in Comparisons window taking data from the form itself

@@ -448,7 +448,7 @@ void pscb_bombplanet(FL_OBJECT *ob, long)
 
 void pscb_gateships(FL_OBJECT *ob, long)
 {
-
+  display->show_shipgating();
 }
 
 
@@ -504,6 +504,27 @@ void pfcb_switchdirection(FL_OBJECT *ob, long data)
   display->packet_switchdirection();
   display->packet_computedamage();
 }
+
+
+/* callbacks and freeobj handles for form ShipGating */
+void sgcb_recompute(FL_OBJECT *ob, long data)
+{
+  display->gating_recompute();
+}
+
+
+void sgcb_switchdirection(FL_OBJECT *ob, long data)
+{
+  display->gating_switchdirection();
+  display->gating_recompute();
+}
+
+
+void sgcb_close(FL_OBJECT *ob, long data)
+{
+  display->hide_shipgating();
+}
+
 
 
 /* callbacks and freeobj handles for form RacialReport */

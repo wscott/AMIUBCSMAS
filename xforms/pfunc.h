@@ -82,6 +82,10 @@ extern void rrccb_selectgraph(FL_OBJECT *, long);
 
 extern void rrfcb_setfiltering(FL_OBJECT *, long);
 
+extern void sgcb_close(FL_OBJECT *, long);
+extern void sgcb_recompute(FL_OBJECT *, long);
+extern void sgcb_switchdirection(FL_OBJECT *, long);
+
 /**** Forms and Objects ****/
 
 typedef struct {
@@ -364,5 +368,25 @@ typedef struct {
 } FD_RacialReport;
 
 extern FD_RacialReport * create_form_RacialReport(FD_RR_RaceInfo* tf1, FD_RR_ReportLog* tf2, FD_RR_Comparisons* tf3, FD_RR_Designs* tf4, FD_RR_Objects* tf5, FD_RR_Filtering* tf6);
+
+typedef struct {
+	FL_FORM *ShipGating;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+	FL_OBJECT *planetname[2];
+	FL_OBJECT *planetgate[2];
+	FL_OBJECT *gatetouse[2];
+	FL_OBJECT *planetdistance;
+	FL_OBJECT *gatedirection;
+        int dir;
+	FL_OBJECT *shipdesign[4];
+        int dmass[16];
+	FL_OBJECT *amount[4];
+	FL_OBJECT *arrived[4];
+	FL_OBJECT *damage[4];
+} FD_ShipGating;
+
+extern FD_ShipGating * create_form_ShipGating(void);
 
 #endif /* FD_DisplayFunction_h_ */

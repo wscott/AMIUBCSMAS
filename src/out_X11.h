@@ -19,9 +19,9 @@ extern "C" {
                      ExposureMask|ButtonPressMask|LeaveWindowMask|\
                      EnterWindowMask
 
-#define SHIFT_PRESSED 0x0001
-#define CTRL_PRESSED  0x0002
-#define ALT_PRESSED   0x0004
+#define SHIFT_PRESSED ShiftMask
+#define CTRL_PRESSED  ControlMask
+#define ALT_PRESSED   Mod1Mask
 
 extern int MAX_RADIUS;  // now user-selectable
 
@@ -89,6 +89,7 @@ class graphics {
   FD_ObjectViews* xf_pv;
   FD_ObjectViews* xf_fv;
   FD_PacketFiring* xf_pak;
+  FD_ShipGating* xf_sg;
   FD_IntroTitle* xf_titl;
   FD_RacialReport* xf_rr;
   FD_RR_RaceInfo* xf_rrinfo;
@@ -105,7 +106,6 @@ class graphics {
   bool pfe_menu_changed; // workaround
   bool ffe_menu_changed; // workaround #2
 
-  int update_mask(KeySym k, int type);
   graphics& operator=(const graphics&);
   graphics(const graphics&);
 
@@ -158,6 +158,11 @@ public:
   void load_packetfiring(void);
   void show_packetfiring(void);
   void hide_packetfiring(void);
+  void show_shipgating(void);
+  void hide_shipgating(void);
+  void gating_recompute(void);
+  void gating_switchdirection(void);
+  void load_shipgating(void);
   void load_planetbombing(void);
   void hide_planetbombing(void);
   void show_racialreport(void);

@@ -481,9 +481,9 @@ FD_PacketFiring *create_form_PacketFiring(void)
   FL_OBJECT *obj;
   FD_PacketFiring *fdui = (FD_PacketFiring *) fl_calloc(1, sizeof(*fdui));
 
-  fdui->PacketFiring = fl_bgn_form(FL_NO_BOX, 480, 460);
-  obj = fl_add_box(FL_UP_BOX,0,0,480,460,"");
-  obj = fl_add_frame(FL_ENGRAVED_FRAME,20,235,440,180,"");
+  fdui->PacketFiring = fl_bgn_form(FL_NO_BOX, 480, 410);
+  obj = fl_add_box(FL_UP_BOX,0,0,480,410,"");
+  obj = fl_add_frame(FL_ENGRAVED_FRAME,20,240,440,120,"");
   fdui->frameuno = obj = fl_add_labelframe(FL_ENGRAVED_FRAME,5,10,200,180,"Planet #1");
   fdui->planetname1 = obj = fl_add_text(FL_NORMAL_TEXT,10,20,190,30,"Wammalammadingdong");
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
@@ -493,7 +493,7 @@ FD_PacketFiring *create_form_PacketFiring(void)
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
   fdui->planetdistance = obj = fl_add_text(FL_NORMAL_TEXT,210,110,60,20,"9999 l.y.");
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->close = obj = fl_add_button(FL_NORMAL_BUTTON,400,420,70,30,"Close");
+  fdui->close = obj = fl_add_button(FL_NORMAL_BUTTON,400,370,70,30,"Close");
     fl_set_object_callback(obj,pfcb_close,0);
   fdui->mineralspent = obj = fl_add_counter(FL_NORMAL_COUNTER,110,200,180,20,"Minerals spent: ");
     fl_set_object_lalign(obj,FL_ALIGN_LEFT);
@@ -564,36 +564,6 @@ FD_PacketFiring *create_form_PacketFiring(void)
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
   fdui->terraform4 = obj = fl_add_text(FL_NORMAL_TEXT,390,330,60,20,"12 / 1");
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->colkill5 = obj = fl_add_text(FL_NORMAL_TEXT,200,350,100,20,"769500 / 175900");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->travel5 = obj = fl_add_text(FL_NORMAL_TEXT,70,350,40,20,"3");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->warp5 = obj = fl_add_text(FL_NORMAL_TEXT,30,350,40,20,"11");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->defdestroy5 = obj = fl_add_text(FL_NORMAL_TEXT,300,350,80,20,"27 / 56");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->terraform5 = obj = fl_add_text(FL_NORMAL_TEXT,390,350,60,20,"12 / 1");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->colkill6 = obj = fl_add_text(FL_NORMAL_TEXT,200,370,100,20,"769500 / 175900");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->travel6 = obj = fl_add_text(FL_NORMAL_TEXT,70,370,40,20,"3");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->warp6 = obj = fl_add_text(FL_NORMAL_TEXT,30,370,40,20,"12");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->defdestroy6 = obj = fl_add_text(FL_NORMAL_TEXT,300,370,80,20,"27 / 56");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->terraform6 = obj = fl_add_text(FL_NORMAL_TEXT,390,370,60,20,"12 / 1");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->colkill7 = obj = fl_add_text(FL_NORMAL_TEXT,200,390,100,20,"769500 / 175900");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->travel7 = obj = fl_add_text(FL_NORMAL_TEXT,70,390,40,20,"3");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->warp7 = obj = fl_add_text(FL_NORMAL_TEXT,30,390,40,20,"13");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->defdestroy7 = obj = fl_add_text(FL_NORMAL_TEXT,300,390,80,20,"27 / 56");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->terraform7 = obj = fl_add_text(FL_NORMAL_TEXT,390,390,60,20,"12 / 1");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
   fdui->framedue = obj = fl_add_labelframe(FL_ENGRAVED_FRAME,275,10,200,180,"Planet #2");
   fdui->planetname2 = obj = fl_add_text(FL_NORMAL_TEXT,280,20,190,30,"Wammalammadingdong");
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
@@ -630,12 +600,6 @@ FD_PacketFiring *create_form_PacketFiring(void)
   fdui->mineral3 = obj = fl_add_text(FL_NORMAL_TEXT,110,310,90,20,"22700 / 22700");
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
   fdui->mineral4 = obj = fl_add_text(FL_NORMAL_TEXT,110,330,90,20,"22700 / 22700");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->mineral5 = obj = fl_add_text(FL_NORMAL_TEXT,110,350,90,20,"22700 / 22700");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->mineral6 = obj = fl_add_text(FL_NORMAL_TEXT,110,370,90,20,"22700 / 22700");
-    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  fdui->mineral7 = obj = fl_add_text(FL_NORMAL_TEXT,110,390,90,20,"22700 / 22700");
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
   fl_end_form();
 
@@ -1435,6 +1399,100 @@ FD_RR_Objects *create_form_RR_Objects(void)
   fl_end_form();
 
   fdui->RR_Objects->fdui = fdui;
+
+  return fdui;
+}
+/*---------------------------------------*/
+
+FD_ShipGating *create_form_ShipGating(void)
+{
+  FL_OBJECT *obj;
+  FD_ShipGating *fdui = (FD_ShipGating *) fl_calloc(1, sizeof(*fdui));
+
+  fdui->ShipGating = fl_bgn_form(FL_NO_BOX, 480, 355);
+  obj = fl_add_box(FL_UP_BOX,0,0,480,355,"");
+  obj = fl_add_labelframe(FL_ENGRAVED_FRAME,10,130,460,175,"Fleet composition");
+  fdui->amount1 = obj = fl_add_input(FL_NORMAL_INPUT,220,165,45,25,"");
+    fl_set_object_callback(obj,sgcb_recompute,0);
+  fdui->gatetouse2 = obj = fl_add_choice(FL_NORMAL_CHOICE2,360,85,100,25,"");
+    fl_set_object_callback(obj,sgcb_compute,0);
+  obj = fl_add_labelframe(FL_ENGRAVED_FRAME,5,10,200,110,"Planet #1");
+  fdui->planetname1 = obj = fl_add_text(FL_NORMAL_TEXT,10,20,190,30,"Wammalammadingdong");
+    fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,210,75,60,20,"Distance:");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fdui->planetdistance = obj = fl_add_text(FL_NORMAL_TEXT,210,95,60,20,"9999 l.y.");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fdui->gatedirection = obj = fl_add_button(FL_NORMAL_BUTTON,210,30,60,30,"@5");
+    fl_set_object_callback(obj,sgcp_switchdirection,0);
+  fdui->planetname2 = obj = fl_add_text(FL_NORMAL_TEXT,280,20,190,30,"Wammalammadingdong");
+    fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  fdui->gatetouse1 = obj = fl_add_choice(FL_NORMAL_CHOICE2,90,85,100,25,"");
+    fl_set_object_callback(obj,sgcb_recompute,0);
+  obj = fl_add_text(FL_NORMAL_TEXT,10,55,120,20,"Planet's current gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->planetgate1 = obj = fl_add_text(FL_NORMAL_TEXT,125,55,75,20,"300/oo");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,10,85,75,20,"Use gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,280,55,120,20,"Planet's current gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->planetgate2 = obj = fl_add_text(FL_NORMAL_TEXT,395,55,75,20,"300/oo");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,280,85,75,20,"Use gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->shipdesign1 = obj = fl_add_choice(FL_NORMAL_CHOICE2,15,165,195,25,"");
+    fl_set_object_callback(obj,sgcb_recompute,0);
+  obj = fl_add_text(FL_NORMAL_TEXT,15,140,195,20,"Ship design");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,140,45,20,"Amount");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,315,140,70,20,"Arrived");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,395,140,70,20,"Damage");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,270,165,40,25,"@6");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fdui->arrived1 = obj = fl_add_text(FL_NORMAL_TEXT,315,165,70,25,"nnnn");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fdui->damage1 = obj = fl_add_text(FL_NORMAL_TEXT,395,165,70,25,"NNN%");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_choice(FL_NORMAL_CHOICE2,15,200,195,25,"");
+  obj = fl_add_input(FL_NORMAL_INPUT,220,200,45,25,"");
+  obj = fl_add_text(FL_NORMAL_TEXT,270,200,40,25,"@6");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,315,200,70,25,"nnnn");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,395,200,70,25,"NNN%");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_choice(FL_NORMAL_CHOICE2,15,235,195,25,"");
+  obj = fl_add_input(FL_NORMAL_INPUT,220,235,45,25,"");
+  obj = fl_add_text(FL_NORMAL_TEXT,270,235,40,25,"@6");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,315,235,70,25,"nnnn");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,395,235,70,25,"NNN%");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_choice(FL_NORMAL_CHOICE2,15,270,195,25,"");
+  obj = fl_add_input(FL_NORMAL_INPUT,220,270,45,25,"");
+  obj = fl_add_text(FL_NORMAL_TEXT,270,270,40,25,"@6");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,315,270,70,25,"nnnn");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,395,270,70,25,"NNN%");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_button(FL_NORMAL_BUTTON,395,315,70,30,"Close");
+    fl_set_object_callback(obj,sgcb_close,0);
+  obj = fl_add_labelframe(FL_ENGRAVED_FRAME,275,10,200,110,"Planet #2");
+  fl_end_form();
+
+  fdui->ShipGating->fdui = fdui;
 
   return fdui;
 }

@@ -37,31 +37,6 @@ char* xfpp(const myString& s)
 
 
 
-int graphics::update_mask(KeySym k, int type)
-{
-  int m = 0;
-
-  if (k == XK_Shift_L || k == XK_Shift_R)
-    m = SHIFT_PRESSED;
-  else if (k == XK_Control_L || k == XK_Control_R)
-    m = CTRL_PRESSED;
-  else if (k == XK_Alt_L || k == XK_Alt_R)
-    m = ALT_PRESSED;
-
-  if (m != 0) {
-    if (type == KeyPress)
-      sca_mask |= m;
-    else
-      sca_mask &= ~m;
-
-    return 1;
-  }
-
-  return 0;
-}
-
-
-
 void graphics::display_handle_event(XEvent* ev)
 {
   char* symstring, keystring[8];
@@ -75,20 +50,15 @@ void graphics::display_handle_event(XEvent* ev)
     XLookupString(&ev->xkey, keystring, 7, &key, 0);
     symstring = XKeysymToString(key);
 
-    /*      printf("%d %s\n", sca_mask, symstring); */
-      
-    if (strlen(symstring) == 1) {
+    sca_mask = ev->xkey.state;
+    if (symstring && strlen(symstring) == 1) {
       c = keystring[0];  /* "normal key" pressed :) */
 
       if (!c)
 	c = symstring[0]; // handle case of ctrl-number
 
-    } else {
-      if (update_mask(key, KeyPress))
-	break;
-
+    } else
       c = key;
-    }
 
     // act on keypress
     switch(c) {
@@ -267,12 +237,11 @@ setview_f:
 #endif
 
   case KeyRelease:
-    key = XLookupKeysym(&ev->xkey, 0);
-      
-    update_mask(key, KeyRelease);
     break;
 
   case ButtonPress:
+    sca_mask = ev->xbutton.state;
+
     if (ev->xbutton.button == Button3)
       toggle_mapcontrol();
     else if (ev->xbutton.button == Button1) {
@@ -498,6 +467,7 @@ graphics::graphics(const int resol, const char* title) :
   xf_pv = create_form_ObjectViews();
   xf_fv = create_form_ObjectViews();
   xf_pak = create_form_PacketFiring();
+  xf_sg = create_form_ShipGating();
   xf_titl = create_form_IntroTitle();
   xf_rrinfo = create_form_RR_RaceInfo();
   xf_rrlog = create_form_RR_ReportLog();
@@ -729,6 +699,8 @@ void graphics::form_initial_update(void)
   char mainmenu[512];
   int i, j, mt;
   const char* c;
+  myString msg;
+
   // put all the appropriate stuff in the forms (race names/colors/pfuncs)
   
   mainmenu[0] = 0;
@@ -931,6 +903,22 @@ void graphics::form_initial_update(void)
 	  fl_set_button(xf_rrfilt->buttons[i], 1);
     } else
       break;
+
+  // ship gating gate statistics
+  msg = "Planet's";
+  fl_addto_choice(xf_sg->gatetouse[0], msg);
+  fl_addto_choice(xf_sg->gatetouse[1], msg);
+
+  for (i = 0; i < 7; i++) {
+    msg = ( (gate_mass[i] > 0)? int_to_str(gate_mass[i]) : myString("oo") ) 
+          + " / " +
+          ( (gate_distance[i] > 0)? int_to_str(gate_distance[i]) : myString("oo") );
+    fl_addto_choice(xf_sg->gatetouse[0], msg);
+    fl_addto_choice(xf_sg->gatetouse[1], msg);
+  }
+
+  for (i = 0; i < 4; i++)
+    fl_set_input(xf_sg->amount[i], "0");
 
   fl_set_input(xf_mc->future, "0");
   fl_set_input(xf_mc->scaneff, "100");

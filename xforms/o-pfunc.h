@@ -1,4 +1,4 @@
-/** Header file generated with fdesign on Fri Nov 13 22:33:00 1998.**/
+/** Header file generated with fdesign on Sat Nov 28 11:21:08 1998.**/
 
 #ifndef FD_PlanetaryFunction_h_
 #define FD_PlanetaryFunction_h_
@@ -61,6 +61,11 @@ extern int freeobj_raddial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 
 
 
+
+extern void sgcb_recompute(FL_OBJECT *, long);
+extern void sgcb_compute(FL_OBJECT *, long);
+extern void sgcp_switchdirection(FL_OBJECT *, long);
+extern void sgcb_close(FL_OBJECT *, long);
 
 
 /**** Forms and Objects ****/
@@ -264,21 +269,6 @@ typedef struct {
 	FL_OBJECT *warp4;
 	FL_OBJECT *defdestroy4;
 	FL_OBJECT *terraform4;
-	FL_OBJECT *colkill5;
-	FL_OBJECT *travel5;
-	FL_OBJECT *warp5;
-	FL_OBJECT *defdestroy5;
-	FL_OBJECT *terraform5;
-	FL_OBJECT *colkill6;
-	FL_OBJECT *travel6;
-	FL_OBJECT *warp6;
-	FL_OBJECT *defdestroy6;
-	FL_OBJECT *terraform6;
-	FL_OBJECT *colkill7;
-	FL_OBJECT *travel7;
-	FL_OBJECT *warp7;
-	FL_OBJECT *defdestroy7;
-	FL_OBJECT *terraform7;
 	FL_OBJECT *framedue;
 	FL_OBJECT *planetname2;
 	FL_OBJECT *twindriver2;
@@ -295,9 +285,6 @@ typedef struct {
 	FL_OBJECT *mineral2;
 	FL_OBJECT *mineral3;
 	FL_OBJECT *mineral4;
-	FL_OBJECT *mineral5;
-	FL_OBJECT *mineral6;
-	FL_OBJECT *mineral7;
 } FD_PacketFiring;
 
 extern FD_PacketFiring * create_form_PacketFiring(void);
@@ -403,5 +390,25 @@ typedef struct {
 } FD_RR_Objects;
 
 extern FD_RR_Objects * create_form_RR_Objects(void);
+typedef struct {
+	FL_FORM *ShipGating;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+	FL_OBJECT *amount1;
+	FL_OBJECT *gatetouse2;
+	FL_OBJECT *planetname1;
+	FL_OBJECT *planetdistance;
+	FL_OBJECT *gatedirection;
+	FL_OBJECT *planetname2;
+	FL_OBJECT *gatetouse1;
+	FL_OBJECT *planetgate1;
+	FL_OBJECT *planetgate2;
+	FL_OBJECT *shipdesign1;
+	FL_OBJECT *arrived1;
+	FL_OBJECT *damage1;
+} FD_ShipGating;
+
+extern FD_ShipGating * create_form_ShipGating(void);
 
 #endif /* FD_PlanetaryFunction_h_ */

@@ -421,8 +421,6 @@ FD_PlanetStatus *create_form_PlanetStatus(void)
     fl_set_object_lcol(obj,17);
   obj = fl_add_button(FL_NORMAL_BUTTON,270,450,70,30,"Gate Ships");
     fl_set_object_callback(obj,pscb_gateships,0);
-    fl_deactivate_object(obj);
-    fl_set_object_lcol(obj,17);
 
   fl_end_form();
 
@@ -515,6 +513,7 @@ FD_PacketFiring *create_form_PacketFiring(void)
   obj = fl_add_button(FL_NORMAL_BUTTON,380,200,70,30,"Fastest\nkiller");
     fl_set_object_callback(obj,pfcb_computepacket,-1);
     fl_deactivate_object(obj);
+    fl_set_object_lcol(obj,17);
   fdui->population[0] = obj = fl_add_input(FL_NORMAL_INPUT,70,100,120,20,"Population:");
     fl_set_object_callback(obj,pfcb_computepacket,0);
   fdui->ndefenses[0] = obj = fl_add_input(FL_NORMAL_INPUT,70,120,50,20,"Defenses:");
@@ -577,6 +576,7 @@ FD_PacketFiring *create_form_PacketFiring(void)
   fdui->cheapkiller = obj = fl_add_button(FL_NORMAL_BUTTON,300,200,70,30,"Cheapest\nkiller");
     fl_set_object_callback(obj,pfcb_computepacket,-2);
     fl_deactivate_object(obj);
+    fl_set_object_lcol(obj,17);
 
   obj = fl_add_text(FL_NORMAL_TEXT,30,240,40,30,"Warp");
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
@@ -617,10 +617,10 @@ FD_IntroTitle *create_form_IntroTitle(void)
   FL_OBJECT *obj;
   FD_IntroTitle *fdui = (FD_IntroTitle *) fl_calloc(1, sizeof(*fdui));
 
-  fdui->IntroTitle = fl_bgn_form(FL_NO_BOX, 410, 320);
-  obj = fl_add_box(FL_UP_BOX,0,0,410,320,"");
+  fdui->IntroTitle = fl_bgn_form(FL_NO_BOX, 410, 360);
+  obj = fl_add_box(FL_UP_BOX,0,0,410,360,"");
     fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_MCOL);
-  obj = fl_add_box(FL_SHADOW_BOX,10,150,390,130,"");
+  obj = fl_add_box(FL_SHADOW_BOX,10,150,390,170,"");
     fl_set_object_color(obj,FL_INACTIVE,FL_COL1);
   obj = fl_add_box(FL_SHADOW_BOX,10,10,390,70,"");
     fl_set_object_color(obj,FL_INACTIVE,FL_COL1);
@@ -630,18 +630,18 @@ FD_IntroTitle *create_form_IntroTitle(void)
     fl_set_object_lsize(obj,FL_HUGE_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fl_set_object_lstyle(obj,FL_BOLDITALIC_STYLE);
-  fdui->statusmsg = obj = fl_add_text(FL_NORMAL_TEXT,20,280,370,30,"Loading report files: initialize");
+  fdui->statusmsg = obj = fl_add_text(FL_NORMAL_TEXT,20,320,370,30,"Loading report files: initialize");
     fl_set_object_color(obj,FL_BOTTOM_BCOL,FL_MCOL);
     fl_set_object_lcolor(obj,FL_YELLOW);
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,160,40,120,30,"version 0.2f18");
+  obj = fl_add_text(FL_NORMAL_TEXT,160,40,120,30,"version 0.2f19");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_TOMATO);
     fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
     fl_set_object_lstyle(obj,FL_FIXEDBOLDITALIC_STYLE);
-  obj = fl_add_text(FL_NORMAL_TEXT,280,40,110,30,"(27 Nov 1998)");
+  obj = fl_add_text(FL_NORMAL_TEXT,280,40,110,30,"(30 Nov 1998)");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_TOMATO);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
@@ -652,7 +652,7 @@ FD_IntroTitle *create_form_IntroTitle(void)
     fl_set_object_lcolor(obj,FL_GREEN);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,20,190,60,20,"Credits: ");
+  obj = fl_add_text(FL_NORMAL_TEXT,20,200,60,20,"Credits: ");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_LEFT_BCOL);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
@@ -667,12 +667,12 @@ FD_IntroTitle *create_form_IntroTitle(void)
     fl_set_object_lcolor(obj,FL_WHITE);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,80,190,70,80,"(patches)\n(testing)\n(formulae)\n(Stars! :)\n(ideas)");
+  obj = fl_add_text(FL_NORMAL_TEXT,80,190,70,100,"(patches)\n(testing)\n(formulae)\n\n(Stars! :)\n(ideas)");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_LEFT_BCOL);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
     fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
-  obj = fl_add_text(FL_NORMAL_TEXT,150,190,240,80,"Wayne Smith\nJ. Ballantyne, J. Andersen, A. Controzzi\nL. Webster, J. Cawley, M. Dalaerth\nJeff^2\nall the rec.games.computer.stars people");
+  obj = fl_add_text(FL_NORMAL_TEXT,150,190,240,100,"W. Smith\nJ. Ballantyne, J. Andersen, A. Controzzi\nL. Webster, J. Cawley, M. Dellaert\ncrobers, B. Butler, SBPosey\nJeff^2\nall the rec.games.computer.stars people");
     fl_set_object_color(obj,FL_INACTIVE,FL_MCOL);
     fl_set_object_lcolor(obj,FL_WHITE);
     fl_set_object_lsize(obj,FL_NORMAL_SIZE);
@@ -1160,3 +1160,80 @@ FD_RR_Objects *create_form_RR_Objects(void)
 }
 /*---------------------------------------*/
 
+FD_ShipGating *create_form_ShipGating(void)
+{
+  int i;
+  FL_OBJECT *obj;
+  FD_ShipGating *fdui = (FD_ShipGating *) fl_calloc(1, sizeof(*fdui));
+
+  fdui->ShipGating = fl_bgn_form(FL_NO_BOX, 480, 355);
+  obj = fl_add_box(FL_UP_BOX,0,0,480,355,"");
+  obj = fl_add_labelframe(FL_ENGRAVED_FRAME,5,10,200,110,"Planet #1");
+  fdui->planetname[0] = obj = fl_add_text(FL_NORMAL_TEXT,10,20,190,30,"Wammalammadingdong");
+    fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,10,55,120,20,"Planet's current gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->planetgate[0] = obj = fl_add_text(FL_NORMAL_TEXT,125,55,75,20,"300/oo");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,10,85,75,20,"Use gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->gatetouse[0] = obj = fl_add_choice(FL_NORMAL_CHOICE2,90,85,100,25,"");
+    fl_set_object_callback(obj,sgcb_recompute,0);
+
+  obj = fl_add_text(FL_NORMAL_TEXT,210,75,60,20,"Distance:");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fdui->planetdistance = obj = fl_add_text(FL_NORMAL_TEXT,210,95,60,20,"9999 l.y.");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  fdui->gatedirection = obj = fl_add_button(FL_NORMAL_BUTTON,210,30,60,30,"@5");
+    fl_set_object_callback(obj,sgcb_switchdirection,0);
+  fdui->dir = 0;
+
+  obj = fl_add_labelframe(FL_ENGRAVED_FRAME,275,10,200,110,"Planet #2");
+  fdui->planetname[1] = obj = fl_add_text(FL_NORMAL_TEXT,280,20,190,30,"Wammalammadingdong");
+    fl_set_object_lsize(obj,FL_MEDIUM_SIZE);
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,280,55,120,20,"Planet's current gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->planetgate[1] = obj = fl_add_text(FL_NORMAL_TEXT,395,55,75,20,"300/oo");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fl_set_object_lstyle(obj,FL_BOLD_STYLE);
+  obj = fl_add_text(FL_NORMAL_TEXT,280,85,75,20,"Use gate:");
+    fl_set_object_lalign(obj,FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+  fdui->gatetouse[1] = obj = fl_add_choice(FL_NORMAL_CHOICE2,360,85,100,25,"");
+    fl_set_object_callback(obj,sgcb_recompute,0);
+
+  obj = fl_add_labelframe(FL_ENGRAVED_FRAME,10,130,460,175,"Fleet composition");
+  obj = fl_add_text(FL_NORMAL_TEXT,15,140,195,20,"Ship design");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,220,140,45,20,"Amount");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,315,140,70,20,"Arrived");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  obj = fl_add_text(FL_NORMAL_TEXT,395,140,70,20,"Damage");
+    fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+
+  for (i = 0; i < 4; i++) {
+    fdui->shipdesign[i] = obj = fl_add_choice(FL_NORMAL_CHOICE2,15,165 + 35*i,195,25,"");
+      fl_set_object_callback(obj,sgcb_recompute,0);
+    fdui->amount[i] = obj = fl_add_input(FL_NORMAL_INPUT,220,165 + 35*i,45,25,"");
+      fl_set_object_callback(obj,sgcb_recompute,0);
+    obj = fl_add_text(FL_NORMAL_TEXT,270,165 + 35*i,40,25,"@6");
+      fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fdui->arrived[i] = obj = fl_add_text(FL_NORMAL_TEXT,315,165 + 35*i,70,25,"nnnn");
+      fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+    fdui->damage[i] = obj = fl_add_text(FL_NORMAL_TEXT,395,165 + 35*i,70,25,"NNN%");
+      fl_set_object_lalign(obj,FL_ALIGN_CENTER|FL_ALIGN_INSIDE);
+  }
+  obj = fl_add_button(FL_NORMAL_BUTTON,395,315,70,30,"Close");
+    fl_set_object_callback(obj,sgcb_close,0);
+  fl_end_form();
+
+  fdui->ShipGating->fdui = fdui;
+
+  return fdui;
+}
+/*---------------------------------------*/
