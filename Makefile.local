@@ -1,0 +1,31 @@
+# configure here your local stuff as compilator name, options, yacc/lex options, etc...
+CPP = g++
+RANLIB = ar ts
+LEX = flex
+YACC = bison
+LXFLAGS =
+YFLAGS = -d -v -t
+
+# linux (I tried on Slackware 3.x and RedHat 5.0)
+OPTIONS=
+INCLUDES=
+LIBRARIES= -L/usr/X11R6/lib -lX11 -lforms -lg++
+
+# Windows95 with Cygnus' GNUwin32 package
+#OPTIONS=-DDISABLE_BACKINGSTORE -DDEFAULT_FULLYVISUAL
+#INCLUDES=-I/CYGNUS/B19/H-I386~1/X11r6.3/include
+#LIBRARIES = --static -L/CYGNUS/B19/H-I386~1/X11r6.3/lib -lforms -lX11 -lg++ -lXpm
+
+# C++ compilation options
+CPPFLAGS = -Wall -g $(INCLUDES) $(OPTIONS)
+#CPPFLAGS = -Wall -O3 -pg $(INCLUDES) $(OPTIONS)
+#CPPFLAGS = -Wall -O3 $(INCLUDES) $(OPTIONS)
+
+# for the xforms part compilation (C code compiled as C++)
+CFLAGS = -Wall -g $(INCLUDES) $(OPTIONS)
+#CFLAGS = -Wall -O3 $(INCLUDES) $(OPTIONS)
+CC = g++
+
+# output module: either X11 for X11 or null for no graphics (check LIBRARIES, too)
+GRAPHICS=X11
+#GRAPHICS=null

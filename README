@@ -1,0 +1,60 @@
+Welcome to the 5 Jul 1998 version of AMIUBCSMAS/StarAna.
+
+Ok, so you know how to decompress the archive......it's a good sign.
+
+The package is divided in 4 parts, and you need more than one to do
+anything. Make sure you have at bin/windll/doc for use under windows
+95 and src/doc for use under linux.
+
+Check the files in the doc/ subdirectory. The info is subdivided in
+several files.
+
+Advert.txt you have already read, probably.
+
+Install.txt contains some information on win95/linux installation,
+start from this file.
+
+Then starana.txt, for a "normal user" description of what the program
+does and how to use it.
+
+Pfdisplay.txt comes next, with the explanation of how to manipulate
+the planetary display functions. Fleets will work like that one day,
+too.
+
+If you feel like trying you can look in technicalia.txt for technical
+details.  It's outdated, I have added some stuff which is not
+described in there.
+
+If you're on linux you need to edit Makefile.local to suit your needs
+before entering src/ for the compilation.
+
+You can read src/ChangeLog to see what has changed in time....
+Doc/rules is probably useless to you (and to me :).
+
+Ok, have fun and don't rm -rf your root partition by mistake...
+
+Alberto
+(e-mail: ishark@lsh01.univ-lille1.fr)
+
+
+Ah, I was forgetting:
+
+LICENSE, CONTRIBUTIONS, WARRANTIES (hahaha!)
+
+This code is scareware, which is the same as freeware, except that the
+source is included to scare people. You can freely use and distribute
+it (the complete package). You can also hack it or derive stuff from
+it, in which case I'd like to be in the credits.
+
+If you REALLY want to send me something (e-mail, money, germanium,
+armageddon missiles, etc.) you can, of course (hmm...you can keep the
+missiles), but, honestly, I don't need any money (e-mail I like and
+germanium might always come in handy). Well, at least RIGHT NOW, I'll
+make sure to change this paragraph should the need arise ;)
+
+Of course there's no warranty coming with this program. You might lose
+time, wives, stars! games, etc......and I can't be held responsible for
+it in ANY way. If your HD gets wiped or your system corrupted or
+anything else I can't be held responsible, too, but I'd like to know
+HOW you managed to do that (if you're working under Winbog don't tell
+me, switching on and waiting is sufficient........).

@@ -1,0 +1,23 @@
+Separate completely out stuff from starana - replace the X keysims
+	in starana-main.cc
+
+B/W output for printing, with boundaries.
+
+Planet analysis:
+	maxxed facts/mines
+
+test and fix complex queues
+write some more docs...
+scanner ranges
+fleet duplicates
+fleet display (????)
+planet names: only a specified % of names
+planet hab: given an hab%, indicate which worlds are > for one or more race
+queue: repeat/warnme/shiftdown/block
+fleets: color of owner and size proportional to the # of ships
+output the "future" in PLA format
+
+write an xforms user interface
+
+create an external program which acts like "diff" on fle files to spot new fleet/designs
+create an external program which acts like "diff" on planetary maps

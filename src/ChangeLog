@@ -1,0 +1,195 @@
+Version 0.2e
+
+- fixed negative autobuild orders.
+- fixed mineral conc decay (?).
+- added more mineral scales, fixed segv on enemy worlds due to lack
+of objects.
+- modified the hab display (diamond and line swapped).
+- fixed radius override in object display.
+- added DEFAULT_FULLYVISUAL compile option.
+
+
+Version 0.2d
+
+- included user-alterable scale in mineral display.
+- incuded "object multiples" of minerals and resources in mineral
+display.
+- planet::build_queue rewritten to update the mineral shortage array.
+
+
+Version 0.2c
+
+- default.pfl is only loaded if the user didn't provide any pview
+(by including it in the master file).
+- max pie radius is now user-controlled.
+- unknotted race/scanner/mineral colors to allow user to change them
+by specifying them in the master file.
+- added mineral display in planet status.
+- added habitability display in planet status.
+- altered planet status window (added stuff).
+- fixed save/load of pfunctions when no buttons are pressed.
+- added insert/delete buttons in planetary function editor form.
+
+
+Version 0.2b
+
+- added 'fF' key shortcut.
+- fixed some problems with authoritative source. Now it's more stupid
+but more solid.
+- added file path management, now files are searched in master file
+directory.
+- fixed segv if default.pfl was not loaded successfully.
+
+
+Version 0.2
+
+- added more key shortcuts in map window.
+- added 'when' to habitability calculations.
+- added delete/move planetary view.
+- modified convert.cpp to handle screwed up 2.6i report columns.
+- added scanning to fleet display, fixed object display.
+- conversion is only performed if report file is newer than
+converted one.
+- changed pushbuttons to normal buttons, added "edit" in pflist.
+- abandoned MSVC port. Win95 version is done with GNUwin32.
+
+
+Version 0.1o
+
+- created default.pfl, it's loaded from the current directory.
+- added report age display and filter.
+- fixed some pfunctions, fixed starbase damage for enemy bases.
+- modified behaviour of filters. Now they set flag if mask is 0.
+- added "starsinclude" command. Code is ugly - it's better to use
+perl...).
+- added planet views form (with all functions).
+- map_view altered to allow multiple pla_modes[] array.
+- added "fullyvisual" option -v.
+- successful compilation on win95! (some tweaking needed now).
+
+
+Version 0.1n
+
+- added distance filter.
+- added planet status form.
+- fixed problems with gate/scan display.
+- CA habitability now works as in stars (i.e. no yellows).
+
+
+Version 0.1m
+
+- added support for flag/circle/line filtering/handling.
+- scanner display moved to object_display structure instead of bkg.
+- added unconditional filter.
+- added support for flag marker and data+marker display.
+- fixed fleet positioning problems.
+- added planet value formula from Loren Webster.
+- added mineral depletion formula from Jason Cawley.
+- added support for 'i' beta4 additional report columns.
+- fixed distance display of ticks for fleet/packet movement.
+
+
+Version 0.1l
+
+- added fleet display, display routines and structures extended to
+deal with fleet display objects.
+- added detection of fleet duplicates. Works if you keep the #id at
+the end of the name.
+- included fleets in scanning display.
+- lots of xy stuff now done via _xypoint structure.
+- included fleet motion prediction.
+- line pfunctions added to include routing and packet destination
+displays (need to add lines/flag to interface).
+- "flag" field added in pf_operation.
+- fixed planetary stat->oristat for non-owned planet.
+- fixed idiotic multiplication in scanning display.
+- new planetary value formula from based on the postings by Jason
+Cawley inserted (just for testing).
+
+
+Version 0.1k
+
+- added planetary scanning display.
+- moved the planet table from stars_map into race.
+- added some filters, added ability to choose race for hab pfunctions,
+added generic terraforming.
+- added win95 dialogs (not yet active), initial map display works on
+win95, even if it's not too pretty.
+
+
+Version 0.1j
+
+- added load/save of planet function lists.
+- added menu on pfunction # box.
+- added event handler for the display window to allow key shortcuts.
+- more changes to make the xforms interface work (now the program is
+usable).
+
+
+Version 0.1i
+
+- development/debugging of the xforms interface.
+- map_view class changed to meet interface needs.
+- lots of modifications to include the xforms interface (out_xxx).
+structure was changed to be more "event-like".
+
+
+Version 0.1h
+
+- added type and description in planetary classes.
+- added map_view class to handle all the map displaying stuff (changes
+around in several places).
+- started the xforms interface design.
+- separated planet.cpp into 3 files.
+
+
+Version 0.1g
+
+- made f version run.
+- it also simulates ok on win95 (no display).
+
+
+Version 0.1f
+
+- more fixes to be able to compile on Win95. It compiles now, but no
+idea if it runs.
+
+
+Version 0.1e
+
+- added const int* params in call to planetary function
+- added a few filters
+- added interface functions for the planetary_func stuff (modified
+screen display to hold more info)
+- revised the Makefile
+- creation of the null output device
+- eliminated XK_ syms in starana.cc, new constants in out.h
+- modifications to try compilation on win95 (analysis only), files
+renamed, #ifdefs added, lots of minor changes to deal with MSVC++ 5.0
+quirks.
+
+
+Version 0.1d
+
+- lots of modifications to the input part to read the additional data
+provided by the 'i' patch (really a lot).
+
+
+Version 0.1b
+
+- introduced a lot of nice planetary functions as well as the multiple
+function management in starana.cc
+- added generic terraform tech to hab_when_max_terraformed.
+- recoded completely the planetary function part to introduce easier
+manipulation; modified stars_map::display_planets as well as all the
+graphics->draw stuff to work with the introduced planet_display
+structure; some other structs added in. Fixed all references to this
+stuff.
+- Removed the use of associative arrays to store planet names to speed
+compilation up.
+- planetary_function structure added. display_space and
+display_planets changed, display_????? in out.h/X11 changed to include
+planet name handling. draw_weighted rewritten.
+
+
+Version 0.1a, 2 Feb 1998 is the "zero"

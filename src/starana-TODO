@@ -1,0 +1,17 @@
+PFunction che indica il germanium mancante un certo anno (?)
+Filtri su surface minerals / concentrations & C.
+Filtri su factories?
+* LA CONC DECAY E' SCAZZATA!!!!! decresce troppo veloce
+* altre scale di minerali (mettere quelle di stars!)
+* scambiare lineetta e diamond nell'hab display
+correggere la multilinear
+* pf-factories e mines fanno cazzate, probabilmente il radius override non fa
+aggiornare la versione
+* -v automatico se non si specifica la command line? solo su win95 maybe?
+aggiungere l'esempio "pratico" delle factories nella descrizione del
+  mineralobject in starana.txt
+aggiungere un empire report cliccando con il tasto destro: testo
+  e magari grafici
+fare la map display window di una dimensione selezionabile dall'utente
+aggiungere funzioni di bombing/packeting di un pianeta
+aggiungere i colori nella simulation window
