@@ -1127,7 +1127,7 @@ int graphics::minerals_to_display(const int v, const int w)
 
 void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
 {
-  GC gc = fl_state[fl_get_vclass()].gc[0];
+  GC gc = fl_state[fl_get_vclass()].gc[8];
   Window win = fl_winget();
   int hahe = ob->h / 2;
   int xmin, xmax, step;

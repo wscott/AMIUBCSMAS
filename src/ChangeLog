@@ -1,11 +1,11 @@
 nothing = Alberto Barsella
 WS = Wayne Smith
+DT = Dirk Thierbach
 
 Version 0.3
 
-
 - fixed file search path with -v option.
-- fixed compilation problem with GCC and mString vectors.
+- fixed compilation problem with GCC and mString vectors. (DT)
 
 
 Version 0.2g

@@ -344,7 +344,8 @@ bool convert(const myString& infile, const myString& outfile)
 	  dt = dest.split(myString("."), 2);
 	  t = int_to_str(atoi(dt[0])-127) + " " + int_to_str(atoi(dt[1])-127);
 	  PRINT("destination", t);
-	} else if (!dest.matches(myRegexp(" *-- *")) && dest != "(Delayed)") {
+	} else if (!dest.matches(myRegexp(" *-- *")) && 
+		   dest != (char *) "(Delayed)") {
 	  if (dest.matches(myRegexp("Space \\([0-9]+, [0-9]+\\)"))) {
 	    dt = dest.at(8).split(myString(", "), 2);
 	    t = int_to_str(atoi(dt[0])) + " " + int_to_str(atoi(dt[1]));

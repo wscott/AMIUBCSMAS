@@ -1,6 +1,9 @@
 // #define DISABLE_BACKINGSTORE
 // #define DEFAULT_FULLYVISUAL
 
+#include "myString.h"
+// must be first
+
 #include <vector>
 
 #include <math.h>
@@ -8,9 +11,6 @@
 #include <stdlib.h>
 
 #include "starana-const.h"
-// myString.h is included by starana-const.h
-// #include "myString.h"
-
 
 
 class planet;
@@ -25,7 +25,6 @@ class planetary_function;
 class fleet_function;
 class stars_map;
 class map_view;
-
 
 
 // starstat structure for Stars! binary file info
