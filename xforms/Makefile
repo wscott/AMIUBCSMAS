@@ -10,4 +10,4 @@ clean:
 
 pfunc.o: pfunc.c pfunc.h
 
-pfunc_cb.o: pfunc_cb.c pfunc.h
+pfunc_cb.o: pfunc_cb.c pfunc.h ../src/starana-classes.h ../src/myString.h

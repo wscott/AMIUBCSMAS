@@ -1,0 +1,122 @@
+/* simulation of how germanium concentration can
+   affect the evolution of a newly-created colony
+   (the race used here is a CA resource monster) */
+
+universe "Test universe" {
+	year 2400
+	weight_function 160
+	sim_future 30
+	max_zoom 1
+}
+
+/* map definition */
+planet "Germ100" {
+	position 50 50
+}
+
+planet "Germ70" {
+	position 140 40
+}
+
+planet "Germ50" {
+	position 150 160
+}
+
+planet "Germ30" {
+	position 50 150
+}
+
+
+/* races definition */
+race "Resource-1" {
+	plural "Resources1"
+	rt CA (IFE NRSE OBRM NAS)
+	habitability 0.36/2.72 -112/112 19/79
+	growth 19
+	col_res 1000
+	factories 11 9 16 3
+	mines 11 3 17
+	tech_cost "+0++++"
+	tech 3 0 3 3 3 6
+	do_analysis
+}
+
+race "Resource-2" {
+	clone "Resource-1"
+	plural "Resources2"
+	do_analysis
+}
+
+race "Resource-3" {
+	clone "Resource-1"
+	plural "Resources3"
+	do_analysis
+}
+
+race "Resource-4" {
+	clone "Resource-1"
+	plural "Resources4"
+	do_analysis
+}
+
+
+/* planetary information */
+source "Resource-1"
+
+planet "Germ100" {
+	owner "Resource-1"
+	habitability 100%/100%
+	mineral_conc 50 50 100
+	minerals 0 0 0
+	population 50000
+	installations 0 0 0
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+	}
+}
+
+source "Resource-2"
+
+planet "Germ70" {
+	owner "Resource-2"
+	habitability 100%/100%
+	mineral_conc 50 50 70
+	minerals 0 0 0
+	population 50000
+	installations 0 0 0
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+	}
+}
+
+source "Resource-3"
+
+planet "Germ50" {
+	owner "Resource-3"
+	habitability 100%/100%
+	mineral_conc 50 50 50
+	minerals 0 0 0
+	population 50000
+	installations 0 0 0
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+	}
+}
+
+source "Resource-4"
+
+planet "Germ30" {
+	owner "Resource-4"
+	habitability 100%/100%
+	mineral_conc 50 50 30
+	minerals 0 0 0
+	population 50000
+	installations 0 0 0
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+	}
+}

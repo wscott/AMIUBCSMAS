@@ -6,15 +6,21 @@ YACC = bison
 LXFLAGS =
 YFLAGS = -d -v -t
 
-# linux (I tried on Slackware 3.x and RedHat 5.0)
+# linux (I tried on RedHat 5.1)
 OPTIONS=
-INCLUDES=
-LIBRARIES= -L/usr/X11R6/lib -lX11 -lforms -lg++
+INCLUDES= -I/usr/X11R6/include
+LIBRARIES= -L/usr/X11R6/lib -lX11 -lforms
+#xforms-patch.obj
+
+# FreeBSD
+#OPTIONS=
+#INCLUDES= -I/usr/X11R6/include
+#LIBRARIES= -L/usr/X11R6/lib -lX11 -lxforms -lg++
 
 # Windows95 with Cygnus' GNUwin32 package
 #OPTIONS=-DDISABLE_BACKINGSTORE -DDEFAULT_FULLYVISUAL
 #INCLUDES=-I/CYGNUS/B19/H-I386~1/X11r6.3/include
-#LIBRARIES = --static -L/CYGNUS/B19/H-I386~1/X11r6.3/lib -lforms -lX11 -lg++ -lXpm
+#LIBRARIES = --static -L/CYGNUS/B19/H-I386~1/X11r6.3/lib -lforms -lX11 -lXpm
 
 # C++ compilation options
 CPPFLAGS = -Wall -g $(INCLUDES) $(OPTIONS)

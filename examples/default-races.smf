@@ -1,0 +1,60 @@
+race "Humanoid" {
+	plural "Humanoids"
+	rt JoaT ()
+	habitability 0.22/4.4 -140/140 15/85
+	col_res 1000
+	growth 15
+	factories 10 10 10 4
+	mines 10 5 10
+	tech_cost "000000"
+	tech 3 3 3 3 3 3
+	min_pop_move 100
+	reliability 100
+	do_analysis 
+}
+
+
+race "Antetheral" {
+	plural "Antetherals"
+	rt SD (ARM MA NRSE CE NAS)
+	habitability 0.12/0.55 -200/200 70/100
+	col_res 700
+	growth 7
+	factories 11 10 18 4
+	mines 10 10 10
+	tech_cost "-+----"
+	tech 0 0 3 0 0 2
+	min_pop_move 100
+	reliability 100
+	do_analysis 
+}
+
+race "Rabbitoid" {
+	plural "Rabbitoids"
+	rt IT (IFE TT CE NAS)
+	habitability 0.17/1.24 -60/124 13/53
+	col_res 1000
+	growth 20
+	factories 10 9 17 3
+	mines 10 9 10
+	tech_cost "++-00-"
+	tech 0 0 7 5 0 0
+	min_pop_move 100
+	reliability 100
+	do_analysis 
+}
+
+race "Silicanoid" {
+	plural "Silicanoids"
+	rt HE (IFE UR OBRM BET)
+	habitability immune immune immune
+	col_res 800
+	growth 6
+	factories 12 12 15 4
+	mines 10 9 10
+	tech_cost "00--0+"
+	tech 0 0 1 0 0 0
+	min_pop_move 100
+	reliability 100
+	do_analysis 
+}

@@ -7,6 +7,8 @@
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
 
+#include <time.h>
+
 extern "C" {
 #include <forms.h>
 }
@@ -56,27 +58,9 @@ enum _marktype {
 const int MAX_MARKER = 6;
 
 
-struct _mindial {
-  int now;
-  int next;
-  int conc;
-  int mining;
-};
-
-
-
-struct _envdial {
-  int current;
-  int original;
-  int tform;
-  int maxtform;
-  int habmin;
-  int habmax;
-};
-
-
-
 class graphics {
+  friend void title_alarm_handler(int sig);
+
   char* geomstring;
   Visual* visual;
   Window rootw;
@@ -96,18 +80,26 @@ class graphics {
   int gra_yres;
 
   FD_MapControl* xf_mc;
-  FD_PlanetaryFunction* xf_pfe;
-  FD_PlanetStatus* xf_ps;
-  FD_PlanetSimulation* xf_pm;
-  FD_PlanetViews* xf_pv;
-  
+  FD_DisplayFunction* xf_pfe;
+  FD_DisplayFunction* xf_ffe;
+  FD_PlanetStatus* xf_ps[2];
+  FD_PlanetStatus* curr_ps;  
+  FD_PlanetSimulation* xf_pm[2];
+  FD_PlanetSimulation* curr_pm;
+  FD_ObjectViews* xf_pv;
+  FD_ObjectViews* xf_fv;
+  FD_PacketFiring* xf_pak;
+  FD_IntroTitle* xf_titl;
+  FD_RacialReport* xf_rr;
+  FD_RR_RaceInfo* xf_rrinfo;
+  FD_RR_ReportLog* xf_rrlog;
+  FD_RR_Comparisons* xf_rrcmp;
+  FD_RR_DesignsObjects* xf_rrdo;
+  int elapsed_title;
+
   int curr_vwp;
   bool pfe_menu_changed; // workaround
-
-  int mineraldial_scale;
-  int mineralobjects_lastowner;
-  _mindial mineral_dials[3];
-  _envdial environment_dials[3];
+  bool ffe_menu_changed; // workaround #2
 
   int update_mask(KeySym k, int type);
   graphics& operator=(const graphics&);
@@ -120,12 +112,14 @@ public:
 
 public:
   void display_handle_event(XEvent* ev);
-  graphics(const int xresol, const int yresol, const char* title);
+  graphics(const int resol, const char* title);
   ~graphics(void);
   void create_palette(void);
-  void set_window_title(const String& title);
-  void error_dialog(const String& msg);
-  String ask_for_smf_file(void);
+  void set_window_title(const myString& title);
+  void resize_map_window(const int resol);
+  void error_dialog(const myString& msg);
+  void set_intro_loadingfile(const myString& s);
+  myString ask_for_smf_file(void);
   void draw_string(const int xp, const int yp, const int color, const char* str);
   void draw_smallstring(const int xp, const int yp, const int color, const char* str);
   void set_mineraldial_scale(const int i);
@@ -135,7 +129,7 @@ public:
   void draw_fat_circle_arc(const int xp, const int yp, const int r, const int c1, const int thetamin = 0, const int thetaspan = 360*64); 
   void draw_triangle_pie(const _xypoint& p, const _xypoint& dir, const int r, const int c1, const int thetamin = 0, const int thetaspan = 360*64);
   void draw_circle(const _xypoint& p, const int r, const int col, const int colfill);
-  void draw_planetname(const int xp, const int yp, const int color, const String& name);
+  void draw_planetname(const int xp, const int yp, const int color, const myString& name);
   void draw_marker(const int xp, const int yp, const _marktype marktype, const int markcolor);
   void draw_line(const _xypoint& f, const _xypoint& t, const int col);
   void draw_owners(const int y, const int x, const int x0, int xspan, const int zoom, const short int xlen, const short int color[], const int xpos[], const int col_filter[]);
@@ -144,21 +138,40 @@ public:
   bool didntstart(void)
     { return !running_fine; }
   void form_initial_update(void);
+  void select_planetstatus(int pn);
+  void select_planetstatus(FL_FORM* form, const int type);
   void show_planetstatus(void);
   void hide_planetstatus(void);
   void show_planetsimulation(void);
   void hide_planetsimulation(void);
   void select_planet(const _xypoint& mousepos);
   void load_planetstatus(void);
+  void load_packetfiring(void);
+  void show_packetfiring(void);
+  void hide_packetfiring(void);
+  void load_planetbombing(void);
+  void hide_planetbombing(void);
+  void show_racialreport(void);
+  void hide_racialreport(void);
+  void load_racialreport(const int rid);
   void toggle_mapcontrol(void);
+  bool in_planet_windows(FL_OBJECT* ob);
   void toggle_pfuncedit(void);
+  void toggle_ffuncedit(void);
   void toggle_pfunclist(void);
+  void toggle_ffunclist(void);
   void load_pfunclist(void);
   void showselected_pfunclist(void);
   void load_pfunction(void);
   void write_pfunction(planetary_function* pf);
   void unload_pfunction(void);
-  void init_number_menu(void);
+  void load_ffunclist(void);
+  void showselected_ffunclist(void);
+  void load_ffunction(void);
+  void write_ffunction(fleet_function* ff);
+  void unload_ffunction(void);
+  void init_pla_number_menu(void);
+  void init_fle_number_menu(void);
   void redraw_map(void);
   void interact(void);
   void auto_redraw_map(void);
@@ -167,6 +180,10 @@ public:
   void select_viewpoint(void);
   void pfunction_changed(void)
     { pfe_menu_changed = true; }
+  void ffunction_changed(void)
+    { ffe_menu_changed = true; }
+  void show_title_form(void);
+  void wait_title_form(void);
 };
 
 // outside, since it can be called before creation of graphics window

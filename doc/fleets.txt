@@ -1,0 +1,112 @@
+DESCRIPTION OF FLEET DISPLAY
+
+If you have not read the planets.txt file then go and read it. The
+fleet display mechanism is identical and this file assumes you're
+already "familiar" with the meaning of view, function, filter, marker,
+flag, etc. etc.
+
+
+PLANETS vs. FLEETS
+
+The main difference between the two displays is that while Stars!
+planetary reports contain (almost) all the relevant data for a decent
+display, the fleet reports are missing some fundamental stuff, such as
+EXACT fleet composition.
+
+I have devised a method to provide the information to starana, but it
+costs time, since it requires you to encode the fleet composition in
+the fleet name. It also requires you to enter the ship design
+information in the master file, to have starana know about things like
+max fuel or max cargo. While this information is not, in general,
+required to obtain a fleet display, there are some functions (those
+dealing with specific designs or max cargo space, for example) who
+REQUIRE the additional information.
+
+I have tried to arrange things so that there are no "half-working"
+functions. If you try to use one of the functions that require the
+information without providing it then the result will be consistent:
+e.g. ALL fleets get filtered, regardless of what you asked (so you can
+notice that something's wrong).
+
+
+FLEET DUPLICATES
+
+If more that one fleet reports is given (typical in a team game) then
+starana will have a hard time trying to figure out the duplicates (and
+removing them). The basic idea used by starana is that a fleet is
+identified by the couple owner+id number. It is then important not to
+screw up this information. Basically this means that you must NOT
+alter the #??? which appears at the end of the default fleet name. Use
+whatever you want for the name, but keep that part intact, otherwise
+starana will be unable to detect the duplicate and you'll see "weird"
+fleets appear on the display.
+
+Another problem: if you generate the report AFTER you've played the
+turn, after you've had fun splitting/merging fleet, this will cause
+your fleet ids to be altered and thus become inconsistent with the
+reports given by your allies. If you need to have accurate displays of
+the team fleets generate the report BEFORE you play the turn.  You can
+then regenerate them when you're fine-tuning the shipping routes and
+using starana's simulation capability to see how much minerals you
+will have on your production worlds in 5 years.....
+
+
+PROVIDING FLEET INFORMATION TO STARANA
+
+There are two steps:
+1) giving design information to starana.
+2) altering the fleet name to give indication of the composition.
+
+How the design information is given can be seen by looking at the
+example file sa-complex.smf. It's the same thing as sa.smf, but all
+the comments relative to the stuff explained in sa.smf has been
+removed and the commented part is the "new" one, i.e. design
+specification and fleet naming.
+
+Go and read sa-complex.smf now, it'll take a short time.
+
+Ok, now you can understand the rest... :)
+
+Apart from all the useful information given in the design { .. }
+specification there's one vital part: the composition abbreviation.  I
+suggest to keep it SHORT, I usually use mnemonic things like SFX for
+Super Fuel Xports or CoH for Change of Heart, etc.  You then use as a
+fleet name a string which is a sequence of abbreviation and ship
+numbers. For example "CoH2 SFX1 #132" to indicate 2 Change of Hearts
+and one Super Fuel Xport. NOTE that you must not kill the #id number
+in the process!!!
+NOTE also that the abbreviation can't contain numbers/ Otherwise
+starana will never be able to say when the abbreviation ends and when
+the number of ships starts!!!
+
+Ok, so this fleet naming looks extremely annoying. Trust me, it is :)
+Actually it's less annoying than you think, for two reasons. I find
+useful to use the abbreviations since they also tell ME what the fleet
+composition is. "Destroyer+" doesn't say much about all the
+layers/freighters/bombers/SFXs which may be flying with the
+destroyers.  Also, to make life easier starana will check the
+consistency of the number of ships and of the total fleet mass between
+the report and the composition it got from the name, and complain
+about all those fleet who don't match. The information is available in
+the Fleet Analysis part of the report-log file.
+
+
+FLEET INFORMATION "GENERATED" By STARANA
+
+Starana uses the position and movement vector of enemy fleets to
+determine the origin and destination of the fleet. In order to avoid
+ridiculous results (e.g. scout will arive at XXX in 120 turns) it
+limits the ETA of the fleets to the number of turns in the future
+which was requested. For friendly fleets (whose destination is known)
+only the origin determination is performed.
+
+
+AVAILABLE FLEET FUNCTIONS
+
+[I don't have time, select them and read the descriptions! :PP ]
+
+
+
+ADDING FLEET FUNCTIONS
+
+Identical to the planet case....

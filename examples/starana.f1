@@ -1,0 +1,14 @@
+Fleet Name	X	Y	Planet	Destination	Battle Plan	Ship Cnt	Iron	Bora	Germ	Col	Fuel	Owner	ETA	Warp	Mass	Cloak	Scan	Pen	Task	Mining	Sweep	Laying	Terra	Unarmed	Scout	Warship	Utility	Bomber
+Humanoid Privateer #1	1146	1347		Bountiful	Default	2	0	0	0	500	2674	1	6y	6	666	0	0	0	QuikDrop	0	0	0	0	0	0	0	2	0
+Humanoid Long Range Scout #2	1330	1330	Bountiful	-- 	Default	1	0	0	0	0	75	1	0	0	25	0	66	30	(no task here)	0	0	0	0	0	1	0	0	0
+Humanoid Privateer #3	1141	1332		Zappa	Default	2	0	0	0	500	2674	1	4y	6	666	0	0	0	QuikDrop	0	0	0	0	0	0	0	2	0
+Humanoid Teamster #4	1125	1344	Wallaby	Lyra	Default	1	16	12	9	0	439	1	1y	4	167	0	50	0	QuikDrop	0	0	0	0	1	0	0	0	0
+Humanoid Stalwart Defender #5	1235	1276	Zappa	-- 	Default	1	0	0	0	0	150	1	0	0	186	0	66	30	(no task here)	0	16	0	0	0	1	0	0	0
+Humanoid Cotton Picker #6	1125	1344	Wallaby	-- 	Default	1	0	0	0	0	210	1	0	0	574	0	50	0	Remote Mining	8	0	0	0	1	0	0	0	0
+Humanoid Long Range Scout #7	1235	1276	Zappa	-- 	Default	1	0	0	0	0	66	1	0	0	25	0	66	30	(no task here)	0	0	0	0	0	1	0	0	0
+Humanoid Long Range Scout #8	1120	1266		Opus 10	Default	1	0	0	0	0	12	1	1y	6	25	0	66	30	(no task here)	0	0	0	0	0	1	0	0	0
+Humanoid Privateer #10	1124	1298	Opus 10	Wallaby	Default	2	0	0	0	0	2463	1	1y	7	166	0	0	0	(no task here)	0	0	0	0	0	0	0	2	0
+Humanoid Privateer #11	1077	1314		Draco	Default	1	0	0	0	250	1032	1	1y	6	333	0	0	0	QuikDrop	0	0	0	0	0	0	0	1	0
+Humanoid Privateer #12	1146	1354		Applegate	Default	1	0	0	0	250	1337	1	4y	6	333	0	0	0	QuikDrop	0	0	0	0	0	0	0	1	0
+Rabbitoid Smaugarian Peeping Tom #5	1235	1276	Zappa	0.0		1	0	0	0	0	0	2	0	0	0	0	0	0		0	0	0	0	0	1	0	0	0
+Rabbitoid Privateer #10	1291	1257		0.0		2	0	0	0	0	0	2	0	0	130	0	0	0		0	0	0	0	0	0	0	2	0

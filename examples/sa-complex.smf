@@ -1,0 +1,161 @@
+/* this is the complex version of sa.smf, which includes all the
+   stuff you need to give to be able to fully use the fleet support.
+   Unfortunately stars does NOT provide this info in any report, so
+   the only possibility is to type it in, which takes long...... */
+
+/* all the stuff explained in sa.smf is NOT repeated here */
+
+universe "Starana Testbed" {
+	year "starana.m1"
+	sim_future 25
+	weight_function 160
+	displayresolution 600
+	max_zoom 4
+/*	maxpieradius 16   */
+/*	color minerals (0,0,255) (0,220,0) (220,220,0)    */
+/*	color scanning (124,0,0) (124,124,0)    */
+}
+
+starsinclude sa-map.auto starana.map
+
+planet "Lyra" { homeworld }
+planet "Kline" { homeworld }
+planet "Nowhere" { homeworld }
+
+include stars-hulls.smf
+/*
+ * this includes all the base information needed by starana to handle
+ * fleet designs properly, hull weight/cargo, # of engines as well
+ * as engine tables with the fuel usage
+ */
+
+race "Humanoid" {
+	plural "Humanoids"
+/*	color (255,255,255)    */
+	rt JoaT ()
+	habitability 0.22/4.4 -140/140 15/85
+	col_res 1000
+	growth 15
+	factories 10 10 10 4
+	mines 10 5 10
+	tech_cost "000000"
+	tech 3 3 3 3 3 3
+	reliability 100
+	do_analysis 
+
+/*
+ * ok, the fun part starts here
+ */
+	design "Privateer" {
+/*
+ * Name of the design we are defining.
+ */
+		hull "Privateer"
+/*
+ * Base hull for this design: its use is to provide "defaults" for the
+ * ship information. In this case if we omit the cargo and fuel
+ * specification we'll get the default ones of the Privateer hull.
+ */
+		minerals 75 3 10
+		resources 80
+/*
+ * production cost: by defining a design you also automatically define
+ * an object which can be included in queues and that will appear in
+ * the planet status window.
+ */
+		mass 80
+/*
+ * Ship mass, it's used in consistency checks, so make sure you type
+ * it in right.
+ */
+		fuel 1400
+		cargo 250
+/*
+ * Ship max fuel and max cargo space. In this case the "cargo 250" is
+ * optional since it's the same as in the base hull. A simple "rule"
+ * is: if you haven't added any tank or cargo pod you can omit the
+ * fuel and cargo specifications.
+ */
+		engine "Fuel Mizer"
+/*
+ * Ship enigine. The number of engines is taken from the base hull.
+ */
+		composition "Pr"
+/*
+ * Abbreviation used in fleet names to give the composition. Read
+ * fleets.txt for a description on how to use it.
+ * REMEMER!!! *it can't* contain numbers!!!!
+ */
+	}
+
+	queue {
+		autobuild factory 1000
+		autobuild mine 1000
+		autobuild terraform 5
+	}
+}
+
+fleet "Humanoid Strike Fleet #12" composition "12De 2SFX"
+/*
+ * if you want to use a name you like for the fleet or if the
+ * composition string gets too large for the Stars! input dialog you
+ * can give its composition here. (note that even if you rename the
+ * fleet you MUST keep the #id number!!!)
+ */
+
+race "Antetheral" {
+	plural "Antetherals"
+	rt SD (ARM MA NRSE CE NAS)
+	habitability 0.12/0.55 -200/200 70/100
+	col_res 700
+	growth 7
+	factories 11 10 18 4
+	mines 10 10 10
+	tech_cost "-+----"
+	tech 0 0 3 0 0 2
+	reliability 100
+	do_analysis 
+}
+
+race "Rabbitoid" {
+	plural "Rabbitoids"
+	rt IT (IFE TT CE NAS)
+	habitability 0.17/1.24 -60/124 13/53
+	col_res 1000
+	growth 20
+	factories 10 9 17 3
+	mines 10 9 10
+	tech_cost "++-00-"
+	tech 0 0 7 5 0 0
+	reliability 100
+	do_analysis 
+}
+
+/*
+ * alliance "Good guys" {
+ *        race "Rabbitoid"
+ *        race "Humanoid"
+ * }
+ */
+
+source "Humanoid"
+starsinclude sa-pla1.auto starana.p1
+starsinclude sa-fle1.auto starana.f1
+
+source "Rabbitoid"
+starsinclude sa-pla2.auto starana.p2
+starsinclude sa-fle2.auto starana.f2
+planet "Bagnose" { new_colony }
+
+source "Antetheral"
+starsinclude sa-pla3.auto starana.p3
+starsinclude sa-fle3.auto starana.f3
+
+
+include sa-default.pfl
+include sa-default.ffl
+/*
+ * exactly like with planet views now you can include a file which
+ * contains your favorite fleet views, if none is given starana will
+ * try to load default.ffl.
+ */

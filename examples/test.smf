@@ -1,0 +1,102 @@
+universe "Test universe" {
+	year 2400
+	weight_function 160
+	sim_future 25
+	max_zoom 2
+}
+
+/* map definition */
+planet "Humanoid HW" {
+	position 50 50
+}
+
+planet "Antetheral HW" {
+	position 140 40
+}
+
+planet "Rabbitoid HW" {
+	position 150 160
+}
+
+planet "Silicanoid HW" {
+	position 50 150
+}
+
+include default-races.smf
+
+
+/* planetary information */
+source "Humanoid"
+
+/* note: no planetary stats! */
+planet "Humanoid HW" {
+	owner "Humanoid"
+	habitability 100%/100%
+	mineral_conc 50 50 50
+	homeworld
+	minerals 250 250 250
+	population 120000
+	installations 10 10 10
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+		autobuild terraform 100
+	}
+}
+
+
+source "Antetheral"
+
+planet "Antetheral HW" {
+	owner "Antetheral"
+	original_stats 0.31 0 80
+	stats 0.31 0 80
+	mineral_conc 50 50 50
+	homeworld
+	minerals 250 250 250
+	population -1
+	installations 10 10 10
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+		autobuild terraform 100
+	}
+}
+
+
+source "Rabbitoid"
+
+planet "Rabbitoid HW" {
+	owner "Rabbitoid"
+	original_stats 0.55 120 33
+	stats 0.55 120 33
+	mineral_conc 50 50 50
+	homeworld
+	minerals 250 250 250
+	population -1
+	installations 10 10 10
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+		autobuild terraform 100
+	}
+}
+
+
+source "Silicanoid"
+
+planet "Silicanoid HW" {
+	owner "Silicanoid"
+	original_stats 1.00 0 50
+	stats 1.00 0 50
+	mineral_conc 50 50 50
+	homeworld
+	minerals 250 250 250
+	population -1
+	installations 10 10 10
+	queue {
+		autobuild factory 500
+		autobuild mine 500
+		autobuild terraform 100
+	}
+}

@@ -10,7 +10,7 @@
 #define MAX_INCLUDE_DEPTH 10
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_line[MAX_INCLUDE_DEPTH];
-String include_stack_infile[MAX_INCLUDE_DEPTH];
+myString include_stack_infile[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
 void begin_include_file(const char* fname);
@@ -92,6 +92,8 @@ max_zoom	    return (MAXZOOM);
 color		    return (COLOR);
 
 maxpieradius	    return (MAXPIERADIUS);
+
+displayresolution   return (DISPLAYRESOLUTION);
 
 sim_future	    return (SIMFUTURE);
 
@@ -211,6 +213,14 @@ cloaking	    return (CLOAKING);
 
 terraforming	    return (TFORMING);
 
+design		    return (DESIGN);
+
+hull		    return (HULL);
+
+mass		    return (MASS);
+
+engine		    return (ENGINE);
+
 planet_view	    return (PLANETVIEW);
 
 fleet_view	    return (FLEETVIEW);
@@ -235,10 +245,10 @@ include\ .+         {
                       if ( include_stack_ptr >= MAX_INCLUDE_DEPTH )
 			yyerror("Includes nested too deeply");
 
-		      String incl(yytext);
-		      String fns[2];
+		      myString incl(yytext);
+		      vector<myString> fns;
 
-		      split(incl, fns, 2, RXwhite);
+		      fns = incl.split(myRegexp::RXwhite, 2);
 
 		      /* check path */
 		      if (fns[1][0] != '/')
@@ -252,11 +262,11 @@ starsinclude\ .+    {
 			yyerror("Includes nested too deeply");
 
 		      /* separate the two names (3?) */
-		      String incl(yytext);
-		      String fns[4];
+		      myString incl(yytext);
+		      vector<myString> fns;
 
-		      split(incl, fns, 4, RXwhite);
-		      
+		      fns = incl.split(myRegexp::RXwhite, 4);
+
 		      /* check path */
 		      if (fns[1][0] != '/')
 			fns[1] = infile_path + fns[1];
@@ -280,6 +290,10 @@ starsinclude\ .+    {
 
 			infile_name = include_stack_infile[include_stack_ptr];
 			infile_lineno = include_stack_line[include_stack_ptr];
+
+			// notify user
+		        if (do_display)
+			  display->set_intro_loadingfile("Loading file: " + infile_name);
 		      }
                     }
 
@@ -323,6 +337,10 @@ void begin_include_file(const char* fname)
 
   if (!yyin)
     yyerror("Include file not found");
+
+  // notify user
+  if (do_display)
+    display->set_intro_loadingfile("Loading file: " + infile_name);
 
   yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
 }

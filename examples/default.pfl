@@ -1,0 +1,79 @@
+planet_view "Default planet display" {
+	0 "Filter: unexplored" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Marker" 3 F 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Filter: owner" 2 CLDMNF -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Set Marker" 3 F 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Filter: starbase" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	5 "Set Marker" 3 F 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	6 "Set Marker" 4 M 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Empty (all nothing)" {
+}
+planet_view "Surface minerals (for viewpoint)" {
+	0 "Filter: owner" 2 CLDMNF -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Marker" 3 F 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Planet Name" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Color: name" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Filter: owner" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	5 "Surface Minerals" 3 F 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	6 "Filter: unconditional" 3 F 1 100 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Marker" 4 DM 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Mineral concentrations" {
+	0 "Mineral concentrations" 2 CLDMNF 0 0 0 150 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Marker" 4 D 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	8 "Color: name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Population" {
+	0 "Population" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Color: data" 3 D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 D 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 3 D 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Habitability - Stars! (for viewpoint)" {
+	0 "Habitability - Stars!" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 D 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Habitability - now (for viewpoint)" {
+	0 "Habitability - now" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 D 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Global habitability - now" {
+	0 "Habitability - 'global'" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 D 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Global habitability - maximum terraforming" {
+	0 "Habitability 'global' tformed." 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 D 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Set Planet Name" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Planetary scanning" {
+	0 "Filter: owner" 2 CLDMNF -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Marker" 3 F 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Planet Name" 3 M 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Set Marker" 4 M 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Filter: owner" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	5 "Scanning" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	6 "Color: name" 3 C 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+planet_view "Gate coverage" {
+	0 "Filter: owner" 2 CLDMNF -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Marker" 3 F 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Planet Name" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Color: name" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Filter: stargate" 2 CLDMNF 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+	5 "Set Data" 3 F 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	6 "Set Marker" 3 F 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Color: marker" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	8 "Filter: distance" 2 CLDMNF 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	9 "Gate coverage" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	10 "Set Data" 3 F 20 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	11 "Color: data" 3 F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	12 "Set Marker" 3 F 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	13 "Set Marker" 4 M 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}

@@ -12,7 +12,7 @@ void default_parameter_handler(const par_errors pe)
     fprintf(stderr, "Tried to fetch a double from a non-double parameter\n");
     break;
   case PE_NOTASTRING:
-    fprintf(stderr, "Tried to fetch a String from a non-String parameter\n");
+    fprintf(stderr, "Tried to fetch a myString from a non-myString parameter\n");
     break;
   }
 }
@@ -20,19 +20,19 @@ void default_parameter_handler(const par_errors pe)
 void (*parameter::parameter_handler)(const par_errors) = default_parameter_handler;
 
 
-parameter::parameter(const String& n, const String& v) : name(n)
+parameter::parameter(const myString& n, const myString& v) : name(n)
 {
   if (get_parameter(n))
     name += "_redefined";
 
   _type = PString;
-  _value.s = new String(v);
+  _value.s = new myString(v);
   next = param_table;
   param_table = this;
 }
 
 
-parameter::parameter(const String& n, const double& v) : name(n)
+parameter::parameter(const myString& n, const double& v) : name(n)
 {
   if (get_parameter(n))
     name += "_redefined";
@@ -55,11 +55,11 @@ parameter::operator double(void) const
 }
 
 
-parameter::operator String(void) const
+parameter::operator myString(void) const
 {
   if (_type != PString) {
     parameter_handler(PE_NOTASTRING);
-    return String("");
+    return myString("");
   }
 
   return *(_value.s);
@@ -77,7 +77,7 @@ parameter::operator int(void) const
 }
 
 
-parameter* get_parameter(const String& n)
+parameter* get_parameter(const myString& n)
 {
   for (parameter* p = parameter::param_table; p; p = p->next)
     if (p->name == n)

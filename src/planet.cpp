@@ -6,41 +6,52 @@
 const double SQR3 = 1.73205080756887729;
 
 
-int planet::get_starbase_power(const String& name)
+starbase_type planet::get_starbase_power(const myString& name)
 {
   if (!name.length())
-    return 0;
+    return NoStarbase;
 
-  // a search in a user-defined table would be nice
+  myString checkname = name;
 
-  if (name.index("Orbital Fort") != -1)
-    return 1;
-  if (name.index("Space Dock") != -1)
-    return 2;
-  if (name.index("Space Station") != -1)
-    return 3;
-  if (name.index("Ultra Station") != -1)
-    return 4;
-  if (name.index("Death Star") != -1)
-    return 5;
+  // determine base hull
+  // step 1: check in race design table
+  design* d;
 
-  return 3; // assume normal base
+  // if we have a design we just turn the name into the hull name
+  if ( (d = _owner->find_design(name, true)) )
+    checkname = d->basehull()->name;
+
+  // step 2: check default hull names
+  // BE CAREFUL WITH THIS (an enemy calling a base "Orbital Fort" will trick you
+  if (checkname.index("Orbital Fort") == 0)
+    return OrbitalFort;
+  if (checkname.index("Space Dock") == 0)
+    return SpaceDock;
+  if (checkname.index("Space Station") == 0 || checkname.index("Starbase") == 0)
+    return SpaceStation;
+  if (checkname.index("Ultra Station") == 0)
+    return UltraStation;
+  if (checkname.index("Death Star") == 0)
+    return DeathStar;
+
+  return ErrorInName;
 }
 
 
 
-planet::planet(const String& n) : 
+planet::planet(const myString& n) : 
         next(NULL), rnext(NULL), snext(NULL),
 	_name(n), stars_id(-1), header("<unknown>"+n), p_type(UNKNOWN),
 	homeworld(false),
         auth_source(-1), trusted_source(-1),
-	scan_normal(-1), scan_pen(-1), starbase(""), stb_damage(-1), 
+	scan_normal(-1), scan_pen(-1), 
+	starbase(""), stb_type(NoStarbase), stb_design(NULL), stb_damage(-1), 
 	gatemass(0), gaterange(0), 
 	driverdest(NULL), driverwarp(0),
 	routing(NULL), power(0),
 	_owner(NULL), queue(NULL), avail_res(0), need_pop(0),
 	incoming(NULL), curr_year(0), 
-        global_msgs(NULL), tnext(NULL)
+        tnext(NULL)
 {
   int i;
   
@@ -54,6 +65,7 @@ planet::planet(const String& n) :
     r_stats[i][Grav] = r_stats[i][Temp] = r_stats[i][Rad] = -10;
     r_oristats[i][Grav] = r_oristats[i][Temp] = r_oristats[i][Rad] = -10;
     r_minconc[i].clear();
+    r_def_coverage[i] = 0;
   }
 
   for (i = 0; i < SIM_FUTURE; i++) {
@@ -73,7 +85,6 @@ planet::planet(const String& n) :
     _research[i] = 0;
     _tot_resources[i] = 0;
     _tot_research[i] = 0;
-    msg_table[i] = NULL;
   }
 }
 
@@ -97,16 +108,16 @@ planet::planet(const planet& p)
 }
 
 
-void planet::add_message(const _msgtype mt, const String& m)
+void planet::add_message(const _msgtype mt, const myString& m)
 {
-  (void)new message(m, mt, &msg_table[curr_year]);
+  msg_table[curr_year].add(mt, m);
 }
 
 
 
-void planet::add_gmessage(const _msgtype mt, const String& m)
+void planet::add_gmessage(const _msgtype mt, const myString& m)
 {
-  (void)new message(m, mt, &global_msgs);
+  global_msgs.add(mt, m);
 }
 
 
@@ -211,9 +222,8 @@ void planet::set_power(void)
     return;
 
   power = 200 + 200 * _pop[0] / 1000000;
-
-  if (starbase != 0)
-    if (starbase < 3) {
+  if (stb_type != 0)
+    if (stb_type < 3) {
       power = power * 3 / 2;
       power += 100;
     } else {
@@ -244,114 +254,19 @@ void planet::set_power(void)
 */
 
 
+const double deftable[] = {0.0099, 0.0199, 0.0239, 0.0299, 0.0379};
 
+ 
 int planet::compute_percent_from_def(const int d)
 {
-  return d * 100;
+  return (int)(10000 * (1.0 - pow(1-deftable[_owner->defense_level(0)], d)));
 }
-
-
+ 
+ 
 int planet::compute_def_from_percent(const int dp)
 {
-  return dp / 100;
+  return (int)(log(1 - dp / 10000.0)/log(1 - deftable[_owner->defense_level(0)]));
 }
-
-
-
-/*
-int hab_cube[3][3][3] = {
-  { {10000, 8750, 4100},
-    { 8750, 7100, 3100},
-    { 4100, 3100, 1400} },
-  { { 8750, 7100, 3100},
-    { 7100, 5000, 2200},
-    { 3100, 2200, 1100} },
-  { { 4100, 3100, 1400},
-    { 3100, 2200, 1100},
-    { 1400, 1100,    0} } };
-
-
-
-int interp(const int v1, const int v2, const int x)
-{
-  return v1 + (v2 - v1) * x / 100;
-}
-
-
-
-int planet::habitability(const int* st, const race* owner) const
-{
-  int i;
-  int deviat[3];
-  int goff, toff, roff;
-  int h;
-  int x1, x2, x3, x4, x5, x6;
-
-  if (!owner)
-    owner = _owner;
-
-  for (i = 0; i < 3; i++)
-    if (owner->hab_min[i] == -1)
-      deviat[i] = 0;
-    else if (st[i] < owner->hab_min[i])
-      deviat[i] = st[i] - owner->hab_min[i];
-    else if (st[i] > owner->hab_max[i])
-      deviat[i] = owner->hab_max[i] - st[i];
-    else {
-      deviat[i] = 4 * abs(st[i] * 100 - (owner->hab_max[i] + owner->hab_min[i]) * 50);
-      deviat[i] /= (owner->hab_max[i] - owner->hab_min[i]);
-    }
-
-  h = 0;
-
-  for (i = 0; i < 3; i++)
-    if (deviat[i] < 0)
-      h += (deviat[i] < -15)? -15 : deviat[i];
-  
-  if (h < 0) { // red/yellow
-    // mah?
-    if (h < -45)
-      h = -45;
-
-    return h * 100;
-  }
-
-  // green, do linear interpolation
-  // 1: pick sub-cube
-
-  goff = toff = roff = 0;
-
-  if (deviat[0] > 100) {
-    goff = 1;
-    deviat[0] -= 100;
-  }
-  if (deviat[1] > 100) {
-    toff = 1;
-    deviat[1] -= 100;
-  }
-  if (deviat[2] > 100) {
-    roff = 1;
-    deviat[2] -= 100;
-  }
-
-  x1 = interp(hab_cube[goff][toff][roff], 
-	      hab_cube[goff + 1][toff][roff], deviat[0]);
-  x2 = interp(hab_cube[goff][toff + 1][roff], 
-	      hab_cube[goff + 1][toff + 1][roff], deviat[0]);
-
-  x3 = interp(hab_cube[goff][toff][roff + 1], 
-	      hab_cube[goff + 1][toff][roff + 1], deviat[0]);
-  x4 = interp(hab_cube[goff][toff + 1][roff + 1], 
-	      hab_cube[goff + 1][toff + 1][roff + 1], deviat[0]);
-
-  x5 = interp(x1, x2, deviat[1]);
-  x6 = interp(x3, x4, deviat[1]);
-
-  h = interp(x5, x6, deviat[2]);
-
-  return h;
-}
-*/
 
 
 // hab formula from Loren Webster
@@ -446,12 +361,15 @@ void planet::instaform(void)
 }
 
 
-void planet::terraform(void)
+void planet::terraform(race* owner)
 {
   int hab_best = -10000;
   int new_hab;
   int which, i, dir;
   int try_stat[3];
+
+  if (!owner)
+    owner = _owner;
 
   if (_stats[curr_year][Grav] == -10)
     return; // no tform info available
@@ -462,9 +380,9 @@ void planet::terraform(void)
 
   // try terraforming (if possible)
   for (i = 0; i < 3; i++)
-    if (_owner->hab_min[i] != -1)
-      if (abs(ori_stats[i] - _stats[curr_year+1][i]) < _owner->tform_tech[curr_year][i]) {
-	dir = - sign(_stats[curr_year+1][i] - (_owner->hab_max[i] + _owner->hab_min[i]) / 2);
+    if (owner->hab_min[i] != -1)
+      if (abs(ori_stats[i] - _stats[curr_year+1][i]) < owner->tform_tech[curr_year][i]) {
+	dir = - sign(_stats[curr_year+1][i] - (owner->hab_max[i] + owner->hab_min[i]) / 2);
 
 	try_stat[i] += dir;
 	new_hab = habitability(try_stat);
@@ -477,12 +395,19 @@ void planet::terraform(void)
       }
 
   if (hab_best == -10000) {
-    add_message(PLA_INTERNAL, String("Attempted terraform beyond limits?!?"));
+    add_message(RLO_ERROR, "Attempted terraform beyond limits?!?");
     return;
   }
 
-  dir = - sign(_stats[curr_year+1][which] - (_owner->hab_max[which] + _owner->hab_min[which]) / 2);
+  dir = - sign(_stats[curr_year+1][which] - (owner->hab_max[which] + owner->hab_min[which]) / 2);
   _stats[curr_year+1][which] = _stats[curr_year][which] + dir;
+}
+
+
+
+void planet::unterraform(race* owner)
+{
+  exit(-1);
 }
 
 
@@ -597,7 +522,7 @@ void planet::add_to_queue(queue_obj* nqo)
 
 
 
-bool planet::add_to_queue(const bool a, const String& n, const int c,
+bool planet::add_to_queue(const bool a, const myString& n, const int c,
 			  const int act, const int deact)
 {
   object* o;
@@ -634,7 +559,7 @@ bool planet::add_to_queue(const bool a, const String& n, const int c,
 
 
 
-bool planet::insert_in_queue(int pos, const bool a, const String& n, const int c,
+bool planet::insert_in_queue(int pos, const bool a, const myString& n, const int c,
 			     const int act, const int deact)
 {
   if (!_owner || c <= 0)
@@ -725,19 +650,19 @@ void planet::build_queue(void)
 	// object must not be created if max are reached
 	if (co->proto->_name == "factory")
 	  if (factories() + co->count > maxfactories()) {
-	    add_message(PLA_INTERNAL, String("Excess factories trimmed"));
+	    add_message(RLO_ERROR, "Excess factories trimmed");
 	    co->count = maxfactories() - factories();
 	  }
 
 	if (co->proto->_name == "mine")
 	  if (mines() + co->count > maxmines()) {
-	    add_message(PLA_INTERNAL, String("Excess mines trimmed"));
+	    add_message(RLO_ERROR, "Excess mines trimmed");
 	    co->count = maxmines() - mines();
 	  }
 
 	if (co->proto->_name == "defense")
 	  if (defenses() + co->count > maxdefenses()) {
-	    add_message(PLA_INTERNAL, String("Excess defenses trimmed"));
+	    add_message(RLO_ERROR, "Excess defenses trimmed");
 	    co->count = maxdefenses() - defenses();
 	  }
 
@@ -745,7 +670,7 @@ void planet::build_queue(void)
 	  int tl = tform_left();
 
 	  if (co->count > tl) {
-	    add_message(PLA_INTERNAL, String("Excess terraform trimmed"));
+	    add_message(RLO_ERROR, "Excess terraform trimmed");
 	    co->count = tl;
 	  }
 	}
@@ -765,7 +690,7 @@ void planet::build_queue(void)
 	  create_object(co->proto, co->count);
 
 	  sprintf(tmsg, "production: %d %s", original_count, (const char*)co->proto->_name);
-	  add_message(PLA_BUILD, tmsg);
+	  add_message(RLO_PLABUILD, tmsg);
 
 	  // ran out of objects, delete and move to next
 	  if (pco) {
@@ -833,7 +758,7 @@ void planet::build_queue(void)
 	    sprintf(tmsg, "production: %d %s (and next at %d%%)", original_count - co->count,
 		    (const char*)co->proto->_name, 
 		    100 * (co->proto->res - co->res) / co->proto->res);
-	    add_message(PLA_BUILD, tmsg);
+	    add_message(RLO_PLABUILD, tmsg);
 
 	    // now we either have no resources (stop)
 	    // or no minerals (again stop, since auto-build doesn't queue
@@ -843,7 +768,7 @@ void planet::build_queue(void)
 		      shortage.iron, shortage.bora, shortage.germ, (const char*)co->proto->_name,
 		      original_count - co->count, original_count);
 
-	      add_message(PLA_MINSTATE, tmsg);
+	      add_message(RLO_PLAMINSTAT, tmsg);
 
 	      _minshortage[curr_year] += shortage;
 	    }
@@ -903,15 +828,16 @@ queue_obj* planet::create_nonauto(queue_obj* qo)
 
   // see if minerals allow the construction of n_possible objects
   if (!_mineral[curr_year+1].enough(qo->proto->min * n_possible)) {
+    int was_possible = n_possible;
     n_possible = _mineral[curr_year+1] / qo->proto->min;
 
-    shortage = qo->proto->min * (n - n_possible);
+    shortage = qo->proto->min * (was_possible - n_possible);
     _minshortage[curr_year] += shortage;
 
     sprintf(tmsg, "Mineral shortage %d/%d/%d limits autobuild %s to %d/%d",
 	    shortage.iron, shortage.bora, shortage.germ, (const char*)qo->proto->_name,
-	    n_possible, n);
-    add_message(PLA_MINSTATE, tmsg);
+	    n_possible, was_possible);
+    add_message(RLO_PLAMINSTAT, tmsg);
 
   } else {
     // if enough minerals are available for one more object BUT
@@ -933,14 +859,14 @@ queue_obj* planet::create_nonauto(queue_obj* qo)
 
     sprintf(tmsg, "Autobuild %d %s --> %d placed into queue",
 	    qo->count, (const char*)qo->proto->_name, n);
-    add_message(PLA_BUILD, tmsg);
+    add_message(RLO_PLAABUILD, tmsg);
   }
 
   return nqo;
 }
 
 
-int planet::max_can_build(const String& on, int when) const
+int planet::max_can_build(const myString& on, int when) const
 {
   if (!_owner)
     return 0;
@@ -975,7 +901,7 @@ int planet::max_can_build(const String& on, int when) const
   else if (on == "mine")
     n = min(maxmines(when) - mines(when), n);
   else if (on == "terraform")
-    n = min(tform_left(when), n);
+    n = min(tform_left(_owner, when), n);
 
   return n;
 }
@@ -1009,12 +935,17 @@ void planet::init_turn(void)
   // account last year's terraforming
   calc_habitability();
 
+  // update defense coverage (done here to take into account the tech
+  // level of the year AFTER the construction has been done)
+  def_coverage[curr_year] = compute_percent_from_def(_defenses[curr_year]);
+
   // compute resources available this year
   avail_res = resources();
 
   // report status
   report(Full);
 }
+
 
 
 void planet::do_turn(void)
@@ -1034,13 +965,14 @@ void planet::do_turn(void)
   _stats[curr_year+1][Rad] = _stats[curr_year][Rad];
   _factories[curr_year+1] = _factories[curr_year];
   _mines[curr_year+1] = _mines[curr_year];
+  _defenses[curr_year+1] = _defenses[curr_year];
 
   build_queue();
 
   // leftover resources
   if (avail_res != 0) {
     sprintf(tmsg, "planet contributes %d to research", avail_res);
-    add_message(PLA_BUILD, String(tmsg));
+    add_message(RLO_PLABUILD, myString(tmsg));
   }
   _research[curr_year] = avail_res;
 
@@ -1050,14 +982,14 @@ void planet::do_turn(void)
 
   // check incoming fleets
   for (fleet* f = incoming; f; f = f->pnext)
-    if (f->eta == curr_year+1) // fleet arrives now!
+    if (f->eta == curr_year+1) {// fleet arrives now!
       if (f->_owner == _owner) { 
 	int ip = f->unload_pop();
 	_mintype im = f->unload_min();
 
 	// take into account IS growth by pumping the opop total
 	if (_owner->prt() == IS) {
-	  int isgwt = (int)(1000.0 * pow(1.0 + (double)_owner->col_grow/100.0, f->eta));
+	  int isgwt = (int)(1000.0 * pow(1.0 + (double)_owner->col_grow/200.0, f->eta));
 	  ip = ip * isgwt / 1000;
 	}
 
@@ -1066,21 +998,27 @@ void planet::do_turn(void)
 	if (ip || im.total()) {
 	  sprintf(tmsg, "fleet %s unloads %d/%d/%d minerals and %d colonists",
 		  (const char*)f->_name, im.iron, im.bora, im.germ, ip);
-	  add_message(PLA_FLEETS, String(tmsg));
+	  add_message(RLO_PLAFLEETS, myString(tmsg));
 
 	  _pop[curr_year+1] += ip;
 	  _mineral[curr_year+1] += im;
 	}
 
-	if (starbase > 1) {
-	  f->refuel();
-	  sprintf(tmsg, "fleet %s is refuelled by station", (const char*)f->_name);
-	  add_message(PLA_FLEETS, String(tmsg));
-	}
+      } else if (game_map->are_allies(f->_owner, _owner)) {
+	  sprintf(tmsg, "allied fleet %s arrives at planet", (const char*)f->_name);
+	  add_message(RLO_PLAFLEETS, myString(tmsg));
+
       } else {
-	sprintf(tmsg, "fleet %s arrives at planet (is player an ally?)", (const char*)f->_name);
-	add_message(PLA_FLEETS, String(tmsg));
+	sprintf(tmsg, "ENEMY fleet %s arrives at planet!!!", (const char*)f->_name);
+	add_message(RLO_PLAFLEETS, myString(tmsg));
       }
+
+      if (game_map->are_allies(f->_owner, _owner) && stb_type >= SpaceDock) {
+	f->refuel();
+	sprintf(tmsg, "fleet %s is refuelled by station", (const char*)f->_name);
+	add_message(RLO_PLAFLEETS, myString(tmsg));
+      }
+    }
 
   // check die-off
   if (_pop[curr_year+1] == 0) {

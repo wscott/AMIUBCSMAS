@@ -1,0 +1,12 @@
+Fleet Name	X	Y	Planet	Destination	Battle Plan	Ship Cnt	Iron	Bora	Germ	Col	Fuel	Owner	ETA	Warp	Mass	Cloak	Scan	Pen	Task	Mining	Sweep	Laying	Terra	Unarmed	Scout	Warship	Utility	Bomber
+Humanoid Stalwart Defender #5	1235	1276	Zappa	0.0		1	0	0	0	0	0	1	0	0	0	0	50	0		0	16	0	0	0	1	0	0	0
+Humanoid Long Range Scout #7	1235	1276	Zappa	0.0		1	0	0	0	0	0	1	0	0	0	0	50	0		0	0	0	0	0	1	0	0	0
+Rabbitoid Smaugarian Peeping Tom #1	1362	1317	Bagnose	-- 	Default	1	0	0	0	0	148	2	0	0	26	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Rabbitoid Smaugarian Peeping Tom #2	1268	1292	Nastrond	-- 	Default	1	0	0	0	0	153	2	0	0	26	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Rabbitoid Stalwart Defender #3	1263	1234	Kline	-- 	Default	1	0	0	0	0	530	2	0	0	187	0	0	0	(no task here)	0	10	0	0	0	1	0	0	0
+Rabbitoid Smaugarian Peeping Tom #5	1235	1276	Zappa	-- 	Default	1	0	0	0	0	196	2	0	0	26	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Rabbitoid Smaugarian Peeping Tom #6	1282	1178	Pop	-- 	Default	1	0	0	0	0	160	2	0	0	26	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Rabbitoid Privateer #7	1282	1178	Pop	Kline	Default	2	0	0	0	0	2404	2	1y	8	160	0	0	0	(no task here)	0	0	0	0	0	0	0	2	0
+Rabbitoid Privateer #9	1268	1292	Nastrond	Kline	Default	3	0	0	0	0	3615	2	1y	8	240	0	0	0	(no task here)	0	0	0	0	0	0	0	3	0
+Rabbitoid Privateer #10	1291	1257		Bagnose	Default	2	0	0	0	500	2678	2	2y	7	660	0	0	0	QuikDrop	0	0	0	0	0	0	0	2	0
+Antetheral Smaugarian Peeping Tom #7	1282	1178	Pop	0.0		1	0	0	0	0	0	3	0	0	0	0	0	0		0	0	0	0	0	1	0	0	0

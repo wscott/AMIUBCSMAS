@@ -38,7 +38,7 @@ public:
   {
     _name = "Mass Driver";
     _type = "Lines";
-    _desc = "This function adds a line from the planet to its mass driver destination. By default line will turn red if the destination planet is unable to safely catch the packet.";
+    _desc = "This function adds a line from the planet to its mass driver destination.\nBy default the line will turn red if the destination planet is unable to safely catch the packet.";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)

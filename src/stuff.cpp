@@ -107,7 +107,7 @@ planetary_function::planetary_function(void)
 }
 
 
-planetary_function* find_pfunction(const String& pfn)
+planetary_function* find_pfunction(const myString& pfn)
 {
   planetary_function* pf;
 
@@ -149,6 +149,97 @@ planetary_function* get_prev_pfunction(planetary_function* pf)
 
 
 
+fleet_function* fleet_function::function_table = NULL;
+
+
+ff_operation::ff_operation(void) : f(NULL), mode(PF_SKIP), modemask(0)
+{
+  for (int i = 0; i < 16; i++)
+    params[i] = 0;
+}
+
+
+
+void ff_operation::clear(void)
+{
+  f = find_ffunction("- (nothing) -");
+  mode = PF_STOMP;
+  modemask = PF_CIRCLES|PF_LINES|PF_DATA|PF_NAME|PF_MARKER|PF_FLAG;
+  
+  for (int i = 0; i < 16; i++)
+    params[i] = 0;
+}
+
+
+
+fleet_function::fleet_function(void)
+{
+  _name = _type = _desc = "<undefined>";
+  for (int i = 0; i < 16; i++)
+    _pardesc[i] = "<unused>";
+
+  next = function_table;
+  function_table = this;
+}
+
+
+fleet_function* find_ffunction(const myString& ffn)
+{
+  fleet_function* ff;
+
+  for (ff = fleet_function::function_table; ff; ff = ff->next)
+    if (ff->_name == ffn)
+      return ff;
+
+  return NULL;
+}
+
+
+
+fleet_function* get_next_ffunction(fleet_function* ff)
+{
+  if (!ff || !ff->next)
+    return fleet_function::function_table;
+
+  return ff->next;
+}
+
+
+// got to use container classes or make it doubly-linked.....
+
+fleet_function* get_prev_ffunction(fleet_function* ff)
+{
+  fleet_function* pff;
+
+  if (!ff)
+    return fleet_function::function_table;
+  
+  if (ff == fleet_function::function_table)
+    for (pff = fleet_function::function_table; pff->next; pff = pff->next);
+
+  else
+    for (pff = fleet_function::function_table; pff->next != ff; pff = pff->next);
+
+  return pff;
+}
+
+
+
+void object_display::reset(void)
+{
+  nameyshift = n_circles = n_lines = n_values = name_color = 0;
+  marker_type = MT_NONE;
+  flag = false;
+  vmin = 0.0;
+  vmax = 1.0;
+  value = -1e30;
+  pie_dir.x = 1;
+  pie_dir.y = 0;
+}
+
+
+
+
 void object_display::reset_something(const int what)
 {
   if (what & 1)
@@ -169,19 +260,28 @@ void object_display::reset_something(const int what)
 
 int message::msg_mask = 0;
 
-
-message::message(const String& m, const _msgtype mt, message** tab) :
-                   next(NULL), type(mt), msg(m)
-{
-  if (*tab) {
-    message* tmsg;
-
-    for (tmsg = *tab; tmsg->next; tmsg = tmsg->next);
-    tmsg->next = this;
-  } else
-    *tab = this;
-}
-
+int message::color_table[31] = {
+  22,   // RLO_ERROR      
+  0,    // RLO_HABTABLE   
+  3,    // RLO_DATASRC    
+  0,    // RLO_EMPIRETOT  
+  17,   // RLO_FLEETDUP   
+  0,    // RLO_PLAREPORTS 
+  12,   // RLO_PLABUILD   
+  1,    // RLO_PLASTATS   
+  10,   // RLO_PLAFLEETS  
+  2,    // RLO_PLAMINSTAT 
+  4,    // RLO_PLAPOPSTAT 
+  3,    // RLO_PLANETINI  
+  7,    // RLO_FLEETDEST  
+  12,   // RLO_FLEETTRANS 
+  12,   // RLO_FLEETCOLON 
+  8,    // RLO_FLEETATTK  
+  17,   // RLO_FLEETPARSE 
+  1,    // RLO_FLEETCONS  
+  13,   // RLO_PLAQUEUE
+  27    // RLO_PLAABUILD
+};
 
 
 void filter_out_messages(const _msgtype mt)
@@ -189,6 +289,42 @@ void filter_out_messages(const _msgtype mt)
   message::msg_mask |= mt;
 }
 
+
+
+int message::color(void) const
+{
+  int t = (int)type;
+  int i = 0;
+
+  for (; !(t & 1); i++, t>>=1);
+
+  return color_table[i];
+}
+
+
+
+message_table::~message_table(void)
+{
+  message* m;
+  message* nm;
+
+  for (m = head; m; m = nm) {
+    nm = m->next;
+    delete m;
+  }
+}
+
+
+void message_table::add(const _msgtype mt, const myString& msg)
+{
+  message* m = new message(mt, msg);
+
+  if (tail) {
+    tail->next = m;
+    tail = m;
+  } else
+    head = tail = m;
+}
 
 
 int grav_value(const double& v)
@@ -231,11 +367,11 @@ bool guess_gravity(int* r1, int* r2, const double& v1, const double& v2)
 
 
 
-String int_to_str(const int i)
+myString int_to_str(const int i)
 {
   char c[16];
   sprintf(c, "%d", i);
-  return String(c);
+  return myString(c);
 }
 
 

@@ -1,0 +1,210 @@
+HOW PLANETARY DISPLAY *REALLY* WORKS
+
+If you tried to play a bit with the planetary display editor you're
+probably very confused. This file explains how you can "grab the
+power" and have starana really generate the display you want.
+
+Ok, a planet has a lots of info associated to it. The aim of the
+planetary functions is to display this information. There are two main
+steps: choosing what information to display and choosing how to
+compose the different pieces of information.
+
+When a planetary map is requested, a sequence of operations is
+performed to associate some "display data" to the planet. The display
+data defines how the planet will be represented onscreen.
+The display data is composed of 5+1 parts:
+- the circles
+- the marker
+- the lines
+- the data
+- the name
+(- the flag)
+
+The circles represent circles drawn around the planet, filled to
+indicate scanner ranges and empty for gates, for example.
+
+The marker is used to draw crosses, squares, dots.
+
+The data is used for "fat dots" and pie charts.
+
+The lines are lines starting from the planet towards some destination
+(mass drivers, routing).
+
+The name is placed below the marker/data.
+
+The flag is in parentheses because it doesn't really act on the
+display, but can be used to perform interesting composition of
+functions.
+
+A planetary function takes a planet and then generates the display
+data.  The actual effect depends very much on the function:
+'Population' just creates some data which is used for the "fat dot" in
+the population display. 'Set names' just puts the name under every
+planet.  'Mineral concentrations' generates data for the pie
+chart. 'Inhabited' just associates a white square to every inhabited
+world.
+
+There is also a second "class" of functions: filters. They are used to
+filter the display information associated to a planet according to
+some condition. See at the end of the file for a complete list of
+planetary functions.
+
+Invocation of planetary functions can be dependent on what happened
+before.  There are several modes of operation:
+
+skip
+stomp
+and
+or
+
+'Skip' just ignores the function and moves to the next, useful in testing.
+'Stomp' executes the function on the planet regardless of anything.
+'And' executes the function only if 'something' is already defined in
+the display data for that planet.
+'Or' is the opposite of and, it calls the function only if 'something'
+is undefined.
+
+The 'something' can be chosen to be any combination of
+marker/data/name/etc.  It is represented by the push buttons
+immediately to the right of the mode, which are labelled using the
+first letter of the "something".
+A pressed button indicates an activated "something".
+Examples:
+"and" and only "F" (for flag) pressed means that this function
+will be executed on planets which have flag set.
+"or" and only "M" (for marker) will execute function only on
+planets without marker defined.
+
+Even worse, a function can have parameters (16 internally, but only 10
+accessible right now). They control the way the function operates. Their name
+is set to what they do when you select the function.
+
+The aim of all this mess is to allow someone to create what he wants
+with the planetary report. I suggest that you take the examples which
+come with the distribution (load them from default.pfl) and look at
+them to see how the "bricks" are put together to obtain the result.
+
+
+FUNCTIONS vs. FILTERS
+
+There are two main classes of functions: real functions (they ADD
+stuff) and filters (they KILL stuff).  Note that both of them are
+subject to stomp/and/or and so you can create pretty complex things.
+Functions do what they say they do, regardless of anything. In
+addition to altering the display information they operate on they also
+set the flag to true for any planet where they do something. If they
+can't operate on the planet (e.g. lack of info) then flag is left
+untouched. Functions stomp any previous data: set marker kills any
+marker previously defined. "Population" followed by "habitability"
+will result in habitability, with the population data getting
+destroyed. No incompatibility exists for two different "types" of
+display information: set marker doesn't mess with data, circles, etc.
+
+Filters are different. They can be used in two main ways: kill and
+flag.  All filters have a parameter 1 called "fields affect mask"
+which is a sequence of 1s and 0s telling the filter what to kill. Just
+imagine it like a 6-digit binary number. The sequence is the same as
+the one used in the mode "something" display: 111000 tells the filter
+to kill CLD (circles, lines, data) for any planet which satisfies
+filter conditions.  You can for example generate mineral
+concentrations and then kill all the data for planets which you don't
+own.
+
+The second mode is activated by giving a field affect mask equal to 0.
+This would indicate that the filter should perform nothing at all, but
+it's false :) What really happens is that it will set the flag to
+"true" for any planet it would filter and to "false" otherwise.
+Filter on owner will then flag all the planets owned by the specified
+race.  You can then use any function in mode "and-Flag" to execute the
+function only on the planets you own. Piling up filters with
+"and-F"/"or-F" allows you to actually perform and/or of them.
+
+The second method should be preferred as it's easier to understand and
+it does not waste time generating data that will be killed immediately
+after.
+
+
+
+STEP-BY-STEP DESCRIPTION OF AN EXAMPLE: Surface minerals
+
+This predefined view displays all planets, marking the inhabited ones
+and setting their name color to that of the owner, but for the
+viewpoint instead of the marker you have a pie indicating the amount
+of surface minerals.
+Let's see (one way) to do it:
+
+First of all, let's set a square marker at all inhabited worlds:
+
+
+* Filter: owner
+* Stomp mode
+* Race = -1 (anyone)
+* No affect mask (select)
+
+* Set Marker
+* And mode (on flag) - to operate only on planets selected by filter
+* Marker type 3 (a box)
+
+We now have markers on all inhabited worlds, let's add the name to
+those worlds, leaving the uninhabiteds out.
+
+* Set Planet Name
+* And mode (on flag)
+
+Ok, now we turn name into owner color with the appropriate function:
+
+* Color: name
+* And mode (on flag)
+* Color = 0 (i.e. color of owner)
+
+Now let's add the actual surface minerals pie for the viewpoint:
+
+* Filter: owner
+* Stomp mode (i.e. ignore anything occurred before)
+* Race = 0 (viewpoint)
+
+* Surface Minerals
+* And mode (on flag) - to operate only on viewpoint's planets
+* Full circle at 0kT (which means use default value)
+
+Ok, we now have a problem: data and marker are non-exlusive, so if we
+end here we will have the pie of the surface minerals with a white box
+marker on it. Since we don't want the marker we just kill it:
+
+* Filter: unconditional
+* And mode (on flag)
+* Affect mask: 000100 (i.e. kill the marker)
+
+In order to have a less sparse map we add a point at all the
+uninhabited planets:
+
+* Set Marker
+* Or mode (on data or marker)
+* Marker type = 1 (i.e. the dot)
+
+The "or" makes the function be executed only on planets that DON'T
+have nor data nor marker associated to them.  If we had set it to be
+"or on name" we would have obtained the same effect.
+
+Easy, isn't it? :)
+
+
+AVAILABLE PLANETARY FUNCTIONS
+
+[I don't have time, select them and read the descriptions! :PP ]
+
+
+
+ADDING PLANETARY FUNCTIONS
+
+Planetary functions are designed to be easy to add (if you know C++).
+All the and/or,data/marker stuff is already treated by the
+stars_map::display_planets() function. When your function is called it
+should verify that it CAN generate the data and then generate it.
+Adding functions does NOT require you to modify anything in the rest
+of the sources. You just derive a new subclass from planetary_function
+and then create an object from the class giving it the name which must
+then appear on the map.  Then add your source file in the list of the
+PFMODULES in the Makefile and type make. 
+Usually, the easiest way is to find a function already defined which
+'almost' does what you want, copy and then hack it.

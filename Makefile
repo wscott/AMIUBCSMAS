@@ -6,7 +6,7 @@ backuppackage:
 	(cd src ; make clean)
 	(cd .. ; tar -czv --exclude starana-0.2/bin -f sa-package.tar.gz starana-0.2/ )
 
-packages: sourcepackage docpackage windllpackage binpackage
+packages: sourcepackage docpackage windllpackage binpackage beginnerpackage
 
 sourcepackage:
 	(cd src ; make clean)
@@ -19,8 +19,16 @@ windllpackage:
 	(cd .. ; zip -r9 sa-windll.tar.gz starana-0.2/bin/*.dll starana-0.2/README)
 
 binpackage:
-#	(cd src ; $(MAKE))
-#	mv src/starana bin/starana
-#	mv src/starana.exe bin/starana.exe
-#	(cd src ; $(MAKE) clean)
+	(cd src ; $(MAKE))
+	mv src/starana bin/starana
+	mv src/starana.exe bin/starana.exe
+	(cd src ; $(MAKE) clean)
 	(cd .. ; zip -r9 sa-bin.tar.gz starana-0.2/bin/starana* starana-0.2/README)
+
+beginnerpackage:
+	(cd src ; $(MAKE))
+	mkdir -p bin
+	mv src/starana bin/starana
+	mv src/starana.exe bin/starana.exe
+	(cd src ; $(MAKE) clean)
+	(cd .. ; zip -r9 sa-beginner.tar.gz starana-0.2/bin/*.dll starana-0.2/bin/starana* starana-0.2/doc/* starana-0.2/examples/* starana-0.2/README)

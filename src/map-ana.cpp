@@ -6,13 +6,15 @@
 
 
 
-void stars_map::check_planets_step1(FILE* of)
+void stars_map::check_planets_step1(void)
 {
   int i;
   planet* p;
   race* r;
 
-  fprintf(of, "************* Planetary analysis (step 1) *************\n\n");
+  add_message(RLO_ERROR, "");
+  add_message(RLO_ERROR, "************* Initial planetary analysis *************");
+  add_message(RLO_ERROR, "");
 
   for (p = unsorted_ptable; p; p = p->next) {
 
@@ -20,9 +22,8 @@ void stars_map::check_planets_step1(FILE* of)
       // we have authoritative source & is a friend -> use data
       p->trusted_source = p->auth_source;
 
-      fprintf(of, "%s: authoritative source %s assumed trusted for simulation\n", 
-	      (const char*)p->_name, (const char*)race_list[p->auth_source]->_name);
-
+      p->add_message(RLO_DATASRC, p->name() + ": authoritative source " + 
+		     race_list[p->auth_source]->name() + " assumed trusted for simulation");
     } else {
       for (p->rep_age = 20000, i = 0; i < number_races; i++)
 	if (p->r_age[i] < 10000 && p->r_age[i] < p->rep_age) {
@@ -31,33 +32,34 @@ void stars_map::check_planets_step1(FILE* of)
 	} else if (p->r_age[i] == p->rep_age) {
 	  if ( (race_list[i]->reliab + 10*(i == p->auth_source)) >
 	       (race_list[p->trusted_source]->reliab + 10*(p->trusted_source == p->auth_source))) {
-	    fprintf(of, "%s: %s data preferred over %s data\n", 
-		    (const char*)p->_name, (const char*)race_list[i]->_name, 
-		    (const char*)race_list[p->trusted_source]->_name);
+
+	    p->add_message(RLO_DATASRC, p->name() + ": " + race_list[i]->name() +
+			   " data preferred over " + race_list[p->trusted_source]->name());
 
 	    p->trusted_source = i;
 	  } else
-	    fprintf(of, "%s: %s data preferred over %s data\n", 
-		    (const char*)p->_name, (const char*)race_list[p->trusted_source]->_name,
-		    (const char*)race_list[i]->_name);
+	    p->add_message(RLO_DATASRC, p->name() + ": " + race_list[p->trusted_source]->name() + 
+			   " data preferred over " + race_list[i]->name() + " data\n");
 	}
     }
 
     if (p->trusted_source == -1) {
-      //      fprintf(of, "%s: no data available on planet\n", p->_name.chars());
+      //      fprintf(of, "%s: no data available on planet", p->_name.chars());
 
     } else {
-      fprintf(of, "%s: data from %s used as trusted source\n", 
-	      (const char*)p->_name, (const char*)race_list[p->trusted_source]->_name);
-
+      p->add_message(RLO_DATASRC, p->name() + ": data from " + 
+		     race_list[p->trusted_source]->name() + " used as trusted source");
       if (p->trusted_source != p->auth_source && p->_owner &&
 	  p->_owner->can_analyze)
-	fprintf(of, "%s: TRUSTED != AUTHORITATIVE AND YOU WANT SIMULATION!!!!\n",
-	      (const char*)p->_name);
-      
+	add_message(RLO_ERROR, p->name() + ": TRUSTED != AUTHORITATIVE AND YOU WANT SIMULATION!!!!");
+
       // set actual values
       p->_owner = p->r_owner[p->trusted_source];
       p->starbase = p->r_starbase[p->trusted_source];
+      if ( (p->stb_type = p->get_starbase_power(p->starbase)) == ErrorInName)
+	p->add_message(RLO_ERROR, p->name() + " (" + p->starbase + 
+		       "): unable to understand starbase hull type!!");
+
       p->_pop[0] = p->r_pop[p->trusted_source];
       p->_stats[0][0] = p->r_stats[p->trusted_source][0];
       p->_stats[0][1] = p->r_stats[p->trusted_source][1];
@@ -66,84 +68,95 @@ void stars_map::check_planets_step1(FILE* of)
       p->ori_stats[1] = p->r_oristats[p->trusted_source][1];
       p->ori_stats[2] = p->r_oristats[p->trusted_source][2];
       p->_min_conc[0] = p->r_minconc[p->trusted_source];
+      p->def_coverage[0] = p->r_def_coverage[p->trusted_source];
 
       if (p->_owner)
 	p->_habitab[0] = p->r_hab[p->_owner->id];
 
-      p->check_data(of);
+      p->check_data();
     }
 
     p->set_power();
   }
 
   // report planet habitability for all viewpoints
-
   // header (we assume at least 1 race to analyze)
-  fprintf(of, "\n----- Planet Habitability Report -----\n\nPlanet            ");
+  add_message(RLO_HABTABLE, "");
+  add_message(RLO_HABTABLE, "************* Planet Habitability Report *************");
+  add_message(RLO_HABTABLE, "");
+
+  char tstr[256];
+  myString msg = "Planet            ";
 
   for (i = 0; i < number_races; i++)
-    if (race_list[i]->can_analyze)
-      fprintf(of, "%18s", (const char*)race_list[i]->_names);
+    if (race_list[i]->can_analyze) {
+      sprintf(tstr, "%18s", race_list[i]->_names.c_str());
+      msg += tstr;
+    }
 
-  fprintf(of, "\n");
+  add_message(RLO_HABTABLE, msg);
 
   for (p = unsorted_ptable; p; p = p->next)
     if (p->trusted_source != -1) {
-      if (p->ori_stats[Grav] != -10) {
-	fprintf(of, "%-18s ", (const char*)p->_name);
+      sprintf(tstr, "%-18s ", p->name().c_str());
+      msg = tstr;
 
+      if (p->ori_stats[Grav] != -10) {
 	for (i = 0; i < number_races; i++) {
 	  r = race_list[i];
 
 	  if (r->can_analyze) {
 	    // output reported habitability
 	    if (p->r_age[i] != 10000)
-	      fprintf(of, " %3d%% ", p->r_hab[i]);
+	      sprintf(tstr, " %3d%% ", p->r_hab[i]);
 	    else
-	      fprintf(of, "      ");
+	      sprintf(tstr, "      ");
+
+	    msg += tstr;
 
 	    // output estimated habitability
-	    fprintf(of, " %3d%%(%3d%%) ", p->hab_now(r), p->hab_when_max_terraformed(r));
+	    sprintf(tstr, " %3d%%(%3d%%) ", p->hab_now(r), p->hab_when_max_terraformed(r));
+	    msg += tstr;
 	  }
 	}
-
-	fprintf(of, "\n");
-
       } else
-	fprintf(of, "%-18s ....reported, but no planetary info.....\n", 
-		(const char*)p->_name);
+	msg += "....reported, but no planetary info.....";
+      
+      add_message(RLO_HABTABLE, msg);
     }
-
-  fprintf(of, "\n\n");
-  fflush(of);
+  
+  add_message(RLO_HABTABLE, "");
 }
 
 
 
-void stars_map::check_fleets(FILE* of)
+void stars_map::check_fleets(void)
 {
   fleet* f;
   int i;
 
-  fprintf(of, "****************** Fleet Analysis ******************\n\n");
+  add_message(RLO_ERROR, "");
+  add_message(RLO_ERROR, "****************** Fleet Analysis ******************");
+  add_message(RLO_ERROR, "");
 
   for (i = 0; i < number_races; i++)
     for (f = race_list[i]->fleet_table; f; f = f->rnext)
-      f->check_data(game_map->report_log);
+      f->check_data();
 
-  fprintf(of, "\n\n");
-  fflush(of);
+  add_message(RLO_ERROR, "");
 }
 
 
 
-void stars_map::find_breeders(planet* p, FILE* of)
+void stars_map::find_breeders(planet* p)
 {
   planet* source;
   planet* s_list = NULL;
   int dist;
   planet* op2;
   planet* p2;
+  myString msg;
+  char tstr[256];
 
   //  if (p->p_type == planet::BREEDER)
   //    return;
@@ -168,30 +181,35 @@ void stars_map::find_breeders(planet* p, FILE* of)
 
   // write out names
   if (s_list) {
-    fprintf(of, "%s pop sources:", (const char*)p->header);
+    msg = p->header + " pop sources:";
 
     for (source = s_list; source && source->distance(p) <= PARmax_search_distance;
-	 source = source->tnext)
+	 source = source->tnext) {
       if (source->p_type == planet::BREEDER)
-	fprintf(of, "  %s (%.1f/%d)", (const char*)source->_name, 
+	sprintf(tstr, "  %s (%.1f/%d)", source->name().c_str(), 
 		(float)source->capacity(0)/10.0, source->distance(p) / 81 + 1);
       else
-	fprintf(of, "  [%s (%.1f @ %d)]", (const char*)source->_name, 
+	sprintf(tstr, "  [%s (%.1f @ %d)]", source->name().c_str(), 
 		(float)source->capacity(0)/10.0, source->distance(p) / 81 + 1);
 
-    fprintf(of, "\n");
+      msg += tstr;
+    }
+
+    p->add_message(RLO_PLAPOPSTAT, msg);
   }
 }
 
 
 
-void stars_map::find_minerals(planet* p, FILE* of, const int mt)
+void stars_map::find_minerals(planet* p, const int mt)
 {
   planet* source;
   planet* s_list = NULL;
   int dist;
   planet* op2;
   planet* p2;
+  myString msg;
+  char tstr[256];
 
   //  if (p->p_type == planet::MINING || p->p_type == planet::BREEDER)
   //    return;
@@ -216,28 +234,32 @@ void stars_map::find_minerals(planet* p, FILE* of, const int mt)
 
   // write out names
   if (s_list) {
-    fprintf(of, "%s %s sources:", (const char*)p->header,
-	    (mt)? ((mt==1)? "boranium" : "germanium") : "ironium");
+    msg = p->header + " " + ((mt)? ((mt==1)? "boranium" : "germanium") : "ironium") + " sources:";
 
     for (source = s_list; source && source->distance(p) < PARmax_search_distance;
-	 source = source->tnext)
-      fprintf(of, "  %s (%d/%d @ %d)", (const char*)source->_name,
+	 source = source->tnext) {
+      sprintf(tstr, "  %s (%d/%d @ %d)", (const char*)source->_name,
 	      -source->need_min[mt], source->_mineral[0][mt],
 	      source->distance(p) / 81 + 1);
 
-    fprintf(of, "\n");
+      msg += tstr;
+    }
+
+    p->add_message(RLO_PLAMINSTAT, msg);
   }
 }
 
 
 
-void stars_map::check_planets_step2(FILE* of)
+void stars_map::check_planets_step2(void)
 {
   planet* p;
   int i;
 
   // check growth/germanium/min shortages, etc.
-  fprintf(of, "************* Planetary analysis (step 2) *************\n\n");
+  add_message(RLO_ERROR, "");
+  add_message(RLO_ERROR, "************* Planetary simulation/analysis *************");
+  add_message(RLO_ERROR, "");
 
   // select planet types
   for (p = unsorted_ptable; p; p = p->next) {
@@ -245,7 +267,7 @@ void stars_map::check_planets_step2(FILE* of)
       continue;
 
     if (p->p_type == planet::UNKNOWN) {
-      fprintf(of, "%s planet type undefined!!!\n", (const char*)p->header);
+      add_message(RLO_ERROR, p->header + " planet type undefined!!!");
       continue;
     }
 
@@ -257,55 +279,65 @@ void stars_map::check_planets_step2(FILE* of)
     if (!p->_owner || !p->_owner->can_analyze)
       continue;
 
-    p->title(of);
+    add_message((RLO_PLAREPORTS | RLO_PLAMINSTAT | RLO_PLAPOPSTAT), p->title());
 
     // do evolution
     for (i = 0; i <= sim_future(); i++)
-      p->print_messages(of, i);
-
-    p->report_growth();
-    p->report_mining();
-
-    fprintf(of, "%s xcng matrix: %d - %d/%d/%d\n", (const char*)p->header, 
-	    p->need_pop, p->need_min.iron, p->need_min.bora, p->need_min.germ);
+      for (const message* m = p->next_message(NULL, i); m; m = p->next_message(m, i))
+	add_message(m->type, p->header + " " + m->msg);
 
     // check pop/mineral offer/demand
-    p->print_gmessages(of);
+    p->report_growth(); 
+    p->report_mining();
+
+    add_message((RLO_PLAMINSTAT | RLO_PLAPOPSTAT), p->header + "xcng matrix: " +
+		int_to_str(p->need_pop) + " - " +
+		int_to_str(p->need_min.iron) + "/" +
+		int_to_str(p->need_min.bora) + "/" +
+		int_to_str(p->need_min.germ));
+
+    // report global messages
+    for (const message* m = p->next_gmessage(NULL); m; m = p->next_gmessage(m))
+      add_message(m->type, p->header + " " + m->msg);
 
     // report sources of pop/min
     if (p->need_pop > 0)
-      find_breeders(p, of);
+      find_breeders(p);
 
     for (i = 0; i < 3; i++)
       if (p->need_min[i] > 0)
-	find_minerals(p, of, i);
+	find_minerals(p, i);
   }
 
-  fprintf(of, "\n\n");
-  fflush(of);
+  add_message(RLO_ERROR, "");
 }
 
 
 
 
-void stars_map::empire_report(FILE* of)
+void stars_map::empire_report(void)
 {
   int i, y;
   race* r;
   planet* p;
   fleet* f;
   double t;
+  myString msg;
+  char tstr[256];
 
-  fprintf(of, "****************** Empire evolution *******************\n\n");
+  add_message(RLO_EMPIRETOT, "");
+  add_message(RLO_EMPIRETOT, "****************** Empire evolution *******************");
+  add_message(RLO_EMPIRETOT, "");
 
   for (i = 0; i < number_races; i++) {
-
     r = race_list[i];
 
     if (!r->can_analyze || race_planets[i] == 0)
       continue;
 
-    fprintf(of, "%s: ************** Report of %s empire\n", (const char*)r->_name, (const char*)r->_name);
+    msg = "************** Report of " + r->name() + " empire";
+    r->add_message(RLO_EMPIRETOT, msg);
+    add_message(RLO_EMPIRETOT, r->name() + ": " + msg);
 
     for (y = 0; y < actual_sim_future; y++) {
       // calc total populations (land+orbit)
@@ -333,15 +365,15 @@ void stars_map::empire_report(FILE* of)
       for (f = r->fleet_table; f; f = f->rnext) {
 	// problem here: how do we deal with "colonization" fleets?
 	// just assume they sit in orbit like idiots
-	if (y < f->eta || !f->destin || f->destin->owner() != f->_owner) {
-	  r->total_opop[y] += f->pop;
-	  r->total_min[y] += f->min;
+	if (y < f->eta || !f->_destin || f->_destin->owner() != f->_owner) {
+	  r->total_opop[y] += f->_pop;
+	  r->total_min[y] += f->_min;
 	}
       }
 
       // take into account IS growth by pumping the opop total
       if (r->prt() == IS && y)
-	r->total_opop[y] = (int)((double)r->total_opop[y] * pow(1.0 + (double)r->col_grow/100.0, y));
+	r->total_opop[y] = (int)((double)r->total_opop[y] * pow(1.0 + (double)r->col_grow/200.0, y));
     }
 
     for (y = 0; y < actual_sim_future-1; y++) {
@@ -352,65 +384,75 @@ void stars_map::empire_report(FILE* of)
       r->total_geff[y] = (int)((100.0 * t)/ r->col_grow + 0.5);
     }
 
-    fprintf(of, "%s: Population  (  orbit )     Growth    Grow%%     Geff%%\n", (const char*)r->_name);
+    sprintf(tstr, "Population  (  orbit )     Growth    Grow%%     Geff%%");
+    r->add_message(RLO_EMPIRETOT, tstr);
+    add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
  
-    for (y = 0; y < actual_sim_future-1; y++)
-      fprintf(of, "%s: %8d00  (%6d00)    %5d00   %5.2f%%   %6.2f%%\n", (const char*)r->_name, 
+    for (y = 0; y < actual_sim_future-1; y++) {
+      sprintf(tstr, "%8d00  (%6d00)    %5d00   %5.2f%%   %6.2f%%",
 	      r->total_pop[y], r->total_opop[y], r->total_growth[y], 
 	      (float)r->total_gpctg[y]/100.0, (float)r->total_geff[y]/100.0);
+      r->add_message(RLO_EMPIRETOT, tstr);
+      add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
+    }
 
-    fprintf(of, "%s: ----\n", (const char*)r->_name);
-    fprintf(of, "%s:        Minerals (tot)              Mining (tot)          Mining / planet\n",
-	    (const char*)r->_name);
+    sprintf(tstr, "-----------");
+    r->add_message(RLO_EMPIRETOT, tstr);
+    add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
 
-    for (y = 0; y < actual_sim_future-1; y++)
-      fprintf(of, "%s: %7di %7db %7dg   %6di %6db %6dg   %4di %4db %4dg\n", (const char*)r->_name,
-	      r->total_min[y][0], r->total_min[y][1], r->total_min[y][2],
-	      r->total_mg[y][0], r->total_mg[y][1], r->total_mg[y][2],
-	      r->total_mg[y][0]/race_planets[i], r->total_mg[y][1]/race_planets[i],
-	      r->total_mg[y][2]/race_planets[i]);
+    sprintf(tstr, "       Minerals (tot)              Mining (tot)          Mining / planet");
+    r->add_message(RLO_EMPIRETOT, tstr);
+    add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
 
-    fprintf(of, "%s: ----\n", (const char*)r->_name);
-    fprintf(of,
-	    "%s:    factories  (unus)        mines    (unus)  resources  resource growth\n",
-	    (const char*)r->_name);
+    for (y = 0; y < actual_sim_future-1; y++) {
+      sprintf(tstr, "%7di %7db %7dg   %6di %6db %6dg   %4di %4db %4dg",
+		r->total_min[y][0], r->total_min[y][1], r->total_min[y][2],
+		r->total_mg[y][0], r->total_mg[y][1], r->total_mg[y][2],
+		r->total_mg[y][0]/race_planets[i], r->total_mg[y][1]/race_planets[i],
+		r->total_mg[y][2]/race_planets[i]);
+      r->add_message(RLO_EMPIRETOT, tstr);
+      add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
+    }
 
-    for (y = 0; y < actual_sim_future-1; y++)
-      fprintf(of, "%s: %6d/%6d (%4d)   %6d/%6d (%4d)    %7d (%7d - %2.2f%%)\n",
-	      (const char*)r->_name,
+    sprintf(tstr, "-----------");
+    r->add_message(RLO_EMPIRETOT, tstr);
+    add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
+
+    sprintf(tstr, "   factories  (unus)        mines    (unus)  resources  resource growth");
+    r->add_message(RLO_EMPIRETOT, tstr);
+    add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
+
+    for (y = 0; y < actual_sim_future-1; y++) {
+      sprintf(tstr, "%6d/%6d (%4d)   %6d/%6d (%4d)    %7d (%7d - %2.2f%%)",
 	      r->total_fact[y], r->total_maxfact[y], r->total_unufact[y],
 	      r->total_mine[y], r->total_maxmine[y], r->total_unumine[y],
 	      r->total_res[y], r->total_res[y+1] - r->total_res[y],
 	      (float)(r->total_res[y+1] - r->total_res[y]) / r->total_res[y] * 100.0);
+      r->add_message(RLO_EMPIRETOT, tstr);
+      add_message(RLO_EMPIRETOT, r->name() + ": " + tstr);
+    }
 
-    /*    fprintf(of, "%s: ----\n", r->_name.chars());
-    fprintf(of, "%s: Res %%  Research      En  We  Pr  Co  El  Bi  (gT tT rT)\n", r->_name.chars());
+    /*      fprintf(of, "%s: ----\n", r->_name.chars());
+	    fprintf(of, "%s: Res %%  Research      En  We  Pr  Co  El  Bi  (gT tT rT)\n", r->_name.chars());
 
-    for (y = 0; y < actual_sim_future-1; y++)
-      fprintf(of, "%s: %2.2f%% %8d      %2d  %2d  %2d  %2d  %2d  %2d  (%2d %2d %2d)\n",
-	      r->_name.chars(),
-	      100.0*(float)r->total_rsrch[y]/(float)r->total_res[y], r->total_rsrch[y], 
-	      r->tech[y][0], r->tech[y][1], r->tech[y][2], 
-	      r->tech[y][3], r->tech[y][4], r->tech[y][5],
-	      r->tform_tech[y][Grav], r->tform_tech[y][Temp], r->tform_tech[y][Rad]); */
+	    for (y = 0; y < actual_sim_future-1; y++)
+	    fprintf(of, "%s: %2.2f%% %8d      %2d  %2d  %2d  %2d  %2d  %2d  (%2d %2d %2d)\n",
+	    r->_name.chars(),
+	    100.0*(float)r->total_rsrch[y]/(float)r->total_res[y], r->total_rsrch[y], 
+	    r->tech[y][0], r->tech[y][1], r->tech[y][2], 
+	    r->tech[y][3], r->tech[y][4], r->tech[y][5],
+	    r->tform_tech[y][Grav], r->tform_tech[y][Temp], r->tform_tech[y][Rad]); */
   }
-
-  fflush(of);
 }
 
 
-
-void stars_map::evolve_planets(FILE* of)
+void stars_map::evolve_planets(void)
 {
   int y;
   int i;
   planet* p;
 
-  //  fprintf(of, "************* Planetary evolution *************\n\n");  
-
   for (y = 1; y < actual_sim_future; y++) {
-    //    fprintf(of, "----- YEAR %d -----------------------------------------\n", 
-    //	    game_year + y);
 
     for (i = 0; i < number_races; i++)
       if (race_list[i]->can_analyze) {
@@ -426,11 +468,10 @@ void stars_map::evolve_planets(FILE* of)
       }
   }
 
-  // spread year 0 data on non-analyzed planets
-  for (i = 0; i < number_races; i++)
-    if (!race_list[i]->can_analyze)
-      for (p = race_list[i]->planet_table; p; p = p->rnext)
-	p->spread_year0_data();
+  // spread year 0 data on non-analyzed/non-owned planets
+  for (p = unsorted_ptable; p; p = p->next)
+    if (!p->owner() || !p->owner()->can_analyze)
+      p->spread_year0_data();
 
   // perform final report
   for (i = 0; i < number_races; i++)
@@ -438,7 +479,4 @@ void stars_map::evolve_planets(FILE* of)
       for (p = race_list[i]->planet_table; p; p = p->rnext)
 	if (p->evolving())
 	  p->report(Full);
-
-  fprintf(of, "\n\n");
-  fflush(of);
 }

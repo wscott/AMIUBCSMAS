@@ -25,7 +25,7 @@ int planet::planet_pop_needs[][6] = {
 
 
 
-void planet::check_data(FILE* of)
+void planet::check_data(void)
 {
   int i;
 
@@ -35,14 +35,16 @@ void planet::check_data(FILE* of)
     _stats[0][Temp] = ori_stats[Temp];
     _stats[0][Rad] = ori_stats[Rad];
 
-    fprintf(of, "%s currents stats assumed equal to original stats\n", (const char*)header);
+    game_map->add_message(RLO_PLASTATS, 
+			  header + "currents stats assumed equal to original stats");
 
   } else if (_stats[0][Grav] != -10 && ori_stats[Grav] == -10) {
     ori_stats[Grav] = _stats[0][Grav];
     ori_stats[Temp] = _stats[0][Temp];
     ori_stats[Rad] = _stats[0][Rad];
 
-    fprintf(of, "%s original stats assumed equal to CURRENT stats - beware!!\n", (const char*)header);
+    game_map->add_message(RLO_PLASTATS, 
+			  header + " original stats assumed equal to CURRENT stats - beware!!");
   }
 
   if (homeworld) {
@@ -62,7 +64,7 @@ void planet::check_data(FILE* of)
   }
 
   if (_pop[0] == -1) {
-    _pop[0] = (get_parameter(String("acceleratedBBS")))? (100000 + (_owner->col_grow - 15) * 5000) : 25000;
+    _pop[0] = (get_parameter(myString("acceleratedBBS")))? (100000 + (_owner->col_grow - 15) * 5000) : 25000;
 
     if (_owner->lrt(LSP))
       _pop[0] = (int)(0.7 * _pop[0]);
@@ -71,12 +73,17 @@ void planet::check_data(FILE* of)
   // fix defense coverage
   if (_defenses[0] < 0) {
     if (def_coverage[0] < 0) {
-      // uhu?
+      // uh?
       _defenses[0] = def_coverage[0] = 0;
 
-    } else
+    } else {
       // guess number from def%
       _defenses[0] = compute_def_from_percent(def_coverage[0]);
+
+      if (_defenses[0] > 100)
+	game_map->add_message(RLO_PLANETINI, 
+			      header + " impossible def coverage %%!! Check energy tech level!");
+    }
 
   } else if (def_coverage[0] < 0) {
     def_coverage[0] = compute_percent_from_def(_defenses[0]);
@@ -107,25 +114,26 @@ void planet::check_data(FILE* of)
   if (_stats[0][Grav] != -10) {
     if (_owner->prt() == CA) {
       // do instaforming
-      fprintf(of, "%s unbelievable CA powers instaform the world to %d%%!\n",
-	      (const char*)header, hab_when_max_terraformed());
+      game_map->add_message(RLO_PLANETINI,
+			    header + " unbelievable CA powers instaform the world to " +
+			    int_to_str(hab_when_max_terraformed()) + "%!");
       instaform();
     }
 
     calc_habitability();
   } else {
     if (_habitab[0] == -100)
-      fprintf(of, "%s no planetary data and no hab%% info! - sim will be pure crap\n",
-	      (const char*)header);
+      game_map->add_message(RLO_ERROR, 
+			    header + " no planetary data and no hab% info! - sim will be pure crap");
     else
-      fprintf(of, "%s no planetary data - terraforming sim will be wrong\n",
-	      (const char*)header);
+      game_map->add_message(RLO_ERROR, 
+			    header + " no planetary data - terraforming sim will be wrong");
   }
 
   // sanity check on mineral concentrations
   if (_min_conc[0].iron <= 0 || _min_conc[0].bora <= 0 || _min_conc[0].germ <= 0) {
-    fprintf(of, "%s ZERO mineral concentrations!?!?!? Assuming 1, but check....\n",
-	      (const char*)header);
+    game_map->add_message(RLO_ERROR,
+			  header + " ZERO mineral concentrations!?!?!? Assuming 1, but check....");
 
     for (i = 0; i < 3; i++)
       if (_min_conc[0][i] <= 0)
@@ -133,7 +141,7 @@ void planet::check_data(FILE* of)
   }
 
   if (p_type == planet::UNKNOWN)
-    guess_type(of);
+    guess_type();
 
   if (mine_year[0].iron <= 0) {
     for (i = 0; i < 3; i++)
@@ -149,58 +157,63 @@ void planet::check_data(FILE* of)
     // use race's default queue
     if (_owner->default_queue) {
       // copy queue
-      fprintf(of, "%s default production queue used\n", (const char*)header);
+      game_map->add_message(RLO_PLANETINI,
+			    header + " default production queue used");
 
       for (queue_obj* qo = _owner->default_queue; qo; qo = qo->next)
 	add_to_queue(new queue_obj(*qo));
 
     } else {
-      fprintf(of, "%s no production queue - assuming default 500f/500m/5t\n",
-	      (const char*)header);
-      add_to_queue(true, String("factory"), 500);
-      add_to_queue(true, String("mine"), 500);
-      add_to_queue(true, String("terraform"), 5);
+      game_map->add_message(RLO_PLANETINI,
+			    header + " no production queue - assuming default 500f/500m/5t");
+      add_to_queue(true, myString("factory"), 500);
+      add_to_queue(true, myString("mine"), 500);
+      add_to_queue(true, myString("terraform"), 5);
     }
   }
 }
 
 
 
-void planet::title(FILE* of) const
+myString planet::title(void) const
 {
-  fprintf(of, "%s --------- %s -----------\n", (const char*)header,
-	  type_name());
+  return header + "--------- " + type_name()+ "-----------";
 }
 
 
 
-void planet::guess_type(FILE* of)
+void planet::guess_type(void)
 {
   if (p_type == UNKNOWN) {
     // try to guess planet type
 
     if (_habitab[0] < -10 && capacity(0) < 500) {
-      fprintf(of, "%s type unknown, but looks like a looting area...\n", (const char*)header);
+      game_map->add_message(RLO_PLANETINI, 
+			    header + " type unknown, but looks like a looting area...");
       p_type = LOOTING;
 
     } else if (_habitab[0] < 0 || resources(0) < 350 ||
 	_pop[0] < 200000) {
-      fprintf(of, "%s type unknown, but looks like a new colony\n", (const char*)header);
+      game_map->add_message(RLO_PLANETINI, 
+			    header + " type unknown, but looks like a new colony");
       p_type = NEWCOLONY;
 
     } else if (_habitab[0] >= 70 && capacity(0) > 400 &&
 	       (100 * _factories[0] / maxcfactories(0)) > 80 &&
 	       _mineral[0].total() > 6000) {
-      fprintf(of, "%s type unknown, but looks like a production center\n", (const char*)header);
+      game_map->add_message(RLO_PLANETINI,
+			    header + " type unknown, but looks like a production center");
       p_type = PRODUCTION;
     } else if (_habitab[0] >= 80 && capacity(0) < 480 &&
 	       _min_conc[0].total() < 55) {
-      fprintf(of, "%s type unknown, but looks like a population breeder\n", (const char*)header);
+      game_map->add_message(RLO_PLANETINI,
+			    header + " type unknown, but looks like a population breeder");
       p_type = BREEDER;
     } else if (0) {
       // MINING
     } else {
-      fprintf(of, "%s type unknown, no clear guess, marked as generic\n", (const char*)header);
+      game_map->add_message(RLO_PLANETINI,
+			    header + " type unknown, no clear guess, marked as generic");
       p_type = GENERIC;
     }
   }
@@ -263,11 +276,11 @@ void planet::report_growth(void)
   // red/yellow world ignores type (except looting) and assumes newcolony
   if (_habitab[0] < 0) {
     if (oldf < 1000)
-      add_gmessage(PLA_POPSTATE, String("red-yellow: population below 100%!"));
+      add_gmessage(RLO_PLAPOPSTAT, "red-yellow: population below 100%!");
 
     if (oldf > 3000)
-      add_gmessage(PLA_POPSTATE, 
-		   String("red-yellow planet filling beyond 300% - USELESS overpopulation!!"));
+      add_gmessage(RLO_PLAPOPSTAT, 
+		   "red-yellow planet filling beyond 300% - USELESS overpopulation!!");
 
     for (i = 1; i < game_map->sim_future(); i++) {
       oldf = capacity(i - 1);
@@ -275,27 +288,27 @@ void planet::report_growth(void)
 
       if (oldf >= 1000 && newf < 1000) {
 	sprintf(tmsg, "red-yellow: pop will drop below filling 100%% in %d years", i);
-	add_message(PLA_POPSTATE, String(tmsg));
+	add_message(RLO_PLAPOPSTAT, tmsg);
 	need_pop = true;
       }
     }
   } else {
     if (oldf < 250)
-      add_gmessage(PLA_POPSTATE, String("planet filling is below 25%"));
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is below 25%");
     else if (oldf < 330)
-      add_gmessage(PLA_POPSTATE, String("planet filling is in 25%-33% range"));
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is in 25%-33% range");
     else if (oldf < 480)
-      add_gmessage(PLA_POPSTATE, String("planet filling is in 33%-48% range"));
-    else if (oldf < 800)
-      add_gmessage(PLA_POPSTATE, String("planet filling is in 48%-80% range - suboptimal"));
-    else if (oldf < 1000)
-      add_gmessage(PLA_POPSTATE, String("planet filling is above 80% - max pop!"));
-    else if (oldf == 1000)
-      add_gmessage(PLA_POPSTATE, String("planet is filled"));
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is in 33%-48% range");
+    else if (oldf < 800)	   
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is in 48%-80% range - suboptimal");
+    else if (oldf < 1000)	   
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is above 80% - max pop!");
+    else if (oldf == 1000)	   
+      add_gmessage(RLO_PLAPOPSTAT, "planet is filled");
     else if (oldf < 3000)
-      add_gmessage(PLA_POPSTATE, String("planet filling is beyond 100% - overpopulated"));
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is beyond 100% - overpopulated");
     else
-      add_gmessage(PLA_POPSTATE, String("planet filling is beyond 300% - USELESS overpopulation!"));
+      add_gmessage(RLO_PLAPOPSTAT, "planet filling is beyond 300% - USELESS overpopulation!");
 
     for (i = 1; i < game_map->sim_future(); i++) {
       oldf = capacity(i-1);
@@ -303,19 +316,19 @@ void planet::report_growth(void)
 
       if (oldf < 250 && newf >= 250) {
 	sprintf(tmsg, "25%% filling boundary crossed in %d years", i - 1);
-	add_gmessage(PLA_POPSTATE, String(tmsg));
+	add_gmessage(RLO_PLAPOPSTAT, tmsg);
       }
       if (oldf < 330 && newf >= 330) { 
 	sprintf(tmsg, "33%% filling boundary crossed in %d years", i - 1);
-	add_gmessage(PLA_POPSTATE, String(tmsg));
+	add_gmessage(RLO_PLAPOPSTAT, tmsg);
       }	
       if (oldf < 480 && newf >= 480) {
 	sprintf(tmsg, "48%% filling boundary crossed in %d years", i - 1);
-	add_gmessage(PLA_POPSTATE, String(tmsg));
+	add_gmessage(RLO_PLAPOPSTAT, tmsg);
       }
       if (oldf < 800 && newf >= 800) {
 	sprintf(tmsg, "80%% filling boundary crossed in %d years", i - 1);
-	add_gmessage(PLA_POPSTATE, String(tmsg));
+	add_gmessage(RLO_PLAPOPSTAT, tmsg);
       }
     }
   }
@@ -424,7 +437,7 @@ void planet::report_mining(void)
     else if (need_min.germ < 0)
       sprintf(e(tmsg), "  offer GERMANIUM (%d)", -need_min.germ);
 
-    add_message(PLA_MINSTATE, String(tmsg));
+    add_message(RLO_PLAMINSTAT, tmsg);
   }
 
   // if shortage is detected then comment on concentration
@@ -445,7 +458,7 @@ void planet::report_mining(void)
 	sprintf(tmsg, "%s concentration (%d) is good - slight production slowdown",
 		minname, _min_conc[0][i]);
     
-      add_gmessage(PLA_MINSTATE, String(tmsg));
+      add_gmessage(RLO_PLAMINSTAT, tmsg);
     }
 
 /*
@@ -470,7 +483,7 @@ void planet::report_mining(void)
 	sprintf(tmsg, "lack of %dkT of germ (missed %d/%d fact, but %d mines) in %d years",
 		mfact * _owner->fact_germ, mfact, pfact,
 		mines(i)-mines(i-1), i - 1);
-	add_gmessage(PLA_MINSTATE, String(tmsg));
+	add_gmessage(PLA_MINSTATE, myString(tmsg));
 	germ_status = true;
       }
     }
@@ -486,7 +499,7 @@ void planet::report_mining(void)
       sprintf(tmsg, "germanium concentration (%d) is good - slight developement slowdown",
 	      _min_conc[0].germ);
     
-    add_gmessage(PLA_MINSTATE, String(tmsg));
+    add_gmessage(PLA_MINSTATE, tmsg);
   }
 */
 }

@@ -10,8 +10,8 @@ public:
   {
     _name = "Habitability - Stars!";
     _type = "Habitability";
-    _desc = "This function works like the planet habitability display in Stars!\nfor the requested  race.";
-    _pardesc[0] = "Race # (0 for viewpoint)";
+    _desc = "This function works like the planet habitability display in Stars!\nfor the requested race.\n[0] use 0 to indicate the current viewpoint.";
+    _pardesc[0] = "Race";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -77,8 +77,8 @@ public:
   {
     _name = "Habitability - now";
     _type = "Habitability";
-    _desc = "This function displays the current habitability value of the\nplanet (i.e. no yellows) for the requested race.";
-    _pardesc[0] = "Race # (0 for viewpoint)";
+    _desc = "This function displays the current habitability value of the\nplanet (i.e. no yellows) for the requested race.\n[0] use 0 to indicate the current viewpoint.";
+    _pardesc[0] = "Race";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -137,11 +137,11 @@ public:
   {
     _name = "Habitability - terraformed";
     _type = "Habitability";
-    _desc = "This function displays the maximum habitability value of the\nplanet (max terraforming) for the current race viewpoint.";
-    _pardesc[0] = "Race # (0 for viewpoint)";
-    _pardesc[1] = "Gravity (0 for race's)";
-    _pardesc[2] = "Tempreature (0 for race's)";
-    _pardesc[3] = "Radiation (0 for race's)";
+    _desc = "This function displays the maximum habitability value of the\nplanet (max terraforming) for the current race viewpoint.[0] use 0 to indicate the current viewpoint.\n[5,6,7] use 0 to indicate the race's own ability.";
+    _pardesc[0] = "Race";
+    _pardesc[5] = "Gravity";
+    _pardesc[6] = "Tempreature";
+    _pardesc[7] = "Radiation";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -169,8 +169,8 @@ public:
     int tf_tech[3];
 
     for (i = 0; i < 3; i++)
-      if (par[i+1])
-	tf_tech[i] = par[i+1];
+      if (par[i+5])
+	tf_tech[i] = par[i+5];
       else
 	tf_tech[i] = rvw->terraform_tech(0)[i];
 
@@ -216,7 +216,7 @@ public:
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
   {
     int i;
-    bool someone = false;
+    int someone = 0;
 
     // let's create a nice alias
     object_display& d = p->disp;
@@ -229,14 +229,18 @@ public:
     d.vmax = 100;
 
     for (i = 0; i < mw.get_map()->number_of_players(); i++) {
-      if ( (d.values[i].value = p->hab_now(mw.get_map()->player_race(i), when)) > 0)
-	someone = true;
+      if (mw.set_alliances(MW_READ))
+	if (!mw.get_map()->are_allies(mw.viewpoint(), mw.get_map()->find_race(i)))
+	  continue;
 
-      d.values[i].color = COL_RACES + 4 * i;
+      if ( (d.values[someone].value = p->hab_now(mw.get_map()->find_race(i), when)) > 0) {
+	d.values[someone].color = COL_RACES + 4 * i;
+	someone++;
+      }
     }
 
     if (someone) {
-      d.n_values = i;
+      d.n_values = someone;
       d.flag = true;
     }
   }
@@ -254,16 +258,16 @@ public:
   {
     _name = "Habitability 'global' tformed.";
     _type = "Habitability";
-    _desc = "This function generates a pie for the planet with a radius based\non the maximum of the maximum possible habitability for the\nvarious races. For all the races with a positive habitability a slice\nis drawn, with an angle proportional to the race habitability value.";
-    _pardesc[1] = "Gravity (0 for race's)";
-    _pardesc[2] = "Tempreature (0 for race's)";
-    _pardesc[3] = "Radiation (0 for race's)";
+    _desc = "This function generates a pie for the planet with a radius based\non the maximum of the maximum possible habitability for the\nvarious races. For all the races with a positive habitability a slice\nis drawn, with an angle proportional to the race habitability value.\n[5,6,7] use 0 to indicate the race's own ability.";
+    _pardesc[5] = "Gravity";
+    _pardesc[6] = "Tempreature";
+    _pardesc[7] = "Radiation";
   }
 
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
   {
     int i, j;
-    bool someone = false;
+    int someone = 0;
 
     // let's create a nice alias
     object_display& d = p->disp;
@@ -280,22 +284,26 @@ public:
     race* rvw;
 
     for (i = 0; i < mw.get_map()->number_of_players(); i++) {
-      rvw = mw.get_map()->player_race(i);
+      if (mw.set_alliances(MW_READ))
+	if (!mw.get_map()->are_allies(mw.viewpoint(), mw.get_map()->find_race(i)))
+	  continue;
+
+      rvw = mw.get_map()->find_race(i);
 
       for (j = 0; j < 3; j++)
-	if (par[j+1])
-	  tf_tech[j] = par[j+1];
+	if (par[j+5])
+	  tf_tech[j] = par[j+5];
 	else
 	  tf_tech[j] = rvw->terraform_tech(0)[j];
 
-      if ( (d.values[i].value = p->hab_when_max_terraformed(rvw, when, tf_tech)) > 0 )
-	someone = true;
-
-      d.values[i].color = COL_RACES + 4 * i;
+      if ( (d.values[someone].value = p->hab_when_max_terraformed(rvw, when, tf_tech)) > 0 ) {
+	d.values[someone].color = COL_RACES + 4 * i;
+	someone++;
+      }
     }
 
     if (someone) {
-      d.n_values = i;
+      d.n_values = someone;
       d.flag = true;
     }
   }
@@ -313,12 +321,12 @@ public:
   {
     _name = "Filter: habitability now";
     _type = "Habitability";
-    _desc = "Filters planets depending on their current habitability value.";
-    _pardesc[0] = "Race # (0 for viewpoint)";
+    _desc = "Filters planets depending on their current habitability value.\n[0] use 0 for the current viewpoint.";
+    _pardesc[0] = "Race";
     _pardesc[1] = "Fields affect mask";
-    _pardesc[2] = "Min value %";
-    _pardesc[3] = "Max value %";
-    _pardesc[4] = "Negate filter";
+    _pardesc[2] = "Negate filter";
+    _pardesc[3] = "Min value %";
+    _pardesc[4] = "Max value %";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -343,13 +351,13 @@ public:
 	// can't do anything
 	if (hab != -100) {
 	  // check the value
-	  f = (par[2] <= par[3] && hab >= par[2] && hab <= par[3]) ||
-	    (par[2] > par[3] && (hab >= par[2] || hab <= par[3]));
+	  f = (par[3] <= par[4] && hab >= par[3] && hab <= par[4]) ||
+	    (par[3] > par[4] && (hab >= par[3] || hab <= par[4]));
 	}
       }
     }
 
-    if (par[4])
+    if (par[2])
       f = !f;
 
     if (par[1]) {

@@ -2,13 +2,16 @@
 
 include ../Makefile.local
 
-# add here your favorite planetary functions
+# add here your favorite display functions
 PFMODULES = pf-basic.cpp \
 	pf-population.cpp \
 	pf-installations.cpp \
 	pf-habitability.cpp \
 	pf-minerals.cpp \
-	pf-lines.cpp
+	pf-lines.cpp \
+	ff-basic.cpp \
+	ff-movement.cpp \
+	ff-capabilities.cpp 
 
 
 .SUFFIXES: .cpp .o .c
@@ -19,20 +22,16 @@ PFMODULES = pf-basic.cpp \
 .c.o:
 	$(CPP) $(CPPFLAGS) -c $*.c
 
-all:
-#	ln -sf out_$(GRAPHICS).h out.h
-	if cmp -s out_$(GRAPHICS).h out.h ; then echo ; else cp -f out_$(GRAPHICS).h out.h ; fi
-	$(MAKE) $(GRAPHICS)
-	$(MAKE) starana
+all: starana
 
 clean:
-	rm -f *.o starana out core z gram.output gram.c lex.c report-log out.h
+	rm -f *.o starana out core z gram.output gram.c lex.c report-log
 	(cd ../xforms ; make clean)
 	(cd ../examples ; rm -f report-log *.auto core)
 
 SOURCES = map.cpp map-ana.cpp mapview.cpp planet.cpp planet-ana.cpp planet-info.cpp \
 	starana-main.cpp stuff.cpp wfuncs.cpp param.cpp fleet.cpp race.cpp \
-	convert.cpp $(PFMODULES)
+	convert.cpp myString.cpp $(PFMODULES) out_X11.cpp out_X11_forms.cpp
 
 gram.c: gram.y
 	$(YACC) $(YFLAGS) $*.y
@@ -43,32 +42,24 @@ lex.c: lex.l
 	$(LEX) $(LXFLAGS) $*.l
 	mv $*.yy.c $*.c
 
-lex.o: gram.h starana-classes.h
+XFSOURCES = ../xforms/pfunc.c ../xforms/pfunc_cb.c
 
-gram.o: gram.h starana-classes.h
+XFOBJS = $(XFSOURCES:.c=.o)
 
-# null output
-null: out_null.o
+xformsinterface:
+	$(MAKE) -C ../xforms
 
-out_null.o: out_null.cpp out.h starana-classes.h
-	$(CPP) $(CPPFLAGS) -c $*.cpp
-	cp out_null.o out.o
+lex.o: lex.c gram.h starana-classes.h myString.h
+	$(CPP) $(CPPFLAGS) -c $*.c
 
-# X11 output needs xforms library, we stuff it inside out_X11.o
-X11: out_X11.o out_X11_forms.o
-	(cd ../xforms ; make)
-	rm -f out.o
-	ar rcv out.o out_X11.o out_X11_forms.o \
-                     ../xforms/pfunc.o ../xforms/pfunc_cb.o
+gram.o: gram.c gram.h starana-classes.h myString.h
+	$(CPP) $(CPPFLAGS) -c $*.c
 
-out_X11.o: out_X11.cpp out.h starana-classes.h
-	$(CPP) $(CPPFLAGS) -c $*.cpp
-	
 OBJS = $(SOURCES:.cpp=.o)
 
-$(OBJS): starana-classes.h out.h
+$(OBJS): starana-classes.h out_X11.h myString.h
 
-starana: $(OBJS) gram.o lex.o out.o
-	$(CPP) -o starana $(OBJS) gram.o lex.o out.o $(LIBRARIES)
+starana: xformsinterface $(OBJS) gram.o lex.o
+	$(CPP) -o starana $(OBJS) gram.o lex.o $(XFOBJS) $(LIBRARIES)
 # -pg
 # /usr/lib/libefence.a

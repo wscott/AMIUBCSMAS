@@ -175,9 +175,9 @@ public:
     _type = "Population";
     _desc = "This function filters planets depending on their population.";
     _pardesc[1] = "Fields affect mask";
-    _pardesc[2] = "Min value";
-    _pardesc[3] = "Max value";
-    _pardesc[4] = "Negate filter";
+    _pardesc[2] = "Negate filter";
+    _pardesc[3] = "Min value";
+    _pardesc[4] = "Max value";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -190,11 +190,11 @@ public:
     // we can do something if we have the data
     if (p->data_available() && !p->owner()) {
       int val = p->population(when);
-      f = (par[2] <= par[3] && val >= par[2] && val <= par[3]) ||
-	(par[2] > par[3] && (val >= par[2] || val <= par[3]));
+      f = (par[3] <= par[4] && val >= par[3] && val <= par[4]) ||
+	(par[3] > par[4] && (val >= par[3] || val <= par[4]));
     }
 
-    if (par[4])
+    if (par[2])
       f = !f;
 
     if (par[1]) {
@@ -219,9 +219,9 @@ public:
     _type = "Population";
     _desc = "This function filters planets depending on their total resource output.";
     _pardesc[1] = "Fields affect mask";
-    _pardesc[2] = "Min value";
-    _pardesc[3] = "Max value";
-    _pardesc[4] = "Negate filter";
+    _pardesc[2] = "Negate filter";
+    _pardesc[3] = "Min value";
+    _pardesc[4] = "Max value";
   }
   
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -234,11 +234,11 @@ public:
     // we can do something if we have the data
     if (p->data_available() && !p->owner()) {
       int val = p->resources(when);
-      f = (par[2] <= par[3] && val >= par[2] && val <= par[3]) ||
-	(par[2] > par[3] && (val >= par[2] || val <= par[3]));
+      f = (par[3] <= par[4] && val >= par[3] && val <= par[4]) ||
+	(par[3] > par[4] && (val >= par[3] || val <= par[4]));
     }
 
-    if (par[4])
+    if (par[2])
       f = !f;
 
     if (par[1]) {

@@ -1,0 +1,285 @@
+/* ship and starbase hulls used in Stars! */
+/* starbase hulls have no info (for the moment?) */
+
+hull "Orbital Fort" {
+}
+
+hull "Space Dock" {
+}
+
+hull "Space Station" {
+}
+
+hull "Ultra Station" {
+}
+
+hull "Death Star" {
+}
+
+/* ships */
+hull "Scout" {
+	engine 1
+	mass 8
+	cargo 0
+	fuel 50
+}
+
+hull "Destroyer" {
+	engine 1
+	mass 30
+	cargo 0
+	fuel 280
+}
+
+hull "Privateer" {
+	engine 1
+	mass 65
+	cargo 250
+	fuel 650
+}
+
+hull "Rogue" {
+	engine 2
+	mass 75
+	cargo 500
+	fuel 2250
+}
+
+hull "Galleon" {
+	engine 4
+	mass 125
+	cargo 1000
+	fuel 2500
+}
+
+hull "Mini-Colony ship" {
+	engine 1
+	mass 8
+	cargo 10
+	fuel 150
+}
+
+hull "Colony Ship" {
+	engine 1
+	mass 20
+	cargo 25
+	fuel 200
+}
+
+hull "Frigate" {
+	engine 1
+	mass 8
+	cargo 0
+	fuel 125
+}
+
+hull "Small Freighter" {
+	engine 1
+	mass 25
+	cargo 70
+	fuel 130
+}
+
+hull "Medium Freighter" {
+	engine 1
+	mass 60
+	cargo 210
+	fuel 450
+}
+
+hull "Large Freighter" {
+	engine 2
+	mass 125
+	cargo 1200
+	fuel 2600
+}
+
+hull "Super Freighter" {
+	engine 3
+	mass 175
+	cargo 3000
+	fuel 8000
+}
+
+hull "Fuel Transport" {
+	engine 1
+	mass 12
+	cargo 0
+	fuel 750
+}
+
+hull "Super Fuel Xport" {
+	engine 2
+	mass 111
+	cargo 0
+	fuel 2250
+}
+
+hull "Mini Mine Layer" {
+	engine 1
+	mass 10
+	cargo 0
+	fuel 400
+}
+
+hull "Super Mine Layer" {
+	engine 3
+	mass 30
+	cargo 0
+	fuel 2200
+}
+
+hull "Cruiser" {
+	engine 2
+	mass 90
+	cargo 0
+	fuel 600
+}
+
+hull "Battleship" {
+	engine 4
+	mass 222
+	cargo 0
+	fuel 2800
+}
+
+hull "Nubian" {
+	engine 3
+	mass 100
+	cargo 0
+	fuel 5000
+}
+
+hull "Metamorph" {
+	engine 3
+	mass 85
+	cargo 300
+	fuel 700
+}
+
+hull "Battle Cruiser" {
+	engine 2
+	mass 120
+	cargo 0
+	fuel 1400
+}
+
+hull "Dreadnought" {
+	engine 5
+	mass 250
+	cargo 0
+	fuel 4500
+}
+
+hull "Mini-Morph" {
+}
+
+hull "Mini Bomber" {
+	engine 1
+	mass 28
+	cargo 0
+	fuel 120
+}
+
+hull "B-17 Bomber" {
+	engine 2
+	mass 69
+	cargo 0
+	fuel 400
+}
+
+hull "Stealth Bomber" {
+	engine 2
+	mass 70
+	cargo 0
+	fuel 750
+}
+
+hull "B-52 Bomber" {
+	engine 3
+	mass 110
+	cargo 0
+	fuel 750
+}
+
+hull "Midget Miner" {
+	engine 1
+	mass 10
+	cargo 0
+	fuel 210
+}
+
+hull "Mini Miner" {
+	engine 1
+	mass 80
+	cargo 0
+	fuel 210
+}
+
+hull "Miner" {
+	engine 2
+	mass 110
+	cargo 0
+	fuel 500
+}
+
+hull "Maxi Miner" {
+	engine 3
+	mass 110
+	cargo 0
+	fuel 850
+}
+
+hull "Super Miner" {
+	engine 2
+	mass 100
+	cargo 0
+	fuel 1300
+}
+
+/* engine fuel usage table */
+engine "Settler's Delight" {
+	fuel 0 0 0 0 0 140 275 480 576
+}
+engine "Quick Jump 5" {
+	fuel 25 100 100 100 180 500 800 900 1080
+}
+engine "Fuel Mizer" {
+	fuel 0 0 0 35 120 175 235 360 420
+}
+engine "Long Hump 6" {
+	fuel 20 60 100 100 105 450 750 900 1080
+}
+engine "Daddy Long Legs 7" {
+	fuel 20 60 70 100 100 110 600 750 900
+}
+engine "Alpha Drive 8" {
+	fuel 15 50 60 70 100 100 115 700 840
+}
+engine "Trans-Galactic Drive" {
+	fuel 15 35 45 55 70 80 90 100 120
+}
+engine "Interspace-10" {
+	fuel 10 30 40 50 60 70 80 90 100
+}
+engine "Trans-Star 10" {
+	fuel 5 15 20 25 30 35 40 45 50
+}
+engine "Radiating Hydro-Ram Scoop" {
+	fuel 0 0 0 0 0 165 375 600 720
+}
+engine "Sub-Galactic Fuel Scoop" {
+	fuel 0 0 0 0 85 105 210 380 456
+}
+engine "Trans-Galactic Fuel Scoop" {
+	fuel 0 0 0 0 0 88 100 145 174
+}
+engine "Trans-Galactic Super Scoop" {
+	fuel 0 0 0 0 0 0 65 90 108
+}
+engine "Trans-Galactic Mizer Scoop" {
+	fuel 0 0 0 0 0 0 0 70 84
+}
+engine "Galaxy Scoop" {
+	fuel 0 0 0 0 0 0 0 0 60
+}

@@ -1,0 +1,280 @@
+/* first of all, anything enclosed in slash-star star-slash is
+   considered a comment (like in the C language) */
+
+/*
+ * first of all, you need to give a universe definition which
+ * specifies the name of the game (used for the window name) and some
+ * additional information
+ */
+universe "Starana Testbed" {
+
+	year "starana.m1"
+/* 
+ * the year can be given in 2 ways: the file specification of a turn
+ * file (starana will open the file and read the current year from it)
+ * or just by typing in a number, as in 'year 2430'
+ */
+
+	sim_future 25
+/*
+ * how many years of the future to simulate. There's a fixed limit at
+ * 50, which you can change by recompiling the program. Usually 10 is
+ * enough, since after that the "in-game" actions affect the simulation
+ * too much to have any meaning. In planetary simulation you will use a
+ * larger value.
+ */
+
+	weight_function 160
+/*
+ * The type of function to be used when computing the "controlled
+ * space" display. Approximately it defines what is the maximum size of
+ * the area that a single planet can control. The only possible values
+ * are 160, 200, 250.
+ */
+
+	displayresolution 600
+/*
+ * the width (and height) of the display window (in pixels).
+ * the default value is 600, which is fine for my 800x600 screen....
+ * You can increase it for 1027x768 or reduce to 550 to have room
+ * for both the window and the title bar/border.
+ */
+
+	max_zoom 4
+/*
+ * The maximum zoom allowed in the map. This is required to correctly
+ * allocate/compute the controlled space display. 2 is reasonable for
+ * tiny, I use 4 for large/huge.
+ */
+
+/*	maxpieradius 16   */
+/*
+ * maximum radius used for "fat dots" associated to planets
+ * (e.g. in the habitability display). 8 is the default and it's
+ * fine at 600x600, you may want to increase it at higher resolution
+ */
+
+/*	color minerals (0,0,255) (0,220,0) (220,220,0)    */
+/*
+ * colors used for minerals. the three velues are the RGB components
+ * of the color. If you decide to change them you must give all the
+ * three colors, even if you just want to change one.
+ * The defaults are blue/green/yellow as in Stars!
+ */
+
+/*	color scanning (124,0,0) (124,124,0)    */
+/*
+ * Remembering a posting on the NG where someone affected by color
+ * blindness commented that penscans made the map unreadable to him
+ * I have decided to allow altering the colors used for normal scans
+ * and penscans.
+ * The default are dark red and dark yellow as in Stars!
+ */
+}
+
+
+starsinclude sa-map.auto starana.map
+/*
+ * autoconvert from universe report "starana.map" to file sa-map.auto
+ * and include it in this point. This is to provide planet positions,
+ * names and ids, information required before you can include
+ * anything else.
+ */
+
+
+planet "Lyra" { homeworld }
+planet "Kline" { homeworld }
+planet "Nowhere" { homeworld }
+/*
+ * you can add here some special information about planets which is
+ * not present in the reports. The homeworld one is useful, since it will
+ * make sure that mineral concentrations can't drop below 30.
+ */
+
+/*
+ * Now you need to specify the races. The order is not important
+ * (except for the color that the races will have in the display). The
+ * name is *VERY* important, since it's needed to understand who the
+ * owner of something is (fleet or planet)
+ * (my comments are present only for the 1st race definition)
+ *
+ * NOTE: the values are NOT sanity-checked (to allow you to test
+ * absurd settings), so make sure that what you type is correct...factory
+ * efficiency "115" will give you pretty weird resources :)
+ */
+
+race "Humanoid" {
+	plural "Humanoids"
+/* plural of name */
+
+/*	color (255,255,255)    */
+/* color to be used for the race, as above it's a RGB value. The defaults
+   work well on my monitor, but you may prefer to alter them with your
+   favorites or maybe to better "see" allies/enemies */
+
+	rt JoaT ()
+/* Racial traits:
+   PRTs: HE, SS, WM, CA, IS, SD, PP, IT, AR, JoaT
+   LRTs: IFE, TT, ARM, ISB, GR, UR, MA, NRSE, CE, OBRM, NAS, LSP, BET, RS
+
+   VERY IMPORTANT: Alternate Realty races are NOT SUPPORTED AT ALL
+   BY THE PROGRAM (they would require a rewrite of planet handling), also
+   there is data such as max pop on a planet which would be unavailable.
+
+   The format is 'rt PRT (LRT LRT LRT LRT ...)'
+ */
+
+	habitability 0.22/4.4 -140/140 15/85
+/* habitability ranges, just type in "immune" for an immune field
+   instead of xx/yy. They are the exactly the values you see in the race
+   wizard */
+
+	col_res 1000
+/* how many colonists for 1 resource */
+
+	growth 15
+/* growth % (type in the wizard's value, HE prt uses 2x this value) */
+
+	factories 10 10 10 4
+/* factories: efficiency, cost, max operated. Germanium cost is either
+   3 (checked) or 4 (unchecked) */
+
+	mines 10 5 10
+/* mines: efficiency, cost, max operated */
+
+	tech_cost "000000"
+
+/* technology research cost. It's a string of 6 characters which can be
+   "+" for expensive, "-" for cheap or "0" for normal. It is currently
+   unused */
+
+	tech 3 3 3 3 3 3
+/* current tech levels: important in order to determine the current
+   terraforming technology available, the order is the one you can
+   imagine: ener weap prop const elec bio */
+
+	reliability 100
+
+/* "reliability" of this race as a source of information. Only useful
+   if you will include report files from that race. It determines whose
+   data to use for a planet.
+   SIMPLE USE: 100 for yourself, 99 for you ally, 98 for next ally, etc.
+   (assuming allies send you their turn or report files).
+   If you don't have any report coming from this race just don't put
+   any reliability line in the race definition.
+ */
+
+	do_analysis 
+/* should the program perform a simulation for this race?
+   Running simulations for enemy races (i.e. no reports available) is
+   in theory possible, but you will not have enough data about their
+   planets for a meaningful simulation unless you type it in yourself.
+   If you don't put 'do_analysis' anywhere in the race definition then
+   no analysis will be performed (which is what you want for enemies...)
+ */
+
+	object "Privateer" {
+		minerals 75 3 10
+		resources 80
+	}
+
+/* 
+ * you can define here the objects you want to be able to put into
+ * the production queues. Defenses, factories, mines and terraform are
+ * automatically included by the program.
+ * The objects are also used in the planet status display to compute
+ * how many you can build given the current minerals (and resources).
+ * NOTE for those who read sa-complex.smf: remember that defining a
+ * design AUTOMATICALLY defines an object of the same name!!
+ */
+
+	queue {
+		autobuild factory 1000
+		autobuild mine 1000
+		autobuild terraform 5
+	}
+/* default production queue to use for planets if none is given. Note
+   that since Stars! does NOT provide the queue in the reports all planet
+   owned by this race will use this queue unless you add manually all the
+   queue specifications in each planet. Queue specifications are
+   complex, leave it out to get a default lotsa factories/lotsa
+   mines/terraforming which is usually accurate enough. Alternatively
+   you can modify this one but you'll need to read technicalia.txt.
+*/
+}
+
+
+race "Antetheral" {
+	plural "Antetherals"
+	rt SD (ARM MA NRSE CE NAS)
+	habitability 0.12/0.55 -200/200 70/100
+	col_res 700
+	growth 7
+	factories 11 10 18 4
+	mines 10 10 10
+	tech_cost "-+----"
+	tech 0 0 3 0 0 2
+	reliability 100
+	do_analysis 
+}
+
+race "Rabbitoid" {
+	plural "Rabbitoids"
+	rt IT (IFE TT CE NAS)
+	habitability 0.17/1.24 -60/124 13/53
+	col_res 1000
+	growth 20
+	factories 10 9 17 3
+	mines 10 9 10
+	tech_cost "++-00-"
+	tech 0 0 7 5 0 0
+	reliability 100
+	do_analysis 
+}
+
+/*
+ * if you have any alliance that you want to be able to "see" in
+ * starana then this is the right place to define it. Example:
+ *
+ * alliance "Good guys" {
+ *        race "Rabbitoid"
+ *        race "Humanoid"
+ * }
+ */
+
+/*
+ * now you must tell starana to include all the report files made by
+ * Stars! in order to have the information.
+ * Before you include anything you must specify WHO generated the
+ * report with the 'source <name>' command.
+ */
+source "Humanoid"
+starsinclude sa-pla1.auto starana.p1
+starsinclude sa-fle1.auto starana.f1
+
+source "Rabbitoid"
+starsinclude sa-pla2.auto starana.p2
+starsinclude sa-fle2.auto starana.f2
+planet "Bagnose" { new_colony }
+/*
+ * this weird line tells starana what is the "type" of the planet. It
+ * helps the program to determine if it needs/offers population or
+ * minerals. If you don't give it starana will guess (usually "generic").
+ * Normally you don't need to set this, but if you want the types are:
+ * new_colony, breeder, production, loot, generic, mining
+ * NOTE: since the offer/demand stuff needs to be fixed you can safely 
+ * save time and not type in any line like this.....
+ */
+
+source "Antetheral"
+starsinclude sa-pla3.auto starana.p3
+starsinclude sa-fle3.auto starana.f3
+
+
+include sa-default.pfl
+/*
+ * if you want you can include here the file with your favourite
+ * planetary views. If you don't then the program will load the
+ * file "default.pfl" from the same directory where the master
+ * file is located (you can include more files, they are appended).
+ */

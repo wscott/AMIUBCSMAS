@@ -1,9 +1,9 @@
+/** Header file generated with fdesign on Sat Oct 31 13:38:44 1998.**/
+
 #ifndef FD_PlanetaryFunction_h_
 #define FD_PlanetaryFunction_h_
-/* Header file generated with fdesign. */
 
-/** Callback routines and free object handlers **/
-
+/** Callbacks, globals and object handlers **/
 extern void pfecb_apply(FL_OBJECT *, long);
 extern void pfecb_cancel(FL_OBJECT *, long);
 extern void pfecb_selected(FL_OBJECT *, long);
@@ -22,54 +22,71 @@ extern void mccb_pfeditorwindow(FL_OBJECT *, long);
 extern void mccb_setscaneff(FL_OBJECT *, long);
 extern void mccb_alliances(FL_OBJECT *, long);
 
-extern int freeobj_ps_ironiumdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+extern int freeobj_ironiumdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
-extern int freeobj_ps_boraniumdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+extern int freeobj_boraniumdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
-extern int freeobj_ps_germaniumdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+extern int freeobj_germaniumdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
-extern int freeobj_ps_gravitydial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+extern int freeobj_gravitydial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
-extern int freeobj_ps_termpdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+extern int freeobj_termpdial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
-extern int freeobj_ps_raddial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
+extern int freeobj_raddial_handle(FL_OBJECT *, int, FL_Coord, FL_Coord,
 			int, void *);
 extern void pscb_closewindow(FL_OBJECT *, long);
 extern void pscb_setminscale(FL_OBJECT *, long);
 extern void pscb_settestobject(FL_OBJECT *, long);
 extern void pscb_viewsimulation(FL_OBJECT *, long);
+extern void pscb_firepacket(FL_OBJECT *, long);
+extern void pscb_bombplanet(FL_OBJECT *, long);
 
 
 extern void pmcb_close(FL_OBJECT *, long);
 
+extern void pfcb_close(FL_OBJECT *, long);
+extern void pfcb_cheapkiller(FL_OBJECT *, long);
+extern void pfcb_fastkiller(FL_OBJECT *, long);
+
+
+
+
+
+
+
 
 /**** Forms and Objects ****/
-
 typedef struct {
 	FL_FORM *PlanetaryFunction;
 	void *vdata;
 	char *cdata;
 	long  ldata;
-	FL_OBJECT *pfe_description;
-	FL_OBJECT *pfe_mask_circles;
-	FL_OBJECT *pfe_input_par1;
-	FL_OBJECT *pfe_input_par2;
-	FL_OBJECT *pfe_input_par3;
-	FL_OBJECT *pfe_input_par4;
-	FL_OBJECT *pfe_mask_marker;
-	FL_OBJECT *pfe_mask_flag;
-	FL_OBJECT *pfe_mode;
-	FL_OBJECT *pfe_number;
-	FL_OBJECT *pfe_apply;
-	FL_OBJECT *pfe_cancel;
-	FL_OBJECT *pfe_selected;
-	FL_OBJECT *pfe_mask_lines;
-	FL_OBJECT *pfe_mask_name;
-	FL_OBJECT *pfe_mask_data;
+	FL_OBJECT *description;
+	FL_OBJECT *mask_circles;
+	FL_OBJECT *input_par1;
+	FL_OBJECT *input_par2;
+	FL_OBJECT *input_par3;
+	FL_OBJECT *input_par4;
+	FL_OBJECT *mask_marker;
+	FL_OBJECT *mask_flag;
+	FL_OBJECT *mode;
+	FL_OBJECT *number;
+	FL_OBJECT *apply;
+	FL_OBJECT *cancel;
+	FL_OBJECT *input_par5;
+	FL_OBJECT *selected;
+	FL_OBJECT *mask_lines;
+	FL_OBJECT *mask_name;
+	FL_OBJECT *mask_data;
 	FL_OBJECT *accept_and_next;
 	FL_OBJECT *accept_and_prev;
 	FL_OBJECT *delete;
 	FL_OBJECT *insert;
+	FL_OBJECT *input_par6;
+	FL_OBJECT *input_par7;
+	FL_OBJECT *input_par8;
+	FL_OBJECT *input_par9;
+	FL_OBJECT *input_par10;
 } FD_PlanetaryFunction;
 
 extern FD_PlanetaryFunction * create_form_PlanetaryFunction(void);
@@ -114,7 +131,6 @@ typedef struct {
 	FL_OBJECT *mc_zoomout;
 	FL_OBJECT *mc_zoomin;
 	FL_OBJECT *mc_pfload;
-	FL_OBJECT *mc_pfsave;
 	FL_OBJECT *mc_pfeditor;
 	FL_OBJECT *mc_scaneff;
 	FL_OBJECT *mc_alliances;
@@ -126,38 +142,38 @@ typedef struct {
 	void *vdata;
 	char *cdata;
 	long  ldata;
-	FL_OBJECT *ps_popfilldial;
-	FL_OBJECT *ps_popfill;
-	FL_OBJECT *ps_popgrowth;
-	FL_OBJECT *ps_population;
-	FL_OBJECT *ps_ironium;
-	FL_OBJECT *ps_boranium;
-	FL_OBJECT *ps_germanium;
-	FL_OBJECT *ps_mines;
-	FL_OBJECT *ps_factories;
-	FL_OBJECT *ps_defenses;
-	FL_OBJECT *ps_scanning;
-	FL_OBJECT *ps_stbdamage;
-	FL_OBJECT *ps_starbasename;
-	FL_OBJECT *ps_gaterange;
-	FL_OBJECT *ps_massdriver;
-	FL_OBJECT *ps_planetname;
-	FL_OBJECT *ps_position;
-	FL_OBJECT *ps_type;
-	FL_OBJECT *ps_authsource;
-	FL_OBJECT *ps_trustedsource;
-	FL_OBJECT *ps_owner;
-	FL_OBJECT *ps_reportage;
+	FL_OBJECT *popfilldial;
+	FL_OBJECT *popfill;
+	FL_OBJECT *popgrowth;
+	FL_OBJECT *population;
+	FL_OBJECT *ironium;
+	FL_OBJECT *boranium;
+	FL_OBJECT *germanium;
+	FL_OBJECT *mines;
+	FL_OBJECT *factories;
+	FL_OBJECT *defenses;
+	FL_OBJECT *scanning;
+	FL_OBJECT *stbdamage;
+	FL_OBJECT *starbasename;
+	FL_OBJECT *gaterange;
+	FL_OBJECT *massdriver;
+	FL_OBJECT *planetname;
+	FL_OBJECT *position;
+	FL_OBJECT *type;
+	FL_OBJECT *authsource;
+	FL_OBJECT *trustedsource;
+	FL_OBJECT *owner;
+	FL_OBJECT *reportage;
 	FL_OBJECT *routing;
-	FL_OBJECT *ps_ownhabnow;
+	FL_OBJECT *ownhabnow;
 	FL_OBJECT *resources;
-	FL_OBJECT *ps_ironiumdial;
-	FL_OBJECT *ps_boraniumdial;
-	FL_OBJECT *ps_germaniumdial;
-	FL_OBJECT *ps_gravitydial;
-	FL_OBJECT *ps_termpdial;
-	FL_OBJECT *ps_raddial;
-	FL_OBJECT *ps_close;
+	FL_OBJECT *ironiumdial;
+	FL_OBJECT *boraniumdial;
+	FL_OBJECT *germaniumdial;
+	FL_OBJECT *gravitydial;
+	FL_OBJECT *termpdial;
+	FL_OBJECT *raddial;
+	FL_OBJECT *close;
 	FL_OBJECT *ownhabtformed;
 	FL_OBJECT *ownhabmaxtformed;
 	FL_OBJECT *habnow;
@@ -201,5 +217,136 @@ typedef struct {
 } FD_PlanetSimulation;
 
 extern FD_PlanetSimulation * create_form_PlanetSimulation(void);
+typedef struct {
+	FL_FORM *PacketFiring;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+	FL_OBJECT *frameuno;
+	FL_OBJECT *planetname1;
+	FL_OBJECT *planetdistance;
+	FL_OBJECT *close;
+	FL_OBJECT *mineralspent;
+	FL_OBJECT *twindriver1;
+	FL_OBJECT *racenotes1;
+	FL_OBJECT *cheapkiller;
+	FL_OBJECT *packetdirection;
+	FL_OBJECT *fastkiller;
+	FL_OBJECT *population1;
+	FL_OBJECT *ndefenses1;
+	FL_OBJECT *defcoverage1;
+	FL_OBJECT *colkill1;
+	FL_OBJECT *mineral1;
+	FL_OBJECT *travel1;
+	FL_OBJECT *warp1;
+	FL_OBJECT *defdestroy1;
+	FL_OBJECT *terraform1;
+	FL_OBJECT *colkill2;
+	FL_OBJECT *travel2;
+	FL_OBJECT *warp2;
+	FL_OBJECT *defdestroy2;
+	FL_OBJECT *terraform2;
+	FL_OBJECT *colkill3;
+	FL_OBJECT *travel3;
+	FL_OBJECT *warp3;
+	FL_OBJECT *defdestroy3;
+	FL_OBJECT *terraform3;
+	FL_OBJECT *colkill4;
+	FL_OBJECT *travel4;
+	FL_OBJECT *warp4;
+	FL_OBJECT *defdestroy4;
+	FL_OBJECT *terraform4;
+	FL_OBJECT *colkill5;
+	FL_OBJECT *travel5;
+	FL_OBJECT *warp5;
+	FL_OBJECT *defdestroy5;
+	FL_OBJECT *terraform5;
+	FL_OBJECT *colkill6;
+	FL_OBJECT *travel6;
+	FL_OBJECT *warp6;
+	FL_OBJECT *defdestroy6;
+	FL_OBJECT *terraform6;
+	FL_OBJECT *colkill7;
+	FL_OBJECT *travel7;
+	FL_OBJECT *warp7;
+	FL_OBJECT *defdestroy7;
+	FL_OBJECT *terraform7;
+	FL_OBJECT *framedue;
+	FL_OBJECT *planetname2;
+	FL_OBJECT *twindriver2;
+	FL_OBJECT *racenotes2;
+	FL_OBJECT *population2;
+	FL_OBJECT *ndefenses2;
+	FL_OBJECT *defcoverage2;
+	FL_OBJECT *driverwarp1;
+	FL_OBJECT *increasewarp1;
+	FL_OBJECT *lowerwarp1;
+	FL_OBJECT *driverwarp2;
+	FL_OBJECT *increasewarp2;
+	FL_OBJECT *lowerwarp2;
+	FL_OBJECT *mineral2;
+	FL_OBJECT *mineral3;
+	FL_OBJECT *mineral4;
+	FL_OBJECT *mineral5;
+	FL_OBJECT *mineral6;
+	FL_OBJECT *mineral7;
+} FD_PacketFiring;
+
+extern FD_PacketFiring * create_form_PacketFiring(void);
+typedef struct {
+	FL_FORM *IntroTitle;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_IntroTitle;
+
+extern FD_IntroTitle * create_form_IntroTitle(void);
+typedef struct {
+	FL_FORM *RacialReport;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+	FL_OBJECT *race_isanalyzed;
+	FL_OBJECT *race_issource;
+	FL_OBJECT *tabfolder;
+	FL_OBJECT *race_names;
+} FD_RacialReport;
+
+extern FD_RacialReport * create_form_RacialReport(void);
+typedef struct {
+	FL_FORM *RR_RaceInfo;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_RR_RaceInfo;
+
+extern FD_RR_RaceInfo * create_form_RR_RaceInfo(void);
+typedef struct {
+	FL_FORM *RR_ReportLog;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_RR_ReportLog;
+
+extern FD_RR_ReportLog * create_form_RR_ReportLog(void);
+typedef struct {
+	FL_FORM *RR_Comparisons;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+	FL_OBJECT *racegraph;
+	FL_OBJECT *displaywhat;
+	FL_OBJECT *compare;
+} FD_RR_Comparisons;
+
+extern FD_RR_Comparisons * create_form_RR_Comparisons(void);
+typedef struct {
+	FL_FORM *RR_DesignsObjects;
+	void *vdata;
+	char *cdata;
+	long  ldata;
+} FD_RR_DesignsObjects;
+
+extern FD_RR_DesignsObjects * create_form_RR_DesignsObjects(void);
 
 #endif /* FD_PlanetaryFunction_h_ */

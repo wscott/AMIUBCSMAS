@@ -1,0 +1,18 @@
+Planet Name	Owner	Starbase Type	Report Age	Population	Value	Production Queue	Mines	Factories	Def %	S Iron	S Bora	S Germ	Iron MR	Bora MR	Germ MR	Iron MC	Bora MC	Germ MC	Resources	Grav	Temp	Rad	GravOrig	TempOrig	RadOrig	Terra	Cap	Scan	Pen	Driver	Warp	Route	GateRange	GateMass	PctDmg
+Fubar			11		-21%					0	0	0				59	70	111		1.76g	32ºC	5mR	1.76g	32ºC	5mR	-9%
+May			12		-19%					0	0	0				22	82	88		1.84g	140ºC	29mR	1.84g	140ºC	29mR	-8%
+Blue Ball			13		-15%					0	0	0				30	101	75		4.16g	112ºC	15mR	4.16g	112ºC	15mR	-15%
+Timbuktu			11		-22%					0	0	0				93	52	11		1.60g	176ºC	31mR	1.60g	176ºC	31mR	-10%
+Sniffles			7		-19%					0	0	0				108	71	82		0.62g	-104ºC	5mR	0.62g	-104ºC	5mR	-9%
+Blue Dwarf			13		-15%					0	0	0				81	26	23		0.44g	112ºC	74mR	0.44g	112ºC	74mR	-15%
+Zappa	Humanoid		0	3200	-12%					0	0	0				23	28	16		1.40g	12ºC	61mR	1.40g	12ºC	61mR	-3%
+Applegate	Humanoid		7	2000	-25%					0	0	0				26	40	93		1.64g	-120ºC	27mR	1.64g	-120ºC	27mR	-13%
+Kline	Rabbitoid	Starbase	0	622200	100%	*    1Mine	501	353	12.24%	639	3108	1	150	355	150	29	71	29	975	0.59g	32ºC	33mR	0.59g	32ºC	33mR	100%	62	100	0		0		250	100	0
+Nastrond	Rabbitoid		0	151300	25%	*    1Mine	85	23	0.0%	278	264	0	84	83	15	99	98	18	174	0.51g	88ºC	15mR	0.51g	88ºC	15mR	60%	61	0	0		0		0	0	0
+Pop	Rabbitoid		0	51600	-4%	*    1Mine	14	11	0.0%	34	10	0	12	2	11	86	19	79	61	0.15g	16ºC	46mR	0.15g	16ºC	46mR	42%	103	0	0		0		0	0	0
+Rodney			13		-29%					0	0	0				50	8	27		1.96g	132ºC	65mR	1.96g	132ºC	65mR	-18%
+Farragut			16		-18%					0	0	0				78	83	22		0.92g	-144ºC	56mR	0.92g	-144ºC	56mR	-15%
+Bountiful			7		-8%					0	0	0				4	85	55		0.96g	36ºC	61mR	0.96g	36ºC	61mR	-3%
+Canis Minor			15		-15%					0	0	0				1	118	46		0.25g	-124ºC	31mR	0.25g	-124ºC	31mR	-11%
+Bagnose	Rabbitoid		0	2300	-26%	     1Factory	0	0	0.0%	20	7	19	0	0	0	68	50	72	2	0.15g	-120ºC	60mR	0.15g	-120ºC	60mR	-12%	5	0	0		0		0	0	0
+Noble Impulse			12		-37%					0	0	0				70	30	87		3.20g	152ºC	91mR	3.20g	152ºC	91mR	-32%

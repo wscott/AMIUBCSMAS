@@ -1,0 +1,470 @@
+AMIUBCLOSMAS 0.2
+
+or
+
+Alberto's Most Incomplete, Undocumented and Badly Coded
+Stars! Mapper, Analyzer and Simulator
+
+[Yes, the "LO" for Linux Only is gone in this version]
+
+(called "StarAna", as in STARs! ANAlyzer, by friends)
+
+
+This is the "user guide", you should check:
+
+- advert.txt for a simple list of what the program can do;
+
+- install.txt for installation instructions;
+
+- technicalia.txt for technical information about compilation,
+  installation, technical details, hacking, etc. The normal user
+  does not need to read that (that file it's not up-to-date, also!);
+
+- planets.txt for some information on how the planetary display
+  really works.
+
+- fleets.txt is the equivalent of planets.txt, but it applies to 
+  fleet display.
+
+
+WHAT THIS PROGRAM IS
+
+AMIUBCSMAS/StarAna is a program to:
+
+- create maps of a Stars! game which are not available in the game
+  using the data obtained from map/pla/fle files and any additional
+  data that the user types in (e/g. planetary queues);
+
+- perform a simulation of the planetary evolution for some years to
+  analyze the mineral shortages, crossing of population filling
+  thresholds, resource growth, etc. etc.
+
+- analyze the situation offering some "suggestions" on pop/mineral
+  shifting depending on the "types" assigned to the various planets.
+
+The name AMIUBCSMAS contains some additional info:
+
+Alberto's
+        -> I wrote it :)
+Most
+        -> adds strength to the problems listed later
+Incomplete
+        -> the program is missing lots of features, and, even worse,
+           has lots of non-tested features (example: queue management)
+Undocumented
+        -> there's almost no documentation
+Badly Coded
+        -> the C++ code is bad, period. This because the program was
+           "born" as a simple clone of starmap and then was extended
+           to include my old planetary simulator, which, in the
+           origin, was not too bad. The process took one week-end and
+           resulted in a program which runs but is quite chaotic.
+Stars!
+        -> works with Stars!
+Mapper, Analyzer and Simulator
+	-> ....were explained above
+
+
+RUNNING STARANA
+
+WIN95 QUICKSTART: create a shortcut to "starana" and put it on your
+desktop.  Click on it to obtain a file selector asking you for the
+master file to use. Starana can also be started by passing to it the
+name of the master file, so you can create a shortcut which
+automatically invokes it on the master file of the game you are
+playing, or just associate starana to .smf files.
+
+More information: Starana is born as a command-line run program, and
+it accepts a couple of switches to alter its behavior:
+
+-v run in "fully visual" mode. This mode is suited if you want to
+   click on it from windows, it will ask for a file and report errors
+   in dialogs. It's the default mode on win95.
+
+-a use no graphics, just do the simulation and exit.
+
+Usually when simulating you don't care at all about the map (see the
+example sim.smf) and you will then run starana from a shell with the
+command:
+
+starana -a filename.smf
+
+and then use something to read the report-log file.
+
+In linux I keep a shell open and run from it, and you can do the same
+from a MS-DOS prompt. The advantage is that should anything "real bad"
+occur you can see error messages given by libraries in the window.
+I usually run from shell in linux, but I use a shortcut in windows.
+
+
+
+USING AMIUBCSMAS/STARANA
+
+Using the program includes three separate steps:
+
+- generating the input files in the appropriate format, either by
+  typing them in (if you want to run a simulation), converting
+  map/pla/fle files with the perl scripts found in perl/, or relying
+  on the auto-conversion performed by starana itself;
+  IMPORTANT: the "auto-conversion" ONLY works with patch 'i' improved
+  report files. The perl script is UNABLE to handle the 2.6i files
+  (due to the screwed header) and then you must use auto-conversion.
+
+- running the program to generate the report-log file which includes
+  the checks/simulation/analysis;
+
+- playing with the graphical window to see the various map
+  representations.
+
+
+FORMAT OF THE INPUT FILE
+
+The format of the input files is quite complex, in order to allow most
+stuff to be given to the program with a human-readable syntax.  Unless
+you want to perform some special function (e.g. planetary simulations)
+you only need to create a small "master file" which contains the data
+that the program can't obtain from the Stars! reports. Racial
+descriptions are a good example and they usually are 90% of the data
+you need to write in the master file.
+
+The full description of the language is found in technicalia.txt.
+
+The simplest thing (which is what I do BTW :), is to just copy the
+example file and change it, inserting my race(s) and all the
+additional information which is needed. Go in the examples/
+subdirectory and look at sa.smf, which is the master file for the
+starana demo game. I have put a lot of comments in the file to explain
+what things do, so you can change things as you go.
+
+The typical master file contains the following stuff:
+
+- universe definition (name, year, etc.)
+- include of universe report to define planet names/positions
+- races' definitions (PRT, LRT, factories, habitability, tech, etc).
+  The full racial description is useful only if you have the report
+  from that race and you plan to do a simulation with it. For "enemy"
+  races you can just put in everything you know, leaving out any
+  missing information (a default is assumed equal to Humanoid race).
+  The racial description also contains ship designs/object description
+  to be used in queues/fleet handling.
+- include of planet/fleet files to get the real data. You must define
+  the "source" of the data before the include.
+
+Again, rather than typing in an example I suggest you to take a look
+in examples/ at the file sa.smf.
+
+
+
+PLAYING WITH THE MAP DISPLAY
+
+When the map appears on-screen you can play with it in several ways.
+You can use key shortcuts (see list below) or hit the right mouse
+button to bring up the map control window.
+
+
+- Map Control Window
+
+This window is the "primary" window for controlling the map display.
+It includes buttons to zoom in and out, scroll around, reset to full
+view as well as setting the type of background (only 2 available) the
+"how many years in the future" to see and the scanner efficiency.
+
+"Redraw" will force a redraw of the map, while "auto-redraw" (which is
+on by default) specifies that ANY modification to the map will force a
+redraw instantly. You might want to turn auto-redraw off for
+particularly slow display functions.
+
+In the lower part you have a list of all the races in the game. The
+"current viewpoint" is marked by a white circle around it. The
+"viewpoint" is the race used for several calculations (for example
+habitability). You can choose enemy races as viewpoints, but unless
+you provide some information in the master file you'll get nothing
+useful (the program should not crash, since races are "always" defined
+to be Humanoids if you don't provide any information...).
+
+The map control window also gives access to additional windows /
+operations.
+
+Two buttons are available for the planetary display control: a newbie
+user is STRONGLY advised to use the "list" function. You can play with
+the editor, but unless you have read (and understood) planets.txt
+you won't be able to obtain anything beyond the simpler displays.
+Reread the above with "fleet" at the place of "planet" for an
+explanation of the two buttons immediately to the right... :)
+
+There's a nice "quit" button, in the lower left corner, too....
+
+ 
+- Planetary view list
+  (Fleet view list windows is identical)
+
+This window is the simplest interface to planetary displays. It gives
+you a list of the available planetary view functions. Just click on
+the name of the one you'd like to activate to have the map redrawn
+with the new setting.
+
+Some buttons at the bottom provide extra power:
+"load" loads up additional displays, adding them to the list
+"save" saves the entire list to a file
+"export" saves the selected entry to a file, appending it if the
+         file already exists. You can pick you favorites and then
+         mail them to your friends :)
+"rename" renames a list entry to your favorite name/language. Make
+         sure you SAVE your changes as it doesn't happen automatically.
+
+Somehow more "advanced"
+
+"clone" creates a copy of the selected function and selects it. This
+        is when you want to edit a function without killing the old
+        one....
+"edit"  opens the editor to modify the function (same as the
+        map control button).
+"delete" deletes the selected view. NOTE since starana needs at least
+         one view you will not be able to delete the last one.
+       
+
+- Planetary function editor
+  (Fleet function editor windows is identical)
+
+Allows you to alter the planetary functions used for the current
+planetary display. Read planets.txt (or fleets.txt)
+
+Clicking on the number brings up the list of functions used, while
+clicking on the name opens a menu of all the available functions.  You
+can control mode with the choice which is below the description and
+set the flag mask. You can enter numeric values for the 10 function
+parameters.
+NOTE: the display (and function used list) are not updated until you
+select another function or hit "apply".
+
+
+- Planet status display
+
+This window is not accessed from the map control window, but it
+appears automatically if you left-click on the map. Its objective is
+to give information about the planet you clicked on (or near to).  Any
+Stars! player can probably recognize at first sight most of the
+information contained there. You can pop-up a second one by holding
+shift when you left-click on the map. The second one is relevant for
+packeting calculations.
+
+From top to bottom it contains:
+
+Planet name, '(HW)' if it's a homeworld and then #xxx with xxx being
+the Stars! id number. On the right you then have some useless
+information such as the x/y position and the "planet type" which is
+available only for planets owned by races with the do_analysis flag.
+
+Just below you have a line with 3 "black boxes" and a number. Let's
+start from the number: it's the report age.
+
+The 3 boxes contain the names of the owner, authoritative data source
+and trusted data source. To explain what this means we'll need a
+little digression on.........
+
+........data sources: authoritative, trusted, etc.
+
+All the data which is subject so "personal interpretation" is stored
+in starana for ALL the data sources. Ah, a "data source" is a race. :)
+This leads to a table of up to 16 population values, starbase types,
+mineral concentrations, etc. etc. If the OWNER of the planet is the
+same as the SOURCE than the race is considered to be the
+"authoritative" source for the planet data.  The authoritative source
+can set some additional information that the others can't set. After
+the data from all the races has been loaded the program checks who has
+the highest reliability and chooses who to "trust". This defines the
+TRUSTED source for that planet, and decides whose data you'll see on
+the maps and in the planet status display.  Note that trusted and
+authoritative MIGHT differ, in that case I don't dare to think what
+happens to the planetary simulation. BTW you probably won't be
+flagging for analysis races which you don't trust as allies, since
+without the report files from them you'll constantly get crappy
+simulation. REAL crappy.
+
+Going down you have now the population and starbase frames.  The
+population frame gives the current population, it also provides some
+additional information, such as population filling (color changes
+according to region) and population growth.
+
+The starbase frame contains the starbase design name, damage %, gate
+characteristics and mass driver statistics. They all have the usual
+meaning.  For the mass driver you only have the current warp, since
+the reports only contain this.
+
+Then you have the installations box: the factory/mine display works
+like this:
+
+Factories  xxx / yyy / zzz
+
+Where xxx is how many you have now, zzz is the maximum and yyy is the
+difference between how many you have now and the maximum amount which
+can be operated by your colonists. Negative means you can build more
+factories/mines, positive means you have some unused ones.
+
+The line below the installations box contains the planet's total
+resource output with (between parenthesis) the resources sent to
+research. The routing destination is on the right.
+
+You then have the mineral report. It works almost as in Stars!: you
+have three horizontal bars which correspond to the three minerals.
+For every mineral you have the "current amount + amount mined".  At
+the extreme right you have the mineral concentration.  
+You can control the scale used in for the mineral bars by changing it
+in the small menu available in the upper left corner. The possibilities
+are:
+
+- logarithmic: this scale works differently from Stars!, first of all
+it's a logarithmic scale: the scale starts at 10 kT (get nothing at
+when you have < 10 kT). The big ticks are at 10 (at the left), then
+100, 1000, 10000 and 100000 kT (at the extreme right). Between two big
+ticks you have 10 small ones corresponding to multiples of the one on
+the left: in the 1000->10000 section you have ticks at
+2000,3000,4000,..etc...,9000.
+
+- multilinear: the scale is separated in 3 sections, the first goes
+from 0 to 1000, the second from 1000 to 10000 and the third from
+10000 to 100000.
+
+- numbers: a linear scale as in Stars! The number is the maximum
+amount shown and the scale starts at 0.
+
+As in Stars!, the bright colored part is the current amount while the
+darker one is the amount mined. Additionally you have a bright
+vertical bar which corresponds to the amount which will be present
+next year, taking into account not just mining, but also shipping
+(adds) and production (subtracts).
+
+In the upper right part you have the "object multiple" calculation.
+The menu allows you to choose an object (predefined one or anything
+you included in the master file, in the race section), it then
+displays how many you can build before running out of ironium,
+boranium, germanium (the 3 colored figures). The fourth number is how
+many you can build (assuming you don't run out of minerals) with the
+resources that the planet is giving.
+
+Example:
+	Factory   ++++ ++++ 75  25.9
+
+This means that given the current ironium you can build infinite
+factories (of course, building a factory does not require
+ironium....), same with boranium. You can build 75 of them with the
+current germanium and you can build 25.9 per turn given the current
+resource output.
+
+Below you have the habitability display. First, the planet values for
+the owner and for the current race viewpoint. The three values are:
+habitability now, habitability when terraformed, habitability when
+terraformed with the best terraforming technology you'll ever have
+(either 15/15/15 or 30/30/30 if you don't have or have TT), you can
+consider it a "long term habitability".
+
+The horizontal bars are, again, quite similar to Stars!, the
+differences being that you have the central half of your hab range in
+bright green and the outer half in darker green. Then if you have
+terraforming tech you have a yellow section which indicates a range
+which can become "green" if you do the terraforming. Outside you have
+red.
+Four markers appear on every horizontal bar, a diamond indicating the
+original planetary stat and a long vertical bar indicating the current
+stat. An horizontal bar (identical to Stars') which indicates how much
+your terraforming ability can influence the stat. You also have a
+small vertical bar which is the terraforming that you can perform at
+maximum tech.
+
+At the bottom you can access the information obtained from the
+simulation (and written in the report-log file) by scrolling the
+browser present in the lower part.
+
+MISSING INFO IN PLANET STATUS WINDOW: production queue (this one is a mess)
+
+
+KEYBOARD SHORTCUTS
+
+While in the map display window you can access several functions
+directly with keys (note: 'r' means r, while 'R' means shift-r).
+Note: the map window must be selected, they won't work in the other
+windows.
+
+keypad
+	moves the map around as the arrows in map control window.
+	Additionally 'enter' is redraw and '+' and '-' zoom in/out.
+	Don't forget that you MUST have defined max_zoom in the input
+        file for this to work. max_zoom-1 indicates how many times you
+        can type '+', basically.
+
+r R
+	change the current race viewpoint (cycle).
+
+v V
+	change the current planetary view (cycle).
+
+f F
+	increase/decrease the "years in the future" value.
+
+p
+	toggle open/close the planet view list window
+
+o
+	toggle open/close the fleet view list window (mnemonic: left of
+	the planet views).
+
+e
+	toggle open/close the planet display editor window
+
+w
+	toggle open/close the fleet display editor window (again, left
+	of its planet counterpart)
+
+m
+	toggle open/close the map control window (same as right-click)
+
+a
+	toggle alliances on/off (as the button in map control).
+
+F1-F12
+	select the 1st....12th planet view and redraw.
+
+CTRL F1-F12
+	select the 1st....12th fleet view and redraw.
+
+
+Ah, if you need a screen shot you must use an external program. I am
+considering the introduction of a key to save the map, it will be
+probably PBM as it's awfully easy to implement.
+
+
+
+MISSING STUFF IN THIS VERSION
+
+There still are a problems and missing features.
+
+- All the cute +/- thing in queue has never been tested, so it
+probably doesn't work. Also, you must type in all the queues, as
+there's no way to read it from the pla file. I won't even consider
+using the "first object in queue" given there, since it's completely
+useless.
+
+- Specifying a new "planetary power" formula to generate a map display
+is something which is needed. Right now you must edit and recompile.
+
+- Fleets handling is missing. This is because I still have some
+problems treating the data (I didn't have time to test
+seriously). Also, some decisions must be made on HOW to display
+stuff. The aim is something identical to planetary views/functions.
+
+- The whole "controlled space" thing sucks. The algorithm is too slow
+and completely idiotic (it does the computation for EVERY point, no
+coherence is used). I should rewrite it as a boundary tracing
+algorithm, or hierarchical subdivision (quadtree). Also, it should be
+modified to allow use of any of the "planetary power" formulae used
+for single-value planetary map display.
+
+- Information cross-check. The reliability value is almost useless.  A
+decay based on report_age, as well as cross-check of the information
+between the different sources should be included, in order to spot
+"cheating allies".
+
+- a nice context-sensitive help would be nice :)
+
+- the whole program should be rewritten in something more like
+"correctly designed C++" rather than "hack together C-like stuff."

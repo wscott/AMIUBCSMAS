@@ -6,7 +6,7 @@
 // this function is meant to replace the functionality of
 // the perl script 'stars2smf.pl', but no support for old-stle
 
-// perl is better, this one sucks
+// perl is muuuch more versatile, but this one is getting better
 
 const int MAP_STARSID = 0;
 const int MAP_PLANETNAME = 3;
@@ -130,13 +130,13 @@ void munge_dquotes(char* t)
 }
 
 
-bool convert(const String& infile, const String& outfile)
+bool convert(const myString& infile, const myString& outfile)
 {
   FILE* inf;
   FILE* outf;
   char inlin[1024];
   char fields[48][128];
-  String t;
+  myString t;
   struct stat ifstats, ofstats;
 
   // check if we need to perform the conversion
@@ -160,6 +160,8 @@ bool convert(const String& infile, const String& outfile)
     return false;
   }
 
+  // write messages
+  display->set_intro_loadingfile("Converting: " + infile + " ==> " + outfile);
   game_map->log("Performing conversion: " + infile + " ==> " + outfile + "\n");
 
   fgets(inlin, 1024, inf);
@@ -183,7 +185,7 @@ bool convert(const String& infile, const String& outfile)
 
       PRINT("starsid", fields[MAP_STARSID]);
 
-      t = String(fields[MAP_PLANETX]) + " " + fields[MAP_PLANETY];
+      t = myString(fields[MAP_PLANETX]) + " " + fields[MAP_PLANETY];
       PRINT("position", t);
 
       fprintf(outf, "}\n\n");
@@ -212,25 +214,27 @@ bool convert(const String& infile, const String& outfile)
       fprintf(outf, "planet \"%s\" {\n", fields[NP_PLANETNAME]);
 
       if (is_defined(NP_OWNER)) {
-	t = String("\"") + fields[NP_OWNER] + "\"";
+	t = myString("\"") + fields[NP_OWNER] + "\"";
 	PRINT("owner", t);
       }
 
       if (is_defined(NP_STARBASE)) {
+	munge_dquotes(fields[NP_STARBASE]);
+
 	if (is_defined(NP_PCTDMG)) {
-	  t = String("\"") + fields[NP_STARBASE] + "\" " + fields[NP_PCTDMG] +"%";
+	  t = myString("\"") + fields[NP_STARBASE] + "\" " + fields[NP_PCTDMG] +"%";
 	} else {
-	  t = String("\"") + fields[NP_STARBASE] + "\" 0%";
+	  t = myString("\"") + fields[NP_STARBASE] + "\" 0%";
 	}
 
 	if (is_defined(NP_GATERANGE)) {
-	  t += String(" ") + fields[NP_GATERANGE] + " " + fields[NP_GATEMASS];
+	  t += myString(" ") + fields[NP_GATERANGE] + " " + fields[NP_GATEMASS];
 	} else {
 	  t += " 0 0";
 	}
 
 	if (is_defined(NP_DRIVER)) {
-	  t += String("\"") + fields[NP_DRIVER] + "\" " + fields[NP_WARP];
+	  t += myString("\"") + fields[NP_DRIVER] + "\" " + fields[NP_WARP];
 	} else {
 	  t += " \"\" 0";
 	}
@@ -247,26 +251,26 @@ bool convert(const String& infile, const String& outfile)
       }
 
       if (is_defined(NP_VALUE)) {
-	PRINT("habitability", String(fields[NP_VALUE]) + "/" + fields[NP_TERRA]);
+	PRINT("habitability", myString(fields[NP_VALUE]) + "/" + fields[NP_TERRA]);
       }
 
       if (is_defined(NP_MINES)) {
-	PRINT("installations", String(fields[NP_MINES]) + " " + fields[NP_FACTORIES] + " -1");
+	PRINT("installations", myString(fields[NP_MINES]) + " " + fields[NP_FACTORIES] + " -1");
       }
 
       if (is_defined(NP_DEFCOVERAGE)) {
 	PRINT("def_coverage", fields[NP_DEFCOVERAGE]);
       }
 
-      if (is_defined(NP_SURFIRON)) {
-	t = String(fields[NP_SURFIRON]) + " " + String(fields[NP_SURFBORA]) +
-	    " " + String(fields[NP_SURFGERM]);
+      if (is_defined(NP_SURFIRON) || is_defined(NP_SURFBORA) || is_defined(NP_SURFGERM)) {
+	t = myString(fields[NP_SURFIRON]) + " " + myString(fields[NP_SURFBORA]) +
+	    " " + myString(fields[NP_SURFGERM]);
 	PRINT("minerals", t);
       }
 
       if (is_defined(NP_CONCIRON)) {
-	t = String(fields[NP_CONCIRON]) + " " + String(fields[NP_CONCBORA]) +
-	    " " + String(fields[NP_CONCGERM]);
+	t = myString(fields[NP_CONCIRON]) + " " + myString(fields[NP_CONCBORA]) +
+	    " " + myString(fields[NP_CONCGERM]);
 	PRINT("mineral_conc", t);
       }
 
@@ -276,8 +280,8 @@ bool convert(const String& infile, const String& outfile)
 	fields[NP_TEMP][strlen(fields[NP_TEMP])-2] = 0;
 	fields[NP_RAD][strlen(fields[NP_RAD])-2] = 0;
 
-	t = String(fields[NP_GRAV]) + " " + String(fields[NP_TEMP]) +
-	    " " + String(fields[NP_RAD]);
+	t = myString(fields[NP_GRAV]) + " " + myString(fields[NP_TEMP]) +
+	    " " + myString(fields[NP_RAD]);
 	PRINT("stats", t);
       }
 
@@ -287,18 +291,18 @@ bool convert(const String& infile, const String& outfile)
 	fields[NP_TEMPORIG][strlen(fields[NP_TEMPORIG])-2] = 0;
 	fields[NP_RADORIG][strlen(fields[NP_RADORIG])-2] = 0;
 
-	t = String(fields[NP_GRAVORIG]) + " " + String(fields[NP_TEMPORIG]) +
-	    " " + String(fields[NP_RADORIG]);
+	t = myString(fields[NP_GRAVORIG]) + " " + myString(fields[NP_TEMPORIG]) +
+	    " " + myString(fields[NP_RADORIG]);
 	PRINT("original_stats", t);
       }
 
       if (is_defined(NP_SCAN)) {
-	t = String(fields[NP_SCAN]) + " " + String(fields[NP_PENSCAN]);
+	t = myString(fields[NP_SCAN]) + " " + myString(fields[NP_PENSCAN]);
 	PRINT("scanning", t);
       }
 
       if (is_defined(NP_ROUTING)) {
-	t = "\"" + String(fields[NP_ROUTING]) + "\"";
+	t = "\"" + myString(fields[NP_ROUTING]) + "\"";
 	PRINT("routing", t);
       }
 
@@ -324,47 +328,47 @@ bool convert(const String& infile, const String& outfile)
       // put in all the stuff which is ALWAYS present
       if (is_defined(NF_PLANET)) {
 	// planet overrides X/Y position
-	t = String("\"") + fields[NF_PLANET] + "\"";
+	t = myString("\"") + fields[NF_PLANET] + "\"";
 	PRINT("position", t);
       } else {
-	t = String(fields[NF_X]) + " " + fields[NF_Y];
+	t = myString(fields[NF_X]) + " " + fields[NF_Y];
 	PRINT("position", t);
       }
 
       // destination (if ship is not halted)
-      String dest(fields[NF_DESTINATION]);
+      myString dest(fields[NF_DESTINATION]);
       if (dest.length()) {
-	String dt[2];
+	vector<myString> dt;
 
-	if (dest.matches(Regex("[0-9]+\\.[0-9]+"))) {
-	  split(dest, dt, 2, String("."));
+	if (dest.matches(myRegexp("[0-9]+\\.[0-9]+"))) {
+	  dt = dest.split(myString("."), 2);
 	  t = int_to_str(atoi(dt[0])-127) + " " + int_to_str(atoi(dt[1])-127);
 	  PRINT("destination", t);
-	} else if (!dest.matches(Regex(" *-- *")) && dest != "(Delayed)") {
-	  if (dest.matches(Regex("Space ([0-9]+, [0-9]+)"))) {
-	    split(dest.at(8), dt, 2, String("."));
+	} else if (!dest.matches(myRegexp(" *-- *")) && dest != "(Delayed)") {
+	  if (dest.matches(myRegexp("Space \\([0-9]+, [0-9]+\\)"))) {
+	    dt = dest.at(8).split(myString(", "), 2);
 	    t = int_to_str(atoi(dt[0])) + " " + int_to_str(atoi(dt[1]));
 	    PRINT("destination", t);
 	  } else {
-	    t = String("\"") + fields[NF_DESTINATION] + "\"";
+	    t = "\"" + dest + "\"";
 	    PRINT("destination", t);
 	  }
 	}
       }
 
-      t = String(fields[NF_SHIPCNT]) + " " + fields[NF_MASS];
+      t = myString(fields[NF_SHIPCNT]) + " " + fields[NF_MASS];
       PRINT("ships", t);
 
       // fleet composition
-      t = String(fields[NF_UNARMED]) + " " + String(fields[NF_SCOUT]) + " " +
-	String(fields[NF_WARSHIP]) + " " + String(fields[NF_UTILITY]) + " " +
-	String(fields[NF_BOMBER]);
+      t = myString(fields[NF_UNARMED]) + " " + myString(fields[NF_SCOUT]) + " " +
+	myString(fields[NF_WARSHIP]) + " " + myString(fields[NF_UTILITY]) + " " +
+	myString(fields[NF_BOMBER]);
 
       // now check (and add) any additional info
       if (is_defined(NF_IRON) || is_defined(NF_BORA) || 
 	  is_defined(NF_GERM) || is_defined(NF_COL)) {
-	t = String(fields[NF_IRON]) + " " + String(fields[NF_BORA]) + " " +
-	  String(fields[NF_GERM]) + " " + String(fields[NF_COL]);
+	t = myString(fields[NF_IRON]) + " " + myString(fields[NF_BORA]) + " " +
+	  myString(fields[NF_GERM]) + " " + myString(fields[NF_COL]);
 	PRINT("cargo", t);
       }
       
@@ -389,18 +393,18 @@ bool convert(const String& infile, const String& outfile)
       }
 
       if (is_defined(NF_SCAN)) {
-	t = String(fields[NF_SCAN]) + " " + fields[NF_PEN];
+	t = myString(fields[NF_SCAN]) + " " + fields[NF_PEN];
 	PRINT("scanning", t);
       }
 
       // not clear if I'll ever use these
       if (is_defined(NF_BATTLEPLAN)) {
-	t = String("\"") + fields[NF_BATTLEPLAN] + "\"";
+	t = myString("\"") + fields[NF_BATTLEPLAN] + "\"";
 	PRINT("battleplan", t);
       }
 
       if (is_defined(NF_TASK)) {
-	t = String("\"") + fields[NF_TASK] + "\"";
+	t = myString("\"") + fields[NF_TASK] + "\"";
 	PRINT("wp_task", t);
       }
 
@@ -413,7 +417,7 @@ bool convert(const String& infile, const String& outfile)
       }
 
       if (is_defined(NF_SWEEP) || is_defined(NF_LAYING)) {
-	t = String(fields[NF_SWEEP]) + " " + fields[NF_LAYING];
+	t = myString(fields[NF_LAYING]) + " " + fields[NF_SWEEP];
 	PRINT("minefield_ls", t);
       }
 

@@ -1,0 +1,382 @@
+AMIUBCSMAS 0.2
+
+or
+
+Alberto's Most Incomplete, Undocumented and Badly Coded
+Stars! Mapper, Analyzer and Simulator
+
+(called "StarAna", as in STARs! ANAlyzer, by friends)
+
+Technicalia version 0.2, 29 Jan 1998
+
+[NOTE: I made some fixes, but a part of this information is outdated
+and relates to the old 0.1 version.]
+
+
+FULL DESCRIPTION OF INPUT FILE FORMAT
+
+keywords         typed as shown
+data             put between <....> signs
+                 I: means number type (maybe not int),
+                 S: means string type
+optional         put between [.....] can be both keyword or data
+alternatives     | sign. 
+                 [red|blue] means either 'red' or 'blue'
+
+Almost everything is optional, if you don't place it it should default
+to some reasonable value ('reasonable' = the program will not crash
+but the result will be wrong).  For planets you don't need to put
+everything in the same place, "redefining" a planet with the same name
+results in adding information about it. VERY useful, as you can have
+the map in one file, the habitability in another and the planet types
+in yet another one.
+
+Using stuff BEFORE you define it it's a good way to get massive
+screw-ups. If you define a queue with factories BEFORE you specify the
+factory cost it will default to 10/?/?/4, which is not what you want.
+
+Ah, in addition to all the stuff here you can do
+
+include some-other-file.smf
+
+to include that file. 'smf' stands for Stars! MetaFile. No ' or "
+around the name, just include, some blanks and the name. It's handled
+by the lexical analyzer, the parser won't even see it.
+
+You also have:
+
+starsinclude filename.smf starsreport.??
+
+which works exactly like include, but it will auto-convert the
+starsreport file to smf format before inclusion. Autoconversion only
+works with patch 'i' reports.
+
+
+Numbers are, numbers: 10, 25, 34.342 etc....
+Strings are: a_string "contains a blank" startswithletters123456
+             "$%#$!432 anything"
+
+Habitability is given as you read it in Stars! For races there never
+are problems since the width gives a method to resolve ambiguities
+(it's even). For planets the program will pick something, and tell you
+in the report file. You can add a 1 or a 2 as a 3rd gravity digit to
+resolve the ambiguity. I usually don't care, but if it makes the
+difference between red and green you might want to put it in.
+
+Ok, here is the list.
+***************** Lines like this indicate explanations (HAHAHA :)
+
+
+source <S:Racename> [<N:age>]
+***************** source of data. This is meaningful only for some
+***************** of the planetary stuff. See the example sa.smf
+***************** to see how I use it. It's the right way ;)
+***************** the age can be specified if you don't have recent
+***************** pla files from that player.
+
+<S:varname> = <S:string>
+<S:varname> = <I:value>
+***************** this might be useful to set parameters which
+***************** show up later. You can call them up with $name,
+***************** maybe. Completely untested. Might work with 
+***************** numbers. Will not with strings, I think.
+***************** There are some which are 'special':
+***************** acceleratedBBS = anything
+*****************     switches default pop from 25000 to the right one
+***************** fleet_default_warp = <I:warp>
+*****************     warp the fleets are assumed to run at
+***************** max_search_distance = <I:light-years>
+*****************     max distance for searching pop/min sources
+
+planet <S:planetname> {
+	homeworld
+	<newcolony|breeder|production|new_colony|generic|mining>
+	owner <S:racename>
+	habitability <I:value>%
+	report_age <I:age>
+	starbase <S:starbasename>
+	original_stats <I:gravity> <I:temperature> <I:radiation>
+	stats <I:gravity> <I:temperature> <I:radiation>
+	mineral_conc <I:ironium> <I:boranium> <I:germanium>
+	mine_years <I:ironium> <I:boranium> <I:germanium>
+	minerals <I:ironium> <I:boranium> <I:germanium>
+	population <I:population|-1>
+************** a population of -1 means that the "default starting pop"
+************** should be used. This is 25000, or the appropriate accelBBS
+************** value depending if you placed an acceleratedBBS = yes
+************** somewhere in the input file
+	installations <I:factories> <I:mines> <I:defcoverage%>
+	position <I:x> <I:y>
+	queue {  QUEUE_SPECIFICATION  }
+ }
+
+universe <S:gamename> {
+	sim_future <I:years>
+	max_zoom <I:max2xzooms>
+	year <I:year>
+	weight_function <160|200|250>
+}
+
+race <S:racename> {
+	clone <S:racename>
+*************** this is an useful thing. If you want to see how the same
+*************** race evolves under different conditions you can clone it
+*************** a few times and run the simulations "at the same time"
+*************** (you'll need to cut-n-paste the planets). I don't think
+*************** it copies the default queue or the objects.
+	rt <PRT:prtname> ([IFE|TT|ARM|ISB|GR|UR|MA|NRSE|CE|OBRM|NAS|LSP|RS]+)
+	plural <S:raceplural>
+	do_analysis
+	habitability < <I:gravmin>/<I:gravmax>|immune > < <I:tempmin>/<I:tempmax>|immune > < <I:radmin>/<I:radmax>|immune >
+	col_res <I:res/col ratio>
+	growth <I:growth%>
+	factories <I:efficiency> <I:cost> <I:max_operated> <I:germ_cost>
+	mines <I:efficiency> <I:cost> <I:max_operated>
+	tech_cost <S:cost_string>
+************** the cost string is 6 chars, being '+' for +75%,
+************** '0' for normal and '-' for -50%
+	tech <I:energy> <I:weapons> <I:propulsion> <I:construction> <I:electronics> <I:biotechnology>
+	reliability <I:reliability of info>
+************** right now this is mostly useless, practically it decides
+************** if you trust the info from this race or not. This is 
+************** checked for every planet. Right now if the source is the
+************** same as the planet owner the race gets a +5, so that in
+************** a team of players, if everyone has reliability 100 the
+************** correct data for simulations will be used.
+	object <S:objectname> {
+		resources <I:resources_cost>
+		minerals <I:iron_cost> <I:bora_cost> <I:germ_cost>
+        }
+************** repeat this object structure as needed. It defines what
+************** can be put in the construction queue. Mines, factories,
+************** defenses and terraforming are AUTOMATICALLY defined.
+	queue {
+		QUEUE_SPECIFICATION
+        }
+************** used to set the default queue for the planets owned by
+************** this race. Will default to auto 500 fact/auto 500 mines/
+************** auto 5 terraform.
+
+fleet <S:fleetname> {
+	position < <I:x> <I:y> | <S:planetname> >
+	ships <I:n_of_ships>
+	fuel <I:fuel>
+	cargo <I:iron> <I:iron> <I:iron> <I:iron>
+	destination < <I:x> <I:y> | <S:planetname> >
+}
+
+alliance <S:alliancename> {
+	race <S:racename>
+************* put in a race line for every race in the alliance
+}
+
+
+QUEUE_SPECIFICATION
+************* repeat as many of this lines as you want
+	[autobuild] <S:objectname> <I:count>
+	+<I:year_insert> [autobuild] <S:objectname> <I:count>
+	-<I:year_remove> [autobuild] <S:objectname> <I:count>
+	+<I:year_insert> -<I:year_remove> [autobuild] <S:objectname> <I:count>
+************* the year_insert/remove are NOT relative to the current
+************* year, but absolute. This allows you to set your queues
+************* once, without adjusting all the values every turn.
+************* [autobuild] can be applied to ANYTHING. If minerals are
+************* enough, but resources aren't then the object will be
+************* built partially and then completed the next year.
+************* NOTENOTE: the object name is SINGULAR: i.e. 'factory'
+************* and not 'factories'!!! (factories is a keyword!)
+
+
+
+INNER WORKINGS
+
+All the code works around a few classes. In order of importance they are:
+
+class planet;
+class race;
+class object;
+class queue_obj;
+
+This four are strongly intermixed, as you can see from the multitude
+of "friend class xxxx;" which is around. In fact you just have one
+real class: planet, all the rest looks more like structs used to keep
+data which will be used by planet.
+
+class stars_map;
+
+The container of everything. It holds the planets together and
+provides all the mapping/analysis/space ownership functions which the
+user sees.
+
+class fleet;
+
+Fleet stuff. Again, this is more like a struct than a real class,
+since no evolution is really performed on fleets.
+
+class minerals;
+
+Makes life easier when dealing with minerals. You can add and subtract
+all the 3 values in one good-looking line.
+
+class graphics;
+
+Interface to the rest of the world. Check out.h to see what it must
+provide to have starana run. It's not much: open window, close, draw
+string, draw filled arc, and some other stuff. The problem is that all
+the color management is done here, this needs working, as I would like
+to specify the race colors in the input files.
+
+
+SOME RANDOM DESCRIPTIONS
+
+The planet class provides A LOT of methods to access the
+data. Everything you might want should be there, and if it isn't it
+should be, so I'll add it. Some accessors just return attributes,
+other do calculations drawing data also from the race owner
+info. Since not too many paranoia checks are performed you should
+CHECK THAT A OWNER EXISTS before calling wildly the functions.
+
+All those functions accept an optional parameter, "when", which
+indicates at what time to read the data. This is meaningful AFTER the
+simulation on the planet has been run, you'll get crap if you try to
+get future data before you generate it.
+Note: when = 0 is when the data which was read from files. when = -1
+is the "current year of the simulation", which is something
+not-so-well defined.  ALWAYS SPECIFY a 0 if you want the initial data.
+
+
+ORDER OF THINGS
+
+The data is read from the files (yyparse).
+map.init_ownership() is called to generate the ownership map.
+This function calls map.sort_universe(), which does a LOT of stuff:
+- it sorts the planets and adjust the coordinate system
+- calls map.check_planets_step1():
+    - chooses the trusted source
+    - guesses type
+    - generates habitability tables
+- calls map.check_fleets()
+    which is badly incomplete and just chooses which fleets
+    will be included in the simulation (= those with cargo
+    traveling to a known world)
+- counts the planets everyone has
+- calls map.evolve_planets() to run the full simulation
+    - evolves planets on a per-year basis
+    - reports the planetary evolutions
+- calls map.check_planets_step2()
+    - checks the pop/mineral shortages/needs/exports etc
+- calls map.empire_report()
+    - generates the cute (and sometimes wrong) totals which 
+      are at the end of the report-log file
+- generates the space partitioning used to speed up the
+  space ownership calculation
+
+The report is complete, if "-a" was given on the command line the
+program quits, otherwise the graphics is initialized and the initial
+map is drawn.
+
+Map drawing is performed by calling map.display_map(), which,
+depending on the type of the map requested, calls map.display_space()
+to draw the background or map.display_planetinfo() to draw the
+planets.
+
+If you want to add more map types you should look in
+display_planetinfo() and copy the examples given there.  Adding it to
+the "menu" (whahahaha :) is harder, check the array at the beginning
+of starana.cc, it contains a list of the map types. You will need to
+add an element in the enum _maptype in starana.h and then add a line
+in this array to specify: map type as in _maptype, NEXT _maptype to be
+used when you hit 'p', map name.  You will also have to change another
+line to make it point at your maptype.
+
+
+
+MESSAGE FILTERING
+
+Some basic message-handling and message-filtering is possible.
+Check the message class and the functions in stuff.cc.
+
+
+TECH-RELATED STUFF
+
+There's the table of costs in a comment in stuff.cc one day it will go
+in, but not now. Right now the tech is ONLY used (together with the TT
+lrt) to determine the max terraforming possible for a specified race,
+which is used in the tform_left planet function (computes how many
+terraform clicks you still have) and the hab_when_max_terraformed
+planet function.
+
+
+QUEUES
+
+Queues are a messy stuff. A planet has a owner (race). A race has a
+series of objects. When you add something to a planet queue the table
+which is searched is the one associated to the planet owner (BTW this
+poses unbelievable problems at file read time, since the program
+hasn't yet understood WHO really owns the planet, but it might find a
+queue specification....): then a queue_obj is generated an put in the
+queue, and it points to the race object as its "prototype".  A queue
+can also be associated to a race, in that case it's just copied
+verbatim to the planets that the race owns that don't have a queue
+specification.
+The queues building steps are as follows:
+
+- preliminary check on the queue: activate or delete objects according
+to the insert/remove years specified. Clean the autobuild-performed
+bits.
+
+- scan the queue:
+	- if a "real" object is found then try to build it
+	- if an autobuild object is found then check the min/res
+          requirements and "convert" it to a "real" object to be built.
+
+There are two separate object creation loops: one check the mineral
+limits and the other doesn't. This can turn out useful if you want to
+see what are the mineral requirements to build a specified queue
+(you'll just see the minerals value go negative).
+
+
+
+PLANET TYPES and EXCHANGE MATRIX
+
+In the input files you can manually specify the "planet type" for each
+of your worlds.  If you don't the program will guess (and usually pick
+the wrong one).
+The planetary types are in an enum:
+
+  enum _platype { UNKNOWN=0, LOOTING=1, BREEDER=2, PRODUCTION=3,
+		  NEWCOLONY=4, GENERIC=5, MINING=6 };
+
+UNKNOWN is used in the beginning. You can't have this type when the
+analysis is performed, so a guessing IS necessary.
+The guessing is done in planet.check_data() by calling
+planet.guess_type().
+LOOTING means a useless planet you just want to loot, very negative
+worlds with low pop are assumed to be of this type. They "export"
+everything".
+BREEDER means a planet you use for breeding pop. Low mineral
+concentration and high habitability make a world a "breeder".
+Breeder export population and minerals.
+PRODUCTION are production centers. They import pop (for res maxxing)
+and minerals (unless the have a lot).
+NEWCOLONY are newly-created colonies. They might need or export
+both pop or minerals.
+GENERIC are like NEWCOLONY, but with higher limits. Worlds tend to
+be guessed as this type a lot.
+MINING are mining worlds. They are NOT guessed, you must specify them
+since the are hard to distinguish from PRODUCTION (maybe use mineral
+imbalance?)
+
+All this types define the mineral and population needs or "overflow".
+The thresholds depend on the planet type and have the bad thing of being
+hardwired in planet.min_needs(). I'll turn them to a table like there
+is for the population one day. BTW the cute population table doesn't work,
+but I never fixed it....
+
+Ok, at the end of the guessing and needs determination we have for
+every planet a list which says what it want to import and what to
+export. This is used to generate the "xxxxxx sources" tables in the
+planetary report, where all "nearby" planets which can offer the
+needed stuff are listed. The idea is good, but it still needs A LOT of
+fine tuning, as well as fleet max cargo determination to automatically
+allocate transporter fleets.

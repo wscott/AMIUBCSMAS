@@ -1,6 +1,5 @@
 #include "starana-classes.h"
 
-
 extern int minscales[];
 extern int minticks[][50];
 
@@ -21,10 +20,10 @@ char* e(char* s)
 // xforms percent paranoia: returns a pointer to an internal
 // static buffer where the string gets the % doubled
 
-char* xfpp(const String& s)
+char* xfpp(const myString& s)
 {
   static char outbuf[512];
-  const char* sp = s.chars();
+  const char* sp = s;
   char* op = outbuf;
 
   for (; (*op = *sp); op++, sp++)
@@ -152,10 +151,16 @@ void graphics::display_handle_event(XEvent* ev)
       }
       break;
     case 'v':
-      mapview->select_planet_view(MW_NEXT);
+      if (sca_mask && CTRL_PRESSED)
+	mapview->select_fleet_view(MW_NEXT);
+      else
+	mapview->select_planet_view(MW_NEXT);
       goto setview2;
     case 'V':
-      mapview->select_planet_view(MW_PREV);
+      if (sca_mask && CTRL_PRESSED)
+	mapview->select_fleet_view(MW_PREV);
+      else
+	mapview->select_planet_view(MW_PREV);
       goto setview2;
     case 'f':
       mapview->when(MW_NEXT);
@@ -171,10 +176,19 @@ void graphics::display_handle_event(XEvent* ev)
     case 'e':
       toggle_pfuncedit();
       break;
+    case 'o':
+      toggle_ffunclist();
+      break;
+    case 'w':
+      toggle_ffuncedit();
+      break;
     case 'm':
       toggle_mapcontrol();
       break;
-
+    case 'a':
+      mapview->set_alliances(MW_NEXT);
+      auto_redraw_map();
+      break;
     case XK_F1:
       view = 0;
       goto setview;
@@ -212,13 +226,22 @@ void graphics::display_handle_event(XEvent* ev)
       view = 11;
 
 setview:
-      mapview->select_planet_view(view);
+      if (sca_mask && CTRL_PRESSED)
+	mapview->select_fleet_view(view);
+      else
+	mapview->select_planet_view(view);
 setview2:
       mapview->set_window_title();
-      showselected_pfunclist();      
-      init_number_menu();
-      load_pfunction();
-      redraw_map();
+      if (sca_mask && CTRL_PRESSED) {
+	showselected_ffunclist();
+	init_fle_number_menu();
+	load_ffunction();
+      } else {
+	showselected_pfunclist();
+	init_pla_number_menu();
+	load_pfunction();
+      }
+	redraw_map();
       break;
     }
     break;
@@ -247,11 +270,11 @@ setview2:
 
   case ButtonRelease:
     break;
-      
+
   case LeaveNotify:
     inwindow = 0;
     break;
-      
+
   case EnterNotify:
     inwindow = 1;
     break;
@@ -420,9 +443,9 @@ void graphics::create_palette(void)
 
 
 
-graphics::graphics(const int xresol, const int yresol, const char* title) : 
-          sca_mask(0), gra_xres(xresol),
-	  gra_yres(yresol), curr_vwp(-1), cbobj(NULL)
+graphics::graphics(const int resol, const char* title) : 
+          sca_mask(0), gra_xres(resol),
+	  gra_yres(resol), curr_vwp(-1), cbobj(NULL)
 {
   int depth;
   XVisualInfo visualinfo;
@@ -444,10 +467,21 @@ graphics::graphics(const int xresol, const int yresol, const char* title) :
 
   fl_initialize(&one, (char**)&crapargv, "StarAna", 0, 0);
   xf_mc = create_form_MapControl();
-  xf_pfe = create_form_PlanetaryFunction();
-  xf_ps = create_form_PlanetStatus();
-  xf_pm = create_form_PlanetSimulation();
-  xf_pv = create_form_PlanetViews();
+  xf_pfe = create_form_DisplayFunction();
+  xf_ffe = create_form_DisplayFunction();
+  xf_ps[0] = create_form_PlanetStatus();
+  xf_ps[1] = create_form_PlanetStatus();
+  xf_pm[0] = create_form_PlanetSimulation();
+  xf_pm[1] = create_form_PlanetSimulation();
+  xf_pv = create_form_ObjectViews();
+  xf_fv = create_form_ObjectViews();
+  xf_pak = create_form_PacketFiring();
+  xf_titl = create_form_IntroTitle();
+  xf_rrinfo = create_form_RR_RaceInfo();
+  xf_rrlog = create_form_RR_ReportLog();
+  xf_rrcmp = create_form_RR_Comparisons();
+  xf_rrdo = create_form_RR_DesignsObjects();
+  xf_rr = create_form_RacialReport(xf_rrinfo, xf_rrlog, xf_rrcmp, xf_rrdo);
 
   x_display = fl_get_display();
   if (!x_display) {
@@ -455,7 +489,7 @@ graphics::graphics(const int xresol, const int yresol, const char* title) :
     return;
   }
 
-  geomstring = XGetDefault(x_display, "starmap", "Geometry");
+  geomstring = XGetDefault(x_display, "StarAna", "Geometry");
 
   x_screen = DefaultScreen(x_display);
 
@@ -496,11 +530,11 @@ graphics::graphics(const int xresol, const int yresol, const char* title) :
 
   sizehints.flags = PMinSize | PMaxSize;
 
-  sizehints.x = (DisplayWidth(x_display, x_screen) - xresol) / 2;
-  sizehints.y = (DisplayHeight(x_display, x_screen) - yresol) / 2;
+  sizehints.x = (DisplayWidth(x_display, x_screen) - resol) / 2;
+  sizehints.y = (DisplayHeight(x_display, x_screen) - resol) / 2;
 
-  sizehints.width = xresol;
-  sizehints.height = yresol;
+  sizehints.width = resol;
+  sizehints.height = resol;
 
   sizehints.max_width = sizehints.min_width = sizehints.width;
   sizehints.max_height = sizehints.min_height = sizehints.height;
@@ -543,7 +577,7 @@ graphics::graphics(const int xresol, const int yresol, const char* title) :
 			 sizehints.width, sizehints.height, bw,
 			 depth, CopyFromParent, visual, wattrmask, &wattr);
 
-  XSetStandardProperties(x_display, my_win, title, "Starmap", None,
+  XSetStandardProperties(x_display, my_win, title, "StarAna", None,
 			 (char **)NULL, 0, &sizehints);
 
   wmhints.initial_state = NormalState;
@@ -598,11 +632,57 @@ graphics::~graphics(void)
 
 
 
-void graphics::set_window_title(const String& title)
+void graphics::set_window_title(const myString& title)
 {
   // no idea if it's correct
-  XSetStandardProperties(x_display, my_win, title.chars(), "Starmap", None,
+  XSetStandardProperties(x_display, my_win, title, "StarAna", None,
 			 (char **)NULL, 0, NULL);
+}
+
+
+
+void graphics::resize_map_window(const int resol)
+{
+  XSizeHints sizehints;
+
+  sizehints.flags = PMinSize | PMaxSize;
+
+  gra_xres = gra_yres = resol;
+  sizehints.max_width = sizehints.min_width = resol;
+  sizehints.max_height = sizehints.min_height = resol;
+
+  XSetStandardProperties(x_display, my_win, NULL, NULL, None,
+			 (char **)NULL, 0, &sizehints);
+  XResizeWindow(x_display, my_win, resol, resol);
+}
+
+
+
+void graphics::show_title_form(void)
+{
+  fl_show_form(xf_titl->IntroTitle, FL_PLACE_CENTER, FL_NOBORDER, "Welcome to Starana!");
+  XRaiseWindow(x_display, xf_titl->IntroTitle->window);
+  XFlush(fl_get_display());
+  
+  // set up timer
+  elapsed_title = time(0L) + 2;
+}
+
+
+
+void graphics::wait_title_form(void)
+{
+  // make sure it's shown
+  if ( !fl_form_is_visible(xf_titl->IntroTitle) )
+    return;
+
+  // wait for timer
+  int dt = time(0L) - elapsed_title + 1;
+  if (dt > 0)
+    sleep(dt);
+
+  fl_hide_form(xf_titl->IntroTitle);
+  XFlush(fl_get_display());
 }
 
 
@@ -610,7 +690,7 @@ void graphics::set_window_title(const String& title)
 void graphics::form_initial_update(void)
 {
   char mainmenu[512];
-  int i;
+  int i, j;
   const char* c;
   // put all the appropriate stuff in the forms (race names/colors/pfuncs)
   
@@ -680,12 +760,60 @@ void graphics::form_initial_update(void)
   fl_addtopup(mm, mainmenu, subids[0], subids[1], subids[2], subids[3], subids[4], subids[5], subids[6], subids[7]);
   fl_set_menu_popup(xf_pfe->selected, mm);
 
+  // fleet functions menu (same as above, but with fleets)
+  nsubs = 0;
+  fleet_function* ff0 = get_next_ffunction(NULL);
+  fleet_function* ff = ff0;
+
+  mainmenu[0] = 0;
+  mm = fl_newpup(fl_default_win());
+  subcount = 8;
+
+  do {
+    // do we have type?
+    for (i = 0; i < nsubs; i++)
+      if (!strcmp((const char*)ff->type(), submenus[i][0]))
+	break;
+
+    if (i == nsubs) {
+
+      // we need to add a submenu
+      strcpy(submenus[nsubs][0], (const char*)ff->type());
+      strcpy(submenus[nsubs][1], xfpp(ff->name()));
+      sprintf(e(submenus[nsubs][1]), "%%x%d", subcount++);
+      subids[nsubs] = fl_newpup(0);
+
+      if (nsubs)
+	strcat(mainmenu, "|");
+      strcat(mainmenu, xfpp(ff->type()));
+      strcat(mainmenu, "%m");
+
+      nsubs++;
+
+    } else {
+      // add to an existing one
+      strcat(submenus[i][1], "|");
+      strcat(submenus[i][1], xfpp(ff->name()));
+      sprintf(e(submenus[i][1]), "%%x%d", subcount++);
+    }
+  } while ( (ff = get_next_ffunction(ff)) != ff0 && nsubs < 8);
+
+  // attach all menus
+  for (i = 0; i < nsubs; i++)
+    fl_addtopup(subids[i], submenus[i][1]);
+
+  fl_addtopup(mm, mainmenu, subids[0], subids[1], subids[2], subids[3], subids[4], subids[5], subids[6], subids[7]);
+  fl_set_menu_popup(xf_ffe->selected, mm);
+
   // set up the initial menu for the number
-  init_number_menu();
+  init_pla_number_menu();
+  init_fle_number_menu();
 
   // set some kind of default crap into pfe window
   mapview->select_plamode(0);
   load_pfunction();
+  mapview->select_flemode(0);
+  load_ffunction();
 
   // propagate colors to xforms table
   // minerals
@@ -711,32 +839,37 @@ void graphics::form_initial_update(void)
 
   for (i = 0; i < game_map->number_of_players(); i++) {
     fl_set_object_lcol(xf_mc->race[i], FL_FREE_COL1 + XFCOL_RACES + i);
-    fl_set_object_label(xf_mc->race[i], game_map->player_race(i)->name().chars());
+    fl_set_object_label(xf_mc->race[i], game_map->find_race(i)->name());
   }
 
-  // mineral objects labels colors
-  fl_set_object_lcol(xf_ps->minobjects[0], FL_FREE_COL1 + XFCOL_IRON+1);
-  fl_set_object_lcol(xf_ps->minobjects[1], FL_FREE_COL1 + XFCOL_BORA);
-  fl_set_object_lcol(xf_ps->minobjects[2], FL_FREE_COL1 + XFCOL_GERM);
+  // mineral objects labels colors, minscales menu
+  for (i = 0; i < 2; i++) {
+    fl_set_object_lcol(xf_ps[i]->minobjects[0], FL_FREE_COL1 + XFCOL_IRON+1);
+    fl_set_object_lcol(xf_ps[i]->minobjects[1], FL_FREE_COL1 + XFCOL_BORA);
+    fl_set_object_lcol(xf_ps[i]->minobjects[2], FL_FREE_COL1 + XFCOL_GERM);
 
-  // default minscale
-  mineraldial_scale = 4; // offset in minscales (=5000)
+    // default minscale
+    xf_ps[i]->mineraldial_scale = 4; // offset in minscales (=5000)
 
-  for (i = 0; minscales[i]; i++) {
-    if (minscales[i] == -1)
-      strcpy(mainmenu, "Logarithmic");
-    else if (minscales[i] == -2)
-      strcpy(mainmenu, "Multi-Linear");
-    else
-      sprintf(mainmenu, "%d", minscales[i]);
+    for (j = 0; minscales[j]; j++) {
+      if (minscales[j] == -1)
+	strcpy(mainmenu, "Logarithmic");
+      else if (minscales[j] == -2)
+	strcpy(mainmenu, "Multi-Linear");
+      else
+	sprintf(mainmenu, "%d", minscales[j]);
 
-    fl_addto_choice(xf_ps->minscale, mainmenu);
+      fl_addto_choice(xf_ps[i]->minscale, mainmenu);
+    }
+    fl_set_choice(xf_ps[i]->minscale, 5);
+
+    // when there's a planet owner modification in the status window
+    // we must reload the object table
+    xf_ps[i]->mineralobjects_lastowner = -1;
+    xf_ps[i]->statusnumber = i;
+    xf_pm[i]->statusnumber = i;
   }
-  fl_set_choice(xf_ps->minscale, 5);
-
-  // when there's a planet owner modification in the status window
-  // we must reload the object table
-  mineralobjects_lastowner = -1;
+  select_planetstatus(0);
 
   fl_set_input(xf_mc->future, "0");
   fl_set_input(xf_mc->scaneff, "100");
@@ -747,9 +880,11 @@ void graphics::form_initial_update(void)
   // autoredraw on
   fl_set_button(xf_mc->autoredraw, 1);
 
-  // prepare planetary view browser
+  // prepare planetary/fleet view browser
   load_pfunclist();
   showselected_pfunclist();
+  load_ffunclist();
+  showselected_ffunclist();
 }
 
 
@@ -760,16 +895,16 @@ void graphics::redraw_map(void)
 
   mapview->display_space();
   mapview->set_planet_display();
-  if (fl_get_button(xf_mc->ffeditor))
-    mapview->select_fleet_view(1);
-  else
-    mapview->select_fleet_view(0);
   mapview->set_fleet_display();
 
   mapview->display_objects();
 
-  if (fl_form_is_visible(xf_ps->PlanetStatus))
-    load_planetstatus();
+  for (int i = 0; i < 2; i++)
+    if (fl_form_is_visible(xf_ps[i]->PlanetStatus)) {
+      select_planetstatus(i);
+      load_planetstatus();
+    }
+
   //  mapview->display_addinfo(620, 20);
 
   done();
@@ -900,11 +1035,11 @@ void graphics::draw_smallstring(const int xp, const int yp, const int color,
 
 void graphics::set_mineraldial_scale(const int i)
 {
-  mineraldial_scale = i;
+  curr_ps->mineraldial_scale = i;
 
-  fl_redraw_object(xf_ps->ironiumdial);
-  fl_redraw_object(xf_ps->boraniumdial);
-  fl_redraw_object(xf_ps->germaniumdial);
+  fl_redraw_object(curr_ps->ironiumdial);
+  fl_redraw_object(curr_ps->boraniumdial);
+  fl_redraw_object(curr_ps->germaniumdial);
 }
 
 
@@ -912,14 +1047,15 @@ void graphics::set_mineraldial_scale(const int i)
 int graphics::minerals_to_display(const int v, const int w)
 {
   int x;
+  const int& scale = minscales[curr_ps->mineraldial_scale];
 
-  if (minscales[mineraldial_scale] == -1) { // logarithmic
+  if (scale == -1) { // logarithmic
     x = (int)(1000.0 * (log10(v) - 0.99));
     if (x < 0)
       x = 1;
     x = x * w / 4100;
 
-  } else if (minscales[mineraldial_scale] == -2) { // multilinear
+  } else if (scale == -2) { // multilinear
     // 3 sections: 0->1000->10000->100000
     if (v <= 1000)
       x = v * w / 3033;
@@ -929,7 +1065,7 @@ int graphics::minerals_to_display(const int v, const int w)
       x = 2000 * w / 3033 + ( (v-10000) * w / 303300);
 
   } else { // normal linear
-    x = v * w / (minscales[mineraldial_scale] * 41 / 40);
+    x = v * w / (scale * 41 / 40);
   }
 
   if (x > w)
@@ -946,6 +1082,8 @@ void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
   Window win = fl_winget();
   int hahe = ob->h / 2;
   int xmin, xmax, step;
+  const _mindial& mineral = curr_ps->mineral_dials[i];
+  const int& scale = curr_ps->mineraldial_scale;
 
   // clear old object
   XSetForeground(x_display, gc, fl_get_flcolor(FL_COL1));
@@ -953,16 +1091,16 @@ void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
   
   // use a logarithmic scale for minerals 10/1000/10000/100000
   // minerals now
-  if (mineral_dials[i].now > 0) {
-    xmin = minerals_to_display(mineral_dials[i].now, ob->w);
+  if (mineral.now > 0) {
+    xmin = minerals_to_display(mineral.now, ob->w);
     XSetForeground(x_display, gc, fl_get_flcolor(FL_FREE_COL1 + XFCOL_IRON + 2*i));
     XFillRectangle(x_display, win, gc, ob->x, ob->y+hahe-6, xmin, 12);
   } else
     xmin = 0;
 
   // mining
-  if ( (mineral_dials[i].now+mineral_dials[i].mining) > 0) {
-    xmax = minerals_to_display(mineral_dials[i].now+mineral_dials[i].mining, ob->w);
+  if ( (mineral.now+mineral.mining) > 0) {
+    xmax = minerals_to_display(mineral.now+mineral.mining, ob->w);
     XSetForeground(x_display, gc, fl_get_flcolor(FL_FREE_COL1 + XFCOL_IRON + 2*i + 1));
     XFillRectangle(x_display, win, gc, ob->x+xmin, ob->y+hahe-6, xmax-xmin, 12);
   } else
@@ -970,8 +1108,8 @@ void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
 
 
   // draw bar for minerals next year
-  if ( (mineral_dials[i].next > 0) ) {
-    xmax = minerals_to_display(mineral_dials[i].next, ob->w);
+  if ( (mineral.next > 0) ) {
+    xmax = minerals_to_display(mineral.next, ob->w);
     XSetForeground(x_display, gc, fl_get_flcolor(FL_FREE_COL1 + XFCOL_IRON + 2*i));
     XDrawLine(x_display, win, gc, ob->x+xmax, ob->y+hahe-9, ob->x+xmax, ob->y+hahe+9);
   }
@@ -979,10 +1117,10 @@ void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
   // draw scale
   XSetForeground(x_display, gc, fl_get_flcolor(FL_BLACK));  
 
-  for (step = 0; minticks[mineraldial_scale][step] != -1; step++) {
-    xmax = minerals_to_display(abs(minticks[mineraldial_scale][step]), ob->w);
+  for (step = 0; minticks[scale][step] != -1; step++) {
+    xmax = minerals_to_display(abs(minticks[scale][step]), ob->w);
 
-    if ( minticks[mineraldial_scale][step] < 0 ) {
+    if ( minticks[scale][step] < 0 ) {
       XDrawLine(x_display, win, gc, ob->x+xmax, ob->y, ob->x+xmax, ob->y+4);
       XDrawLine(x_display, win, gc, ob->x+xmax, ob->y+ob->h-1, ob->x+xmax, ob->y+ob->h-5);
     } else {
@@ -992,7 +1130,7 @@ void graphics::draw_mineral_handler(FL_OBJECT* ob, const int i)
   }
 
   // black diamod for concentration (adjusted to prevent clipping)
-  xmin = 5 + mineral_dials[i].conc * (ob->w -10) / 120;
+  xmin = 5 + mineral.conc * (ob->w -10) / 120;
   if (xmin > ob->w)
     xmin = ob->w;
 
@@ -1014,23 +1152,24 @@ void graphics::draw_environment_handler(FL_OBJECT* ob, const int i)
   int hahe = ob->h / 2;
   int xmin, xmax;
   int habcenter, habhwidth;
+  const _envdial& environment = curr_ps->environment_dials[i];
 
   // immune -> all green
-  if (environment_dials[i].habmin == -1) {
+  if (environment.habmin == -1) {
     XSetForeground(x_display, gc, fl_get_flcolor(FL_GREEN));
     XFillRectangle(x_display, win, gc, ob->x, ob->y+1, ob->w, ob->h-2);
 
   } else {
-    habcenter = (environment_dials[i].habmax + environment_dials[i].habmin) / 2;
-    habhwidth = (environment_dials[i].habmax - environment_dials[i].habmin) / 2;
+    habcenter = (environment.habmax + environment.habmin) / 2;
+    habhwidth = (environment.habmax - environment.habmin) / 2;
 
     XSetForeground(x_display, gc, fl_get_flcolor(FL_RED));
     XFillRectangle(x_display, win, gc, ob->x, ob->y+1, ob->w, ob->h-2);
 
     // yellow band
-    if (environment_dials[i].tform != 0) {
-      xmin = environment_dials[i].habmin - environment_dials[i].tform;
-      xmax = environment_dials[i].habmax + environment_dials[i].tform;
+    if (environment.tform != 0) {
+      xmin = environment.habmin - environment.tform;
+      xmax = environment.habmax + environment.tform;
       if (xmin < 0)
 	xmin = 0;
       if (xmax > 100)
@@ -1044,8 +1183,8 @@ void graphics::draw_environment_handler(FL_OBJECT* ob, const int i)
     }
 
     // green band
-    xmin = environment_dials[i].habmin;
-    xmax = environment_dials[i].habmax;
+    xmin = environment.habmin;
+    xmax = environment.habmax;
 
     xmin = (xmin*width + width/2)/100;
     xmax = (xmax*width + width/2)/100;
@@ -1064,12 +1203,12 @@ void graphics::draw_environment_handler(FL_OBJECT* ob, const int i)
     XFillRectangle(x_display, win, gc, ob->x+xmin, ob->y+1, xmax-xmin, ob->h-2);
   }
 
-  if (environment_dials[i].original > 0) {
+  if (environment.original > 0) {
     // put black markers for current/original
     XSetForeground(x_display, gc, fl_get_flcolor(FL_BLACK));  
 
     // current
-    xmin = environment_dials[i].current;
+    xmin = environment.current;
     xmin = (xmin*width + width/2)/100;
     XDrawLine(x_display, win, gc, ob->x+xmin+4, ob->y+hahe, ob->x+xmin, ob->y+hahe+4);
     XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe+4, ob->x+xmin-4, ob->y+hahe);
@@ -1077,18 +1216,18 @@ void graphics::draw_environment_handler(FL_OBJECT* ob, const int i)
     XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe-4, ob->x+xmin+4, ob->y+hahe);
 
     // original
-    xmin = environment_dials[i].original;
+    xmin = environment.original;
     xmin = (xmin*width + width/2)/100;
     XDrawLine(x_display, win, gc, ob->x+xmin, ob->y+hahe-7, ob->x+xmin, ob->y+hahe+7);
 
     // draw line from current to original+tform
-    if (environment_dials[i].habmin >= 0) {
-      xmax = habcenter - environment_dials[i].original;
-      if (abs(xmax) > environment_dials[i].tform)
-	xmax = sign(xmax) * environment_dials[i].tform;
+    if (environment.habmin >= 0) {
+      xmax = habcenter - environment.original;
+      if (abs(xmax) > environment.tform)
+	xmax = sign(xmax) * environment.tform;
 
-      xmax += environment_dials[i].original;
-      xmin = environment_dials[i].current;
+      xmax += environment.original;
+      xmin = environment.current;
 
       xmin = (xmin*width + width/2)/100;
       xmax = (xmax*width + width/2)/100;
@@ -1097,12 +1236,12 @@ void graphics::draw_environment_handler(FL_OBJECT* ob, const int i)
     }
 
     // mark maxtform point
-    if (environment_dials[i].habmin >= 0) {
-      xmax = habcenter - environment_dials[i].original;
-      if (abs(xmax) > environment_dials[i].maxtform)
-	xmax = sign(xmax) * environment_dials[i].maxtform;
+    if (environment.habmin >= 0) {
+      xmax = habcenter - environment.original;
+      if (abs(xmax) > environment.maxtform)
+	xmax = sign(xmax) * environment.maxtform;
 
-      xmax += environment_dials[i].original;
+      xmax += environment.original;
       xmax = (xmax*width + width/2)/100;
 
       XDrawLine(x_display, win, gc, ob->x+xmax, ob->y+hahe+2, ob->x+xmax, ob->y+hahe-2);
@@ -1156,9 +1295,14 @@ void graphics::draw_triangle_pie(const _xypoint& p, const _xypoint& dir,
   // int se = r % 4;
 
   // for the moment plainly ignore the theta stuff
+
+  // check for valid direction, assume 100,60 if none given
+  rdir = dir;
+  if (rdir == _xypoint(0, 0))
+    rdir = _xypoint(100, 60);
   
   // renormalize direction vector to real radius
-  rdir = dir * rr / (int)sqrt(dir.x*dir.x + dir.y*dir.y);
+  rdir = rdir * rr / (int)sqrt(rdir.x*rdir.x + rdir.y*rdir.y);
 
   xpoints[0].x = p.x + rdir.x; //- rdir.x / 2 
   xpoints[0].y = p.y - rdir.y; //+ rdir.y / 2 
@@ -1194,11 +1338,11 @@ void graphics::draw_circle(const _xypoint& p, const int r,
 
 
 
-void graphics::draw_planetname(const int xp, const int yp, const int color, const String& name)
+void graphics::draw_planetname(const int xp, const int yp, const int color, const myString& name)
 {
   // correction for font should go here
-  display->draw_smallstring(xp - 4*name.length()/2,
-			    yp + 8, color, name.chars());
+  display->draw_smallstring(xp - 4*name.length()/2 - 1,
+			    yp + 8, color, name);
 }
 
 
@@ -1267,7 +1411,7 @@ void graphics::draw_owners(const int y, const int x,
   for (i = 0; i < xlen; i++)
     if (xpos[i + 1] > x0)
       break;
-  
+
   if (i == xlen)
     return;
 

@@ -36,7 +36,6 @@ public:
 pla_defcoverage pla_defcoverage_proto;
 
 
-
 // factories display
 
 class pla_factories : public planetary_function {
@@ -89,7 +88,6 @@ public:
 };
 
 pla_factories pla_factories_proto;
-
 
 
 // mines display
@@ -181,7 +179,6 @@ public:
 pla_scancoverage pla_scancoverage_proto;
 
 
-
 // gate coverage
 
 class pla_gatecoverage : public planetary_function {
@@ -220,7 +217,6 @@ public:
 pla_gatecoverage pla_gatecoverage_proto;
 
 
-
 // filter on gate presence
 
 class pla_F_gate : public planetary_function {
@@ -229,11 +225,11 @@ public:
   {
     _name = "Filter: stargate";
     _type = "Installations";
-    _desc = "This function filters planet based on their gate statistics.";
+    _desc = "This function filters planet based on their gate statistics.\nA planet will be filtered if its range and mass are superior or equal to the required ones.";
     _pardesc[1] = "Fields affect mask";
-    _pardesc[2] = "Minimum range";
-    //    _pardesc[3] = "Minimum mass";
-    _pardesc[4] = "Negate filter";
+    _pardesc[2] = "Negate filter";
+    _pardesc[3] = "Minimum range";
+    _pardesc[4] = "Minimum mass";
   }
 
   virtual void function(map_view& mw, planet* p, const int* par, const int when)
@@ -245,9 +241,10 @@ public:
 
     // we can do something if we have the data
     if (p->data_available() && p->owner())
-      f = (p->gate_range() >= par[2]);
+      f = ((p->gate_range() == -1)? 1 : (p->gate_range() >= par[3])) &&
+	  ((p->gate_mass() == -1)? 1 : (p->gate_mass() >= par[4]));
 
-    if (par[4])
+    if (par[2])
       f = !f;
 
     if (par[1]) {

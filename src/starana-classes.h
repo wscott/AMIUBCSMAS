@@ -1,11 +1,11 @@
-#define CONFIG_LINUX
 // #define DISABLE_BACKINGSTORE
 // #define DEFAULT_FULLYVISUAL
 
+// this must become libstdc++ sooner or later (myString.h)
+// #include <g++/String.h>
+#include "myString.h"
 
-#ifdef CONFIG_LINUX
-#include <String.h>
-#endif
+#include <vector>
 
 #include <math.h>
 #include <stdio.h>
@@ -22,10 +22,12 @@ class planet;
 class graphics;
 class race;
 class object;
+class design;
 class queue_obj;
 class minerals;
 class fleet;
 class planetary_function;
+class fleet_function;
 class stars_map;
 class map_view;
 
@@ -57,12 +59,44 @@ inline int max(const int i, const int j)
 
 enum report_type { Total, Full, Graph };
 
+enum _msgtype {
+  RLO_ERROR      = 0x00001,
+  RLO_HABTABLE   = 0x00002,
+  RLO_DATASRC    = 0x00004,
+  RLO_EMPIRETOT  = 0x00008,
+  RLO_FLEETDUP   = 0x00010,
+  RLO_PLAREPORTS = 0x00020,
+  RLO_PLABUILD   = 0x00040,
+  RLO_PLASTATS   = 0x00080,
+  RLO_PLAFLEETS  = 0x00100,
+  RLO_PLAMINSTAT = 0x00200,
+  RLO_PLAPOPSTAT = 0x00400,
+  RLO_PLANETINI  = 0x00800,
+  RLO_FLEETDEST  = 0x01000,
+  RLO_FLEETTRANS = 0x02000,
+  RLO_FLEETCOLON = 0x04000,
+  RLO_FLEETATTK  = 0x08000,
+  RLO_FLEETPARSE = 0x10000,
+  RLO_FLEETCONS  = 0x20000,
+  RLO_PLAQUEUE   = 0x40000,
+  RLO_PLAABUILD  = 0x80000,
+};
+
+inline
+_msgtype operator|(const _msgtype m1, const _msgtype m2)
+{
+  return (_msgtype)((int)m1|(int)m2);
+}
+
 enum prt_type { HE = 0, SS = 1, WM = 2, CA = 3, IS = 4, 
 		SD = 5, PP = 6, IT = 7, AR = 8, JoaT = 9 };
 enum lrt_type { IFE = 0, TT = 1, ARM = 2, ISB = 3, GR = 4, UR = 5, MA = 6, 
 		NRSE = 7, CE = 8, OBRM = 9, NAS = 10, LSP = 11, BET = 12, RS = 13 };
 enum tech_type { Ener=0, Weap=1, Prop=2, Con=3, Elec=4, Bio=5 };
 enum stat_type { Grav=0, Temp=1, Rad=2 };
+enum starbase_type { NoStarbase=0, OrbitalFort=1, SpaceDock=2, SpaceStation=3,
+		     UltraStation=4, DeathStar=5, ErrorInName=6 };
+
 
 const double gravity_table[101] = { 0.12, 0.12, 0.13, 0.13, 0.14, 0.14, 0.15, 0.15,
    0.16, 0.17, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.31,
@@ -132,7 +166,7 @@ struct _circle {
 };
 
 
-#include "out.h"
+#include "out_X11.h"
 
 
 const int PIE_CIRCLE = 0;
@@ -155,7 +189,7 @@ struct object_display {
   int marker_size;        // set by draw routine and used to align name, don't touch it
 
   int name_color;         // name_color == 0 means NO name at all
-  String name;            // string (which might be != from actual name)
+  myString name;            // string (which might be != from actual name)
 
   int n_lines;            // number of vectors originating from object
   _lineto linedest[32];    // vector destinations
@@ -167,8 +201,7 @@ struct object_display {
 
   object_display(void)
     { reset(); }
-  void reset(void)
-    { nameyshift = n_circles = n_lines = n_values = name_color = 0; marker_type = MT_NONE; flag = false; vmin = 0.0; vmax = 1.0; value = -1e30; }
+  void reset(void);
   void reset_something(const int what);
   bool anything_defined(void) const
     { return (n_values != 0 || marker_type != MT_NONE || name_color != 0 || n_lines != 0 || flag || n_circles != 0); }
@@ -187,13 +220,13 @@ struct object_display {
 };
 
 // modes
-enum _pfmode {
+enum _dfmode {
   PF_SKIP     = 1,      // do nothing if anything is defined
   PF_STOMP    = 2,      // always call the function
   PF_AND      = 3,      // act only if ??? is already defined
   PF_OR       = 4,      // act only if ??? is NOT defined
-  PF_NEXT     = 20,     // move to next pfmode
-  PF_PREV     = 21,     // move to previous pfmode
+  PF_NEXT     = 20,     // move to next dfmode
+  PF_PREV     = 21,     // move to previous dfmode
   PF_NULL     = 22,     // do nothing
 };
 
@@ -209,7 +242,7 @@ const int PF_CIRCLES  = 0x20;  // ??? = planet circles
 struct pf_operation {
   planetary_function* f;
   int params[16];
-  _pfmode mode;
+  _dfmode mode;
   int modemask;
 
   pf_operation(void);
@@ -223,55 +256,113 @@ struct pf_operation {
 class planetary_function {
   friend planetary_function* get_next_pfunction(planetary_function* pf);
   friend planetary_function* get_prev_pfunction(planetary_function* pf);
-  friend planetary_function* find_pfunction(const String& pfn);
+  friend planetary_function* find_pfunction(const myString& pfn);
 
 static planetary_function* function_table;
   planetary_function* next;
 
 protected:
-  String _name;
-  String _type;
-  String _desc;
-  String _pardesc[16];
+  myString _name;
+  myString _type;
+  myString _desc;
+  myString _pardesc[16];
 
   planetary_function(void);
   virtual ~planetary_function(void)
     { }
 
 public:
-  const String& name(void)
+  const myString& name(void)
     { return _name; }
-  const String& type(void)
+  const myString& type(void)
     { return _type; }
-  const String& description(void)
+  const myString& description(void)
     { return _desc; }
-  const String& parameter_desc(const int i)
+  const myString& parameter_desc(const int i)
     { return _pardesc[i]; }
   virtual void function(map_view& mw, planet* p, const int* par, const int when) = 0;
 };
 
 
+struct ff_operation {
+  fleet_function* f;
+  int params[16];
+  _dfmode mode;
+  int modemask;
 
-enum _msgtype { NONMASKABLE = 0,
-		PLA_BUILD = 0x02, PLA_FLEETS = 0x04, PLA_REPORTS = 0x08, PLA_MINSTATE = 0x10,
-                PLA_POPSTATE = 0x20, PLA_INTERNAL = 0x40 };
+  ff_operation(void);
+  // default copy constructor
+  // default destructor
+
+  void clear(void);
+};
+
+
+class fleet_function {
+  friend fleet_function* get_next_ffunction(fleet_function* ff);
+  friend fleet_function* get_prev_ffunction(fleet_function* ff);
+  friend fleet_function* find_ffunction(const myString& pfn);
+
+static fleet_function* function_table;
+  fleet_function* next;
+
+protected:
+  myString _name;
+  myString _type;
+  myString _desc;
+  myString _pardesc[16];
+
+  fleet_function(void);
+  virtual ~fleet_function(void)
+    { }
+
+public:
+  const myString& name(void)
+    { return _name; }
+  const myString& type(void)
+    { return _type; }
+  const myString& description(void)
+    { return _desc; }
+  const myString& parameter_desc(const int i)
+    { return _pardesc[i]; }
+  virtual void function(map_view& mw, fleet* f, const int* par, const int when) = 0;
+};
+
+
 
 struct message {
   friend void filter_out_messages(const _msgtype mt);
 
-  message* next;
-  _msgtype type;
-  String msg;
-
+static int color_table[31];
 static int msg_mask;
 
-  message(const String& m, const _msgtype mt, message** tab);
+  message* next;
+  _msgtype type;
+  myString msg;
+
+  message(const _msgtype mt, const myString& m) : next(NULL), type(mt), msg(m)
+    { }
   void print(FILE* of) const
     { fprintf(of, "%s\n", (const char*)msg); }
   bool filtered(void) const
     { return (bool)(type & msg_mask); }
+  int color(void) const;
 };
 
+
+
+class message_table {
+  message* head;
+  message* tail;
+
+public:
+  message_table(void) : head(NULL), tail(NULL)
+    { }
+  ~message_table(void);
+  void add(const _msgtype mt, const myString& m);
+  const message* first(void) const
+    { return head; }
+};
 
 
 
@@ -310,16 +401,16 @@ enum par_type { PDouble, PString };
 enum par_errors { PE_NOTADOUBLE, PE_NOTASTRING };
 
 class parameter {
-  friend parameter* get_parameter(const String& n);
+  friend parameter* get_parameter(const myString& n);
 
 static parameter* param_table;
 static void (*parameter_handler)(const par_errors);
 
   parameter* next;
-  String name;
+  myString name;
   par_type _type;
   union {
-    String* s;
+    myString* s;
     double d;
   } _value;
 
@@ -328,13 +419,13 @@ static void (*parameter_handler)(const par_errors);
   ~parameter(void);
 
 public:
-  parameter(const String& n, const String& v);
-  parameter(const String& n, const double& d);
+  parameter(const myString& n, const myString& v);
+  parameter(const myString& n, const double& d);
   par_type type(void) const
     { return _type; }
   operator double(void) const;
   operator int(void) const;
-  operator String(void) const;
+  operator myString(void) const;
 };
 
 
@@ -350,14 +441,15 @@ class race {
   friend int yyparse(void);
 
 static int fibonacci[26];
-static String lrt_names[14];
-static String prt_names[10];
+static myString lrt_names[14];
+static myString prt_names[10];
 
-  String _name;
-  String _names;
+  myString _name;
+  myString _names;
   int id;
   int reliab;
   bool can_analyze;
+  bool has_report;
 
   int hab_min[3];
   int hab_max[3];
@@ -408,17 +500,26 @@ static String prt_names[10];
 
   int curr_year;
 
+  // report-log messages to put in window
+  message_table logmsgs;
+
   race(const race&);
   race& operator=(const race&);
 
   int get_normal_tform(const int bio, const int ewp);
 
 public:
-  race(const String& n, const int i);
+  race(const myString& n, const int i);
   ~race(void);
 
-  const String& name(void) const
+  const myString& name(void) const
     { return _name; }
+  const myString& names(void) const
+    { return _names; }
+  bool do_analysis(void) const
+    { return can_analyze; }
+  bool gave_report(void) const
+    { return has_report; }
   void output(FILE* of) const;
   //  void report(const report_type rt, FILE* of) const;
   bool lrt(lrt_type lt) const
@@ -435,24 +536,31 @@ public:
     { return maxfact; }
   int max_mine_per_planet(void) const
     { return maxmine; }
-  void add_object(const String& n, const int r, const int i, const int b, const int g);
-  object* find_object(const String& n);
+  object* add_object(const myString& n, const int r, const int i, const int b, const int g);
+  object* create_object(const myString& n);
+  design* create_design(const myString& n);
+  object* find_object(const myString& n) const;
+  design* find_design(const myString& n, const bool starbase = false) const;
+  design* find_design_alias(const myString& n, const bool starbase = false) const;
   object* next_object(const object* o) const;
-  bool add_to_default_queue(const bool a, const String& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
+  bool add_to_default_queue(const bool a, const myString& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
   void advance_year(void);
   void choose_next_tech_field(void);
   void perform_research(void);
+  int defense_level(int when = 0) const;
   int pla_penscan_radius(int when = 0) const;
   int pla_scan_radius(int when = 0) const;
   void set_terraform_tech(int when = 0);
   const int* terraform_tech(int when = 0)
     { return tform_tech[when]; }
   void set_minimal_objects(void);
-  void check_data(FILE* of);
+  void check_data(void);
   const int* habmin(void) const
     { return hab_min; }
   const int* habmax(void) const
     { return hab_max; }
+  void add_message(const _msgtype mt, const myString& m);
+  const message* next_message(const message* m) const;
 };
 
 
@@ -473,14 +581,14 @@ private:
   planet* rnext;
   planet* snext;
 
-  String _name;
+  myString _name;
   int stars_id;
-  String header;
+  myString header;
   _platype p_type;
   bool homeworld;
   _xypoint pos;
 
-  String r_starbase[16];
+  myString r_starbase[16];
   race* r_owner[16];
   int r_hab[16];
   int r_mxhab[16];
@@ -488,6 +596,7 @@ private:
   int r_stats[16][3];
   int r_oristats[16][3];
   _mintype r_minconc[16];
+  int r_def_coverage[16];
   int r_age[16];
   int auth_source;
   int trusted_source;
@@ -495,7 +604,9 @@ private:
 
   int scan_normal;
   int scan_pen;
-  String starbase;
+  myString starbase;
+  starbase_type stb_type;
+  design* stb_design;
   int stb_damage;
   int gatemass;
   int gaterange;
@@ -534,21 +645,22 @@ static int planet_pop_needs[][6];
   fleet* incoming;
 
   int curr_year;
-  message* msg_table[SIM_FUTURE];
-  message* global_msgs;
+  message_table msg_table[SIM_FUTURE];
+  message_table global_msgs;
 
-  void add_message(const _msgtype mt, const String& m);
-  void add_gmessage(const _msgtype mt, const String& m);
+  void add_message(const _msgtype mt, const myString& m);
+  void add_gmessage(const _msgtype mt, const myString& m);
   queue_obj* create_nonauto(queue_obj* qo);
   void create_object(const object* o, const int n = 1);
   void calc_habitability(void);
-  int tform_left(int when = -1) const;
+  int tform_left(race* owner = NULL, int when = -1) const;
   void instaform(void);
   int compute_percent_from_def(const int d);
   int compute_def_from_percent(const int dp);
   int habitability(const int* st, const race* owner = NULL) const;
   bool set_planet_stats(int *st, double g, const double& t, const double& r);
   void add_to_queue(queue_obj* qo);
+  starbase_type get_starbase_power(const myString& sn);
 
   int fix_year(const int when) const
     { return (when == -1)? curr_year : when; }
@@ -560,14 +672,14 @@ public:
   planet* tnext;
   object_display disp;
 
-  planet(const String& n);
+  planet(const myString& n);
   ~planet(void);
   void grow_pop(void);
-  void check_data(FILE* of);
+  void check_data(void);
   bool evolving(int when = -1) const
     { when = fix_year(when);
       return _owner && _owner->can_analyze && _pop[when]; }
-  const String& name(void) const
+  const myString& name(void) const
     { return _name; }
   const _xypoint& position(void) const
     { return pos; }
@@ -588,9 +700,7 @@ public:
   void clear_queue(void);
   void dump_queue(void);
   void report(const report_type rt);
-  void print_messages(FILE* of, int when = -1) const;
-  void print_gmessages(FILE* of) const;
-  void title(FILE* of) const;
+  myString title(void) const;
   void pop_needs(void);
   void report_growth(void);
   void min_needs(void);
@@ -601,10 +711,12 @@ public:
     { return driverdest; }
   int driver_warp(void) const
     { return driverwarp; }
-  String starbase_name(void) const
+  myString starbase_name(void) const
     { return starbase; }
   int starbase_damage(void) const
     { return stb_damage; }
+  starbase_type starbase_power(void) const
+    { return stb_type; }
   int gate_range(void) const
     { return gaterange; }
   int gate_mass(void) const
@@ -643,7 +755,8 @@ public:
   bool need_more_mines(int when = -1) const;
   bool empty_queue(void) const
     { return (queue == NULL); }
-  void terraform(void);
+  void terraform(race* owner = NULL);
+  void unterraform(race* owner);
   _mintype mining_rate(int when = -1) const;
   void do_mining(_mintype* mined);
   void init_turn(void);
@@ -652,11 +765,11 @@ public:
   void evolve(const int from, const int len);
   void advance_year(void);
   void build_queue(void);
-  int max_can_build(const String& on, int when = -1) const;
-  bool add_to_queue(const bool a, const String& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
-  bool insert_in_queue(int pos, const bool a, const String& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
-  message* next_message(message* m, int when) const;
-  message* next_gmessage(message* m) const;
+  int max_can_build(const myString& on, int when = -1) const;
+  bool add_to_queue(const bool a, const myString& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
+  bool insert_in_queue(int pos, const bool a, const myString& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
+  const message* next_message(const message* m, int when) const;
+  const message* next_gmessage(const message* m) const;
   void set_power(void);
   bool set_ori_stats(const double& g, const double& t, const double& r);
   bool set_stats(const double& g, const double& t, const double& r);
@@ -664,8 +777,7 @@ public:
   bool set_reported_oristats(const int src, const double& g, const double& t, const double& r);
   int hab_now(race* owner = NULL, int when = -1) const;
   int hab_when_max_terraformed(const race* owner = NULL, int when = -1, const int* tf_tech = NULL) const;
-  int get_starbase_power(const String& sn);
-  void guess_type(FILE* of);
+  void guess_type(void);
   int distance(const _xypoint dest)
     { return (int)sqrt((dest.x-pos.x)*(dest.x-pos.x)+(dest.y-pos.y)*(dest.y-pos.y)); }
   int distance(planet* p)
@@ -674,6 +786,31 @@ public:
 };
 
 
+struct engine {
+  engine* next;
+
+  myString name;
+  int fuel_usage[11];
+
+  engine(const myString n) : name(n)
+    { for (int i = 0; i < 11; i++)
+        fuel_usage[i] = 0; }
+};
+
+
+struct hull {
+  hull* next;
+
+  myString name;
+  int def_fuel;
+  int def_cargo;
+  int n_engines;
+  int base_mass;
+
+  hull(const myString& n) : name(n), def_fuel(0), def_cargo(0), n_engines(0), base_mass(0)
+    { }
+};
+
 
 class object {
   friend class queue_obj;
@@ -681,23 +818,28 @@ class object {
   friend class race;
   friend int yyparse(void);
 
-  String _name;
+  myString _name;
   int res;
   _mintype min;
+  design* des;
 
 public:
   object* next;
 
-  object(const String& n, const int r = 10000,
+  object(const myString& n, const int r = 10000,
 	 const int i = 10000, const int b = 10000, const int g = 10000) :
-           _name(n), res(r)
+           _name(n), res(r), des(NULL)
     { min[0] = i; min[1] = b; min[2] = g; }
-  const String& name(void) const
+  const myString& name(void) const
     { return _name; }
   const _mintype& minerals(void) const
     { return min; }
   int resources(void) const
     { return res; }
+  bool is_design(void) const
+    { return des != NULL; }
+  design* d(void) const
+    { return des; }
 };
 
 
@@ -726,6 +868,43 @@ public:
 };
 
 
+class design {
+  friend class race;
+  friend class fleet;
+  friend int yyparse(void);
+
+  object* obj;
+  hull* h;
+  int maxcargo;
+  int maxfuel;
+  engine* eng;
+  int mass;
+  myString alias;
+
+  design(const design&);
+  design& operator=(const design&);
+
+public:
+  design(object* o) : obj(o), h(NULL), eng(NULL)
+    { maxcargo = maxfuel = mass = 0; }
+  ~design(void);
+
+  object* o(void) const
+    { return obj; }
+  bool is_starbase(void) const
+    { return (eng == NULL); }
+  hull* basehull(void) const
+    { return h; }
+};
+
+
+const int F_TOTAL   = 0;
+const int F_UNARMED = 1;
+const int F_SCOUT   = 2;
+const int F_WARSHIP = 3;
+const int F_UTILITY = 4;
+const int F_BOMBER  = 5;
+
 
 class fleet {
   friend class planet;
@@ -736,62 +915,95 @@ class fleet {
   fleet* rnext;
   fleet* pnext;
 
-  String _starsname;
-  String _name;
+  myString _starsname;
+  myString _name;
   race* _owner;
+  bool enemy;
   int stars_id;
   _xypoint pos[SIM_FUTURE];
-  planet* destin;
-  int warp;
+  planet* _destin;
+  planet* _origin;
+  planet* _orbit[SIM_FUTURE];
+  int _warp;
   int eta;
   int starsETA;
-  String wptask_name;
-  String battleplan_name;
-  int n_ships;
-  int n_unarmed;
-  int n_scout;
-  int n_warship;
-  int n_utility;
-  int n_bomber;
-  int mass;
-  _mintype min;
-  int pop;
-  int fuel;
+  myString wptask_name;
+  myString battleplan_name;
+  int numships[6];
+  int _mass;
+  _mintype _min;
+  int _pop;
+  int _maxcargo;
+  int _fuel, _maxfuel;
   int scan_normal;
   int scan_pen;
-  int cloaking;
-  int minelaying;
-  int minesweeping;
-  int terraforming;
-  int remote_mining;
+  int _cloaking;
+  int _minelaying;
+  int _minesweeping;
+  int _terraforming;
+  int _remote_mining;
+  design* des[16];
+  int ndes[16];
 
 public:
   object_display disp;
 
-  fleet(const String& n);
+  fleet(const myString& n);
   ~fleet(void);
-  void check_data(FILE* of);
+  void check_data(void);
   void output(FILE* of) const;
   const _xypoint& position(const int w) const
     { return pos[w]; }
+  race* owner(void) const
+    { return _owner; }
+  const myString& name(void) const
+    { return _name; }
+  const myString& starsname(void) const
+    { return _starsname; }
   int unload_pop(void);
   _mintype unload_min(void);
   void refuel(void)
-    { fuel = 1200; }
+    { _fuel = _maxfuel; }
+  planet* destination(void) const
+    { return _destin; }
+  planet* orbiting(const int w) const
+    { return _orbit[w]; }
+  planet* origin(void) const
+    { return _origin; }
+  int warp(void) const
+    { return _warp; }
+  int ETA(void) const
+    { return eta; }
+  int n_ships(const int type) const
+    { return numships[type]; }
+  int mass(void) const
+    { return _mass; }
+  const _mintype& minerals(void) const
+    { return _min; }
+  int pop_cargo(void) const
+    { return _pop; }
+  int max_cargo(void) const
+    { return _maxcargo; }
+  int fuel(void) const
+    { return _fuel; }
+  int scanning(void) const
+    { return scan_normal; }
+  int penscanning(void) const
+    { return scan_pen; }
+
+  bool find_possible_destination(void);
+  bool find_possible_origin(const _xypoint& dest);
 };
 
 
 
-const int MAX_PLA_MODES = 16;
+const int MAX_DISP_MODES = 16;
 
 struct planet_view {
-static planet_view* planet_view_table;
+  myString name;
+  pf_operation pla_modes[MAX_DISP_MODES];
 
-  String name;
-  pf_operation pla_modes[MAX_PLA_MODES];
-  planet_view* next;
-
-  planet_view(const String& n);
+  planet_view(const myString& n);
   planet_view(const planet_view& pv);
   void export(FILE* f);
   void clear(void);
@@ -800,13 +1012,14 @@ static planet_view* planet_view_table;
   
 
 struct fleet_view {
-static fleet_view* fleet_view_table;
+  myString name;
+  ff_operation fle_modes[MAX_DISP_MODES];
 
-  String name;
-  //  ff_operation fle_modes[16];
-
-  fleet_view(void);
+  fleet_view(const myString& n);
+  fleet_view(const fleet_view& fv);
   void export(FILE* f);
+  void clear(void);
+  void link(void);
 };
   
 
@@ -821,6 +1034,11 @@ const int MAP_BLACK     = 0;
 const int MAP_OWNERS    = 1;
 
 
+typedef vector<planet_view*> pview_v;
+typedef vector<fleet_view*> fview_v;
+
+
+
 class map_view {
   int xmap0, ymap0;
   int _zoom;
@@ -829,17 +1047,19 @@ class map_view {
   stars_map* map;
   int space_mode;
   bool do_alliances;
-  planet_view* pview;
+  pview_v planet_views;
+  unsigned int pview;
   int cur_pf;
-  fleet_view* fview;
+  fview_v fleet_views;
+  unsigned int fview;
+  int cur_ff;
   int scanner_eff;
   race* race_viewpoint;
-  planet* curr_planet;
+  planet* curr_planet[4];
 
   map_view(const map_view&);
   map_view& operator=(const map_view&);
 
-  planet_view* map_view::extract_pview(const int i);
   int calc_radius(const double& v, const double& vmin, const double& vmax);
   void draw_object(object_display* pd, const int stage);
   void display_normal_scanning(const race* vp);
@@ -866,22 +1086,44 @@ public:
    { return race_viewpoint; }
   const char* maptype_name(void) const;
   int set_maptype(const int mt);
-  planet* set_active_planet(const _xypoint& physpos);
-  planet* get_active_planet(void) const
-    { return curr_planet; }
+
+  planet* set_active_planet(const _xypoint& physpos, int pn = 0);
+  planet* get_active_planet(const int pn = 0) const;
+
   int select_plamode(const int pm);
   void delete_plamode(void);
   void insert_plamode(void);
   const pf_operation& get_plamode(const int i = -1) const;
-  void set_plamode(const String& pmn, const _pfmode pfm = PF_STOMP, const int pfmsk = PF_CIRCLES|PF_LINES|PF_DATA|PF_MARKER|PF_NAME|PF_FLAG, const int* par = NULL);
-  int get_planet_view_index(void) const;
-  planet_view* get_planet_view(void) const
+  void set_plamode(const myString& pmn, const _dfmode pfm = PF_STOMP, const int pfmsk = PF_CIRCLES|PF_LINES|PF_DATA|PF_MARKER|PF_NAME|PF_FLAG, const int* par = NULL);
+  int get_num_planet_views(void) const
+    { return planet_views.size(); }
+  int get_planet_view_index(void) const
     { return pview; }
+  planet_view* get_planet_view(const int i = -1) const;
   void clone_planet_view(planet_view* orig);
   int select_planet_view(const int i);
-  void select_fleet_view(const int i);
   void delete_planet_view(const int i);
   void move_planet_view(const int i, const int dir);
+  bool save_planet_views(const myString& fn);
+  bool import_planet_views(const myString& fn);
+
+  int select_flemode(const int fm);
+  void delete_flemode(void);
+  void insert_flemode(void);
+  const ff_operation& get_flemode(const int i = -1) const;
+  void set_flemode(const myString& fmn, const _dfmode ffm = PF_STOMP, const int ffmsk = PF_CIRCLES|PF_LINES|PF_DATA|PF_MARKER|PF_NAME|PF_FLAG, const int* par = NULL);
+  int get_num_fleet_views(void) const
+    { return fleet_views.size(); }
+  int get_fleet_view_index(void) const
+    { return fview; }
+  fleet_view* get_fleet_view(const int i = -1) const;
+  void clone_fleet_view(fleet_view* orig);
+  int select_fleet_view(const int i);
+  void delete_fleet_view(const int i);
+  void move_fleet_view(const int i, const int dir);
+  bool save_fleet_views(const myString& fn);
+  bool import_fleet_views(const myString& fn);
+
   bool set_alliances(const int b);
   int set_scanner_eff(const int e);
   stars_map* get_map(void) const
@@ -895,8 +1137,6 @@ public:
   void set_window_title(void) const;
   void display_objects(void);
   void display_racenames(const int xp, const int yp);
-  bool save_planet_views(const String& fn);
-  bool import_planet_views(const String& fn);
 };
 
 
@@ -905,7 +1145,7 @@ class stars_map {
   friend int yyparse(void);
   friend class map_view;
 
-  String game_name;
+  myString game_name;
   int game_year;
 
   int xmin, ymin;
@@ -929,6 +1169,7 @@ class stars_map {
   int wfrange;
   int wf_rspan;
 
+  int view_res;
   int base_res;
   int max_zoom;
   int gmscale;
@@ -938,11 +1179,16 @@ class stars_map {
 
   race* race_list[16];
   int number_races;
-  int number_alliances;
-  String alliance_names[16];
+  int cur_alliance;
+  myString cur_alliance_name;
+  myString alliance_names[16];
   int race_alliances[16];
 
+  hull* ship_hulls;
+  engine* ship_engines;
+
   int actual_sim_future;
+  message_table logmsgs;
   FILE* report_log;
 
   void build_valtab(void);
@@ -950,69 +1196,80 @@ class stars_map {
 public:
   stars_map(void);
   ~stars_map(void);
-  void open_report_log(const String& rln);
+  void open_report_log(const myString& rln);
   FILE* logfile(void) const
     { return report_log; }
-  void log(const String& m);
-  bool read_smf_file(const String& name);
-  race* find_race(const String& n);
+  void log(const myString& m);
+  void log_all_messages(void);
+  bool read_smf_file(const myString& name);
+  race* find_race(const myString& n);
   race* find_race(const int id) const;
-  const String& name(void) const
+  const myString& name(void) const
     { return game_name; }
   const int year(void) const
     { return game_year; }
   const int sim_future(void) const
     { return actual_sim_future - 1; }
+  const int displayres(void) const
+    { return view_res; }
   const int maxmapzoom(void) const
     { return max_zoom; }
   void sort_universe(void);  
-  void init_ownership(const int bres);
+  void init_ownership(void);
   int get_ownership(const int xm, const int ym, const int reg0, const int reg1, bool *discuss);
   void line_ownership(const int ym);
   void add_planet(planet* p);
-  planet* grab_planet(const String& pn);
-  planet* find_planet(const String& pn);
+  planet* grab_planet(const myString& pn);
+  planet* find_planet(const myString& pn);
   planet* find_planet(const int st_id);
   planet* find_planet(const _xypoint& xy);
-  void evolve_planets(FILE* of);
-  void find_breeders(planet* p, FILE* of);
-  void find_minerals(planet* p, FILE* of, const int mt);
-  void check_planets_step1(FILE* of);
-  void check_fleets(FILE* of);
-  void check_planets_step2(FILE* of);
-  void empire_report(FILE* of);
-  race* add_race(const String& rn);
+  planet* find_planet(const _xypoint& xy, const _xypoint& dir);
+  void evolve_planets(void);
+  void find_breeders(planet* p);
+  void find_minerals(planet* p, const int mt);
+  void check_planets_step1(void);
+  void check_fleets(void);
+  void check_planets_step2(void);
+  void empire_report(void);
+  race* add_race(const myString& rn);
+  hull* create_hull(const myString& hn);
+  hull* find_hull(const myString& hn);
+  engine* create_engine(const myString& en);
+  engine* find_engine(const myString& en);
   void add_fleet(fleet* f, const int source);
-  void create_alliance(const String& an);
-  bool add_to_alliance(const String& rn);
+  void create_alliance(const myString& an);
+  bool add_to_alliance(const myString& rn);
   bool are_allies(const race* r1, const race* r2);
   int number_of_players(void)
     { return number_races; }
-  race* player_race(int i)
-    { return race_list[i]; }
+  void add_message(const _msgtype mt, const myString& m);
+  void all_races_message(const _msgtype mt, const myString& m);
 };
 
 
 
 extern bool fully_visual;
+extern bool do_display;
 extern stars_map* game_map;
 extern map_view* mapview;
 extern graphics* display;
 extern int infile_lineno;
-extern String infile_name;
-extern String infile_path;
+extern myString infile_name;
+extern myString infile_path;
 
 extern int PARmin_mineral_move;
 extern int PARmax_search_distance;
 extern int PARmin_pop_for_scanner;
 
-bool initialize_map(const String& smff, const int mapres);
-String int_to_str(const int);
+bool initialize_map(const myString& smff);
+myString int_to_str(const int);
 bool guess_gravity(int* r1, int* r2, const double& v1, const double& v2);
 int wfunc_160(const int);
 int wfunc_200(const int);
 int wfunc_250(const int);
 int yyparse(void);
 int yyerror(char* m);
-bool convert(const String& infile, const String& outfile);
+bool convert(const myString& infile, const myString& outfile);
 bool starstat(const char* fn, _starstat* sfi);
+bool add_fleet_alias(const myString& n, const myString& a);
+const myString& find_fleet_alias(const myString& n);

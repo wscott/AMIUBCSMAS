@@ -7,13 +7,16 @@ extern int yylex(void);
 int yyerror(char* s);
 void check_auth_source(const char* item);
 void check_defined_source(const char* item);
-void add_to_someones_queue(const bool a, const String& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
+void add_to_someones_queue(const bool a, const myString& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
 
 int r_source, r_age;
 planet* curr_planet = NULL;
 race* curr_race = NULL;
 fleet* curr_fleet = NULL;
 object* curr_object = NULL;
+design* curr_design = NULL;
+hull* curr_hull = NULL;
+engine* curr_engine = NULL;
 
 %}
 
@@ -44,7 +47,7 @@ object* curr_object = NULL;
 %token SHIPS FLEET FUEL CARGO DESTINATION OBJECT RESOURCES
 %token WAYPOINTTASK STARSETA BATTLEPLAN WARP MINELAYSWEEP CLOAKING
 %token TFORMING PLANETVIEW ROUTING COMPOSITION FLEETVIEW COLOR
-%token MAXPIERADIUS
+%token MAXPIERADIUS DISPLAYRESOLUTION DESIGN HULL MASS ENGINE
 
 %left  PLUS MINUS
 %left  MULTIPLY DIVIDE
@@ -62,32 +65,34 @@ input: /* NULL */
     }
     | input SOURCE STRING
     {
-      r_source = game_map->find_race(String($3))->id;
+      r_source = game_map->find_race(myString($3))->id;
       r_age = 0;
+      game_map->find_race(myString($3))->has_report = true;
 
       free($3);
     }
     | input SOURCE STRING expr
     {
-      r_source = game_map->find_race(String($3))->id;
+      r_source = game_map->find_race(myString($3))->id;
       r_age = (int)$4;
+      game_map->find_race(myString($3))->has_report = true;
 
       free($3);
     }
     | input STRING ASSIGN STRING
     {
-      new parameter(String($2), String($4));
+      new parameter(myString($2), myString($4));
       free($2);
       free($4);
     }
     | input STRING ASSIGN expr
     {
-      new parameter(String($2), $4);
+      new parameter(myString($2), $4);
       free($2);
     }
     | input PLANET STRING
          {
-	   curr_planet = game_map->grab_planet(String($3));
+	   curr_planet = game_map->grab_planet(myString($3));
 	 }
            LBRACE planetspec RBRACE
     {
@@ -96,7 +101,7 @@ input: /* NULL */
     }
     | input UNIVERSE STRING
          {
-	   game_map->game_name = String($3);
+	   game_map->game_name = myString($3);
 	 }
            LBRACE universespec RBRACE
     {
@@ -104,17 +109,17 @@ input: /* NULL */
     }
     | input RACE STRING 
          {
-	   curr_race = game_map->add_race(String($3));
+	   curr_race = game_map->add_race(myString($3));
 	 }
            LBRACE racespec RBRACE
     {
-      curr_race->check_data(game_map->report_log);
+      curr_race->check_data();
       free($3);
       curr_race = NULL;
     }
     | input FLEET STRING 
          {
-	   curr_fleet = new fleet(String($3));
+	   curr_fleet = new fleet(myString($3));
 	 }
            LBRACE fleetspec RBRACE
     {
@@ -122,9 +127,18 @@ input: /* NULL */
       free($3);
       curr_fleet = NULL;
     }
+    | input FLEET STRING COMPOSITION STRING
+    {
+      // define a fleet alias
+      if (!add_fleet_alias($3, $5))
+	yyerror("Impossible to add fleet alias (redefinition, probably)");
+
+      free($3);
+      free($5);
+    }
     | input ALLIANCE STRING 
          {
-	   game_map->create_alliance(String($3));
+	   game_map->create_alliance(myString($3));
 	 }
            LBRACE alliancespec RBRACE
     {
@@ -133,7 +147,7 @@ input: /* NULL */
     | input PLANETVIEW STRING
          {
 	   mapview->clone_planet_view(NULL);
-	   mapview->get_planet_view()->name = String($3);
+	   mapview->get_planet_view()->name = myString($3);
 	 } 
            LBRACE pfunclist RBRACE
     {
@@ -141,9 +155,28 @@ input: /* NULL */
     }
     | input FLEETVIEW STRING
          {
+	   mapview->clone_fleet_view(NULL);
+	   mapview->get_fleet_view()->name = myString($3);
 	 } 
            LBRACE ffunclist RBRACE
     {
+      free($3);
+    }
+    | input HULL STRING
+         {
+	   curr_hull = game_map->create_hull($3);
+	 } 
+           LBRACE hullspec RBRACE
+    {
+      free($3);
+    }
+    | input ENGINE STRING
+         {
+	   curr_engine = game_map->create_engine($3);
+	 }
+           LBRACE enginespec RBRACE
+    {
+      free($3);
     }
     ;
 
@@ -155,6 +188,10 @@ universespec: /* NULL */
     | universespec MAXZOOM expr
     {
       game_map->max_zoom = (int)$3;
+    }
+    | universespec DISPLAYRESOLUTION expr
+    {
+      game_map->view_res = (int)$3;
     }
     | universespec MAXPIERADIUS expr
     {
@@ -168,14 +205,14 @@ universespec: /* NULL */
     {
       _starstat sfi;
 
-      String sfn($3);
+      myString sfn($3);
       sfn = infile_path + sfn;
 
       // use starstat to get year
       if (starstat(sfn, &sfi)) {
 	game_map->game_year = sfi.endturn;
       } else
-	yyerror("Unable to ready year from file");
+	yyerror("Unable to ready year from Stars! turn file");
 
       free($3);
     }
@@ -253,16 +290,16 @@ planetspec: /* NULL */
     {
       check_defined_source("planet owner");
 
-      race* r = game_map->find_race(String($3));
+      race* r = game_map->find_race(myString($3));
 
       if (r->race_id() == r_source) {
 	if (curr_planet->auth_source != -1) /* we have multiple auth sources */
 	  game_map->log(curr_planet->name() +
-			String(": MULTIPLE AUTH SOURCES?? (old=") +
+			myString(": MULTIPLE AUTH SOURCES?? (old=") +
 			game_map->find_race(curr_planet->auth_source)->name() +
-			String(" / new=") +
+			myString(" / new=") +
 			r->name() +
-			String(") new will be used\n"));
+			myString(") new will be used\n"));
 
 	curr_planet->auth_source = r->race_id();
       }
@@ -292,7 +329,7 @@ planetspec: /* NULL */
     {
       check_defined_source("starbase");
 
-      curr_planet->r_starbase[r_source] = String($3);
+      curr_planet->r_starbase[r_source] = myString($3);
 
       /* these can only come from auth source.... */
       if (curr_planet->r_owner[r_source] &&
@@ -300,7 +337,7 @@ planetspec: /* NULL */
 	curr_planet->stb_damage = (int)$4;
 	curr_planet->gaterange = (int)$6;
 	curr_planet->gatemass = (int)$7;
-	curr_planet->driverdest = game_map->find_planet(String($8));
+	curr_planet->driverdest = game_map->find_planet(myString($8));
 	curr_planet->driverwarp = (int)$9;
       }
 
@@ -318,14 +355,14 @@ planetspec: /* NULL */
       check_defined_source("planet ori_stats");
 
       if (!curr_planet->set_reported_oristats(r_source, $3, $4, $5))
-	game_map->log(curr_planet->name() + ": ambiguous grav value resolved as maximum\n");
+	game_map->add_message(RLO_ERROR, curr_planet->name() + ": ambiguous grav value resolved as maximum");
     }
     | planetspec STATS expr expr expr
     {
       check_defined_source("planet stats");
 
       if (!curr_planet->set_reported_stats(r_source, $3, $4, $5))
-	game_map->log(curr_planet->name() + ": ambiguous grav value resolved as maximum\n");
+	game_map->add_message(RLO_ERROR, curr_planet->name() + ": ambiguous grav value resolved as maximum");
     }
     | planetspec MINERAL_CONC expr expr expr
     {
@@ -370,7 +407,7 @@ planetspec: /* NULL */
     {
       check_defined_source("def coverage%");
 
-      curr_planet->def_coverage[0] = (int)(100 * $3);
+      curr_planet->r_def_coverage[r_source] = (int)(100 * $3);
     }
     | planetspec POSITION expr expr
     {
@@ -387,29 +424,29 @@ planetspec: /* NULL */
     }
     | planetspec ROUTING STRING
     {
-      curr_planet->routing = game_map->find_planet(String($3));
+      curr_planet->routing = game_map->find_planet(myString($3));
     }
     ;
 
 queuespec: /* NULL */
     | queuespec opt_autobuild STRING expr
     {
-      add_to_someones_queue($2, String($3), (int)$4);
+      add_to_someones_queue($2, myString($3), (int)$4);
       free($3);
     }
     | queuespec PLUS INTEGER opt_autobuild STRING expr
     {
-      add_to_someones_queue($4, String($5), (int)$6, $3);
+      add_to_someones_queue($4, myString($5), (int)$6, $3);
       free($5);
     }
     | queuespec MINUS INTEGER opt_autobuild STRING expr
     {
-      add_to_someones_queue($4, String($5), (int)$6, 0, $3);
+      add_to_someones_queue($4, myString($5), (int)$6, 0, $3);
       free($5);
     }
     | queuespec PLUS INTEGER MINUS INTEGER opt_autobuild STRING expr
     {
-      add_to_someones_queue($6, String($7), (int)$8, $3, $5);
+      add_to_someones_queue($6, myString($7), (int)$8, $3, $5);
       free($7);
     }
     ;
@@ -431,7 +468,7 @@ racespec: /* NULL */
     }
     | racespec CLONE STRING
     {
-      race* r = game_map->find_race(String($3));
+      race* r = game_map->find_race(myString($3));
 
       if (!r)
 	yyerror("unknown race");
@@ -457,9 +494,9 @@ racespec: /* NULL */
     }
     | racespec PLURAL STRING
     {
-      curr_race->_names = String($3);
+      curr_race->_names = myString($3);
       free($3);
-    } 
+    }
     | racespec COLOR colorspec
     {
       set_colormap_color(COL_RACES + curr_race->race_id()*4,
@@ -518,12 +555,24 @@ racespec: /* NULL */
     }
     | racespec OBJECT STRING
                 {
-		  curr_object = new object(String($3));
+		  curr_object = curr_race->create_object($3);
 	        }
                LBRACE objectspec RBRACE
     {
-      curr_object->next = curr_race->object_table;
-      curr_race->object_table = curr_object; 
+      free($3);
+    }
+    | racespec DESIGN STRING
+                {
+		  curr_design = curr_race->create_design($3);
+		  curr_design->alias = $3; // default name for composition is alias
+	        }
+               LBRACE designspec RBRACE
+    {
+      if (!curr_design->h)
+	yyerror("Missing base hull specification");
+
+      // some consistency check?
+
       free($3);
     }
     | racespec QUEUE
@@ -547,6 +596,95 @@ objectspec: /* NULL */
       curr_object->min.iron = (int)$3;
       curr_object->min.bora = (int)$4;
       curr_object->min.germ = (int)$5;
+    }
+    ;
+
+designspec: /* NULL */
+    | designspec COMPOSITION STRING
+    {
+      curr_design->alias = $3;
+      free($3);
+    }
+    | designspec RESOURCES expr
+    {
+      curr_design->obj->res = (int)$3;
+    }
+    | designspec MINERALS expr expr expr
+    {
+      curr_design->obj->min.iron = (int)$3;
+      curr_design->obj->min.bora = (int)$4;
+      curr_design->obj->min.germ = (int)$5;
+    }
+    | designspec HULL STRING
+    {
+      hull* h;
+
+      if ( (h = game_map->find_hull($3)) ) {
+	curr_design->h = h;
+
+	// propagate default values for cargo/fuel
+	curr_design->maxcargo = h->def_cargo;
+	curr_design->maxfuel = h->def_fuel;
+
+      } else
+	yyerror("Unknown hull type");
+
+      free($3);
+    }
+    | designspec MASS expr
+    {
+      curr_design->mass = (int)$3;
+    }
+    | designspec FUEL expr
+    {
+      curr_design->maxfuel = (int)$3;
+    }
+    | designspec CARGO expr
+    {
+      curr_design->maxcargo = (int)$3;
+    }
+    | designspec ENGINE STRING
+    {
+      if ( !(curr_design->eng = game_map->find_engine($3)) )
+	yyerror("Unknown engine type");
+
+      free($3);
+    }
+    ;
+
+hullspec: /* NULL */
+    | hullspec ENGINE expr
+    {
+      curr_hull->n_engines = (int)$3;
+    }
+    | hullspec CARGO expr
+    {
+      curr_hull->def_cargo = (int)$3;
+    }
+    | hullspec MASS expr
+    {
+      curr_hull->base_mass = (int)$3;
+    }
+    | hullspec FUEL expr
+    {
+      curr_hull->def_fuel = (int)$3;
+    }
+    ;
+
+enginespec:
+    FUEL expr expr expr expr expr expr expr expr expr
+    {
+      curr_engine->fuel_usage[0] = 0;
+      curr_engine->fuel_usage[1] = 0;
+      curr_engine->fuel_usage[2] = (int)$2;
+      curr_engine->fuel_usage[3] = (int)$3;
+      curr_engine->fuel_usage[4] = (int)$4;
+      curr_engine->fuel_usage[5] = (int)$5;
+      curr_engine->fuel_usage[6] = (int)$6;
+      curr_engine->fuel_usage[7] = (int)$7;
+      curr_engine->fuel_usage[8] = (int)$8;
+      curr_engine->fuel_usage[9] = (int)$9;
+      curr_engine->fuel_usage[10] = (int)$10;
     }
     ;
 
@@ -607,43 +745,49 @@ fleetspec: /* NULL */
 
       if (!p)
 	game_map->log(curr_fleet->_name + ": fleet stationed at unknown planet?!?\n");
-      else
+      else {
+	curr_fleet->_orbit[0] = p;
+	curr_fleet->_origin = p;
 	curr_fleet->pos[0] = p->position();
+      }
     }
     | fleetspec POSITION STRING
     {
-      planet* p = game_map->find_planet(String($3));
+      planet* p = game_map->find_planet(myString($3));
 
       if (!p)
 	game_map->log(curr_fleet->_name + ": fleet stationed at unknown planet?!?\n");
-      else
+      else {
+	curr_fleet->_orbit[0] = p;
+	curr_fleet->_origin = p;
 	curr_fleet->pos[0] = p->position();
+      }
 
       free($3);
     }
     | fleetspec SHIPS expr expr
     {
-      curr_fleet->n_ships = (int)$3;
-      curr_fleet->mass = (int)$4;
+      curr_fleet->numships[0] = (int)$3;
+      curr_fleet->_mass = (int)$4;
     }
     | fleetspec COMPOSITION expr expr expr expr expr
     {
-      curr_fleet->n_unarmed = (int)$3;
-      curr_fleet->n_scout = (int)$4;
-      curr_fleet->n_warship = (int)$5;
-      curr_fleet->n_utility = (int)$6;
-      curr_fleet->n_bomber = (int)$7;
+      curr_fleet->numships[F_UNARMED] = (int)$3;
+      curr_fleet->numships[F_SCOUT] = (int)$4;
+      curr_fleet->numships[F_WARSHIP] = (int)$5;
+      curr_fleet->numships[F_UTILITY] = (int)$6;
+      curr_fleet->numships[F_BOMBER] = (int)$7;
     }
     | fleetspec FUEL expr
     {
-      curr_fleet->fuel = (int)$3;
+      curr_fleet->_fuel = (int)$3;
     }
     | fleetspec CARGO expr expr expr expr
     {
-      curr_fleet->min.iron = (int)$3;
-      curr_fleet->min.bora = (int)$4;
-      curr_fleet->min.germ = (int)$5;
-      curr_fleet->pop = (int)$6;
+      curr_fleet->_min.iron = (int)$3;
+      curr_fleet->_min.bora = (int)$4;
+      curr_fleet->_min.germ = (int)$5;
+      curr_fleet->_pop = (int)$6;
     }
     | fleetspec DESTINATION expr expr
     {
@@ -652,28 +796,28 @@ fleetspec: /* NULL */
     }
     | fleetspec DESTINATION STRING
     {
-      planet* p = game_map->find_planet(String($3));
+      planet* p = game_map->find_planet(myString($3));
 
       if (!p) {
-	game_map->log(curr_fleet->_starsname + ": fleet travelling to " + $3 + " - no idea what to do...\n");
+	game_map->add_message(RLO_ERROR, curr_fleet->_starsname + ": fleet travelling to " + $3 + " - no idea what to do...");
 
       } else {
 	curr_fleet->pos[1] = p->position();
 
 	/* set the destination */
-	curr_fleet->destin = p;
+	curr_fleet->_destin = p;
       }
 
       free($3);
     }
     | fleetspec WAYPOINTTASK STRING
     {
-      curr_fleet->wptask_name = *$3;
+      curr_fleet->wptask_name = $3;
       free($3);
     }
     | fleetspec BATTLEPLAN STRING
     {
-      curr_fleet->battleplan_name = *$3;
+      curr_fleet->battleplan_name = $3;
       free($3);
     }
     | fleetspec STARSETA expr
@@ -682,7 +826,7 @@ fleetspec: /* NULL */
     }
     | fleetspec WARP expr
     {
-      curr_fleet->warp = (int)$3;
+      curr_fleet->_warp = (int)$3;
     }
     | fleetspec SCAN expr expr
     {
@@ -691,34 +835,34 @@ fleetspec: /* NULL */
     }
     | fleetspec CLOAKING expr
     {
-      curr_fleet->cloaking = (int)$3;
+      curr_fleet->_cloaking = (int)$3;
     }
     | fleetspec TFORMING expr
     {
-      curr_fleet->terraforming = (int)$3;
+      curr_fleet->_terraforming = (int)$3;
     }
     | fleetspec PMINING expr
     {
-      curr_fleet->remote_mining = (int)$3;
+      curr_fleet->_remote_mining = (int)$3;
     }
     | fleetspec MINELAYSWEEP expr expr
     {
-      curr_fleet->minelaying = (int)$3;
-      curr_fleet->minesweeping = -(int)$4;
+      curr_fleet->_minelaying = (int)$3;
+      curr_fleet->_minesweeping = -(int)$4;
     }
     ;
 
 alliancespec: /* NULL */
     | alliancespec RACE STRING
     {
-      game_map->add_to_alliance(String($3));
+      game_map->add_to_alliance(myString($3));
       free($3);
     }
 
 
 prtspec: STRING
     {
-      String p($1);
+      myString p($1);
       int i;
 
       for (i = 0; i < 10; i++)
@@ -737,7 +881,7 @@ prtspec: STRING
 lrtspec: /* NULL */
     | lrtspec STRING
     {
-      String p($2);
+      myString p($2);
       int i;
 
       for (i = 0; i < 14; i++)
@@ -755,11 +899,91 @@ lrtspec: /* NULL */
 
 
 ffunclist: /* NULL */
+    | ffunclist INTEGER STRING INTEGER STRING INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER
+    {
+      if (mapview) {
+	int params[16];
+	int mask;
+
+	params[0] = $6;
+	params[1] = $7;
+	params[2] = $8;
+	params[3] = $9;
+	params[4] = $10;
+	params[5] = $11;
+	params[6] = $12;
+	params[7] = $13;
+	params[8] = $14;
+	params[9] = $15;
+	params[10] = $16;
+	params[11] = $17;
+	params[12] = $18;
+	params[13] = $19;
+	params[14] = $20;
+	params[15] = $21;
+
+	// generate mask
+	mask = 0;
+	mask |= strchr($5, 'C')? PF_CIRCLES : 0;
+	mask |= strchr($5, 'L')? PF_LINES : 0;
+	mask |= strchr($5, 'D')? PF_DATA : 0;
+	mask |= strchr($5, 'M')? PF_MARKER : 0;
+	mask |= strchr($5, 'N')? PF_NAME : 0;
+	mask |= strchr($5, 'F')? PF_FLAG : 0;
+
+	mapview->select_flemode($2);
+	mapview->set_flemode($3, (_dfmode)$4, mask, params);
+
+	free($3);
+	free($5);
+      }
+    }
     ;
 
 pfunclist: /* NULL */
+    | pfunclist INTEGER STRING INTEGER STRING INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER INTEGER
+    {
+      if (mapview) {
+	int params[16];
+	int mask;
+
+	params[0] = $6;
+	params[1] = $7;
+	params[2] = $8;
+	params[3] = $9;
+	params[4] = $10;
+	params[5] = $11;
+	params[6] = $12;
+	params[7] = $13;
+	params[8] = $14;
+	params[9] = $15;
+	params[10] = $16;
+	params[11] = $17;
+	params[12] = $18;
+	params[13] = $19;
+	params[14] = $20;
+	params[15] = $21;
+
+	// generate mask
+	mask = 0;
+	mask |= strchr($5, 'C')? PF_CIRCLES : 0;
+	mask |= strchr($5, 'L')? PF_LINES : 0;
+	mask |= strchr($5, 'D')? PF_DATA : 0;
+	mask |= strchr($5, 'M')? PF_MARKER : 0;
+	mask |= strchr($5, 'N')? PF_NAME : 0;
+	mask |= strchr($5, 'F')? PF_FLAG : 0;
+
+	mapview->select_plamode($2);
+	mapview->set_plamode($3, (_dfmode)$4, mask, params);
+
+	free($3);
+	free($5);
+      }
+    }
     | pfunclist INTEGER STRING INTEGER STRING INTEGER INTEGER INTEGER INTEGER INTEGER
     {
+      // a shift/reduce conflict, to be used to deal with older version files
+      // it will be deleted in the future
       if (mapview) {
 	int params[16];
 	int i, mask;
@@ -769,11 +993,12 @@ pfunclist: /* NULL */
 	params[2] = $8;
 	params[3] = $9;
 	params[4] = $10;
+	
 	for (i = 5; i < 16; i++)
 	  params[i] = 0;
 
 	// generate mask
-	     mask = 0;
+	mask = 0;
 	mask |= strchr($5, 'C')? PF_CIRCLES : 0;
 	mask |= strchr($5, 'L')? PF_LINES : 0;
 	mask |= strchr($5, 'D')? PF_DATA : 0;
@@ -782,7 +1007,7 @@ pfunclist: /* NULL */
 	mask |= strchr($5, 'F')? PF_FLAG : 0;
 
 	mapview->select_plamode($2);
-	mapview->set_plamode($3, (_pfmode)$4, mask, params);
+	mapview->set_plamode($3, (_dfmode)$4, mask, params);
 
 	free($3);
 	free($5);
@@ -812,7 +1037,7 @@ expr: INTEGER
     } */
     | DOLLAR STRING
     {
-      parameter* p = get_parameter(String($2));
+      parameter* p = get_parameter(myString($2));
 
       if (!p)
 	yyerror("undefined parameter");
@@ -851,7 +1076,7 @@ void check_auth_source(const char* item)
 
 
 
-void add_to_someones_queue(const bool a, const String& n, const int c,
+void add_to_someones_queue(const bool a, const myString& n, const int c,
 			   const int act, const int deact)
 {
   bool success;
@@ -878,7 +1103,7 @@ int yyerror(char* s)
   char str[256];
 
   sprintf(str, "yacc: %s:%d: %s\n", (const char*)infile_name, infile_lineno, s);
-  game_map->log(String(str));
+  game_map->log(myString(str));
 
   if (fully_visual)
     display->error_dialog(str);

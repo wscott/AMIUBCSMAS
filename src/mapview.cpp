@@ -4,26 +4,27 @@
 
 extern void restart_flex(FILE* f);
 
-planet_view* planet_view::planet_view_table = NULL;
-fleet_view* fleet_view::fleet_view_table = NULL;
-
-
 
 map_view::map_view(stars_map* m) : 
                    xmap0(0), ymap0(0), _when(0), 
                    map(m), space_mode(MAP_BLACK), do_alliances(false),
-		   pview(NULL), cur_pf(0), fview(NULL),
+		   planet_views(), pview(0), cur_pf(0),
+		   fleet_views(), fview(0), cur_ff(0),
 		   scanner_eff(100),
-		   race_viewpoint(NULL), curr_planet(NULL),
+		   race_viewpoint(NULL),
                    x0(0), y0(0), xw(600), yw(600)
 {
-  // nothing to do right now
+  for (int i = 0; i < 4; i++)
+    curr_planet[i] = NULL;
 }
 
 
 
 void map_view::initialize(void)
 {
+  // get resolution from map object
+  xw = yw = map->view_res;
+
   _zoom = map->max_zoom;
   gmsc = (1024 * 1024 / map->gmscale) >> (_zoom - 1);
 }
@@ -145,19 +146,309 @@ int map_view::set_maptype(const int mt)
 
 
 
-planet* map_view::set_active_planet(const _xypoint& physpos)
+planet* map_view::set_active_planet(const _xypoint& physpos, int pn = 0)
 {
-  curr_planet = map->find_planet(display_to_map(physpos));
+  if (pn < 0 || pn > 3)
+    pn = 0;
 
-  if (!curr_planet)
-    curr_planet = map->unsorted_ptable;
+  curr_planet[pn] = map->find_planet(display_to_map(physpos));
 
-  return curr_planet;
+  if (!curr_planet[pn])
+    curr_planet[pn] = map->unsorted_ptable;
+
+  return curr_planet[pn];
+}
+
+
+planet* map_view::get_active_planet(const int pn = 0) const
+{
+  if (pn < 0 || pn > 3)
+    return curr_planet[0];
+  else
+    return curr_planet[pn];
 }
 
 
 
-bool map_view::import_planet_views(const String& fn)
+/* planet views */
+
+
+void map_view::clone_planet_view(planet_view* orig)
+{
+  planet_view* pv;
+
+  if (!orig)
+    pv = new planet_view("Default planet display");
+  else {
+    pv = new planet_view(*orig); // clone
+  }
+
+  planet_views.push_back(pv);
+  pview = planet_views.size() - 1;
+}
+
+
+
+int map_view::select_planet_view(const int i)
+{
+  if (i == MW_READ) {
+    // do nothing
+  } else if (i == MW_NEXT)
+    pview++;
+  else if (i == MW_PREV)
+    pview--;
+  else
+    pview = i;
+
+  if (pview > planet_views.size() - 1)
+    pview = planet_views.size() - 1;
+  if (pview < 0)
+    pview = 0;
+
+  return pview;
+}
+
+
+
+planet_view* map_view::get_planet_view(const int i = -1) const
+{
+  if (i < 0)
+    return planet_views[pview];
+  else if (i < (int)planet_views.size())
+    return planet_views[i];
+  
+  return NULL;
+}
+
+
+
+void map_view::delete_planet_view(const int i)
+{
+  if (i > 0 && i < (int)planet_views.size()) {
+     planet_views.erase(planet_views.begin() + i);
+     if (pview > planet_views.size() - 1)
+       pview = planet_views.size() - 1;
+  }
+}
+
+
+void map_view::move_planet_view(const int i, const int dir)
+{
+  if (dir == 1 && i < (int)planet_views.size()-1) {
+    planet_view* pv = planet_views[i];
+    planet_views[i] = planet_views[i+1];
+    planet_views[i+1] = pv;
+
+  } else if (dir == -1 && i > 0) {
+    planet_view* pv = planet_views[i];
+    planet_views[i] = planet_views[i-1];
+    planet_views[i-1] = pv;
+  }
+}
+
+
+bool map_view::import_planet_views(const myString& fn)
+{
+  FILE* f;
+
+  if ( (f = fopen((const char*)fn, "r")) ) {
+    infile_name = fn;
+    restart_flex(f);
+    yyparse();
+    fclose(f);
+    return true;
+  }
+
+  return false;
+}
+
+
+bool map_view::save_planet_views(const myString& fn)
+{
+  FILE* f;
+  int i;
+
+  if ( (f = fopen((const char*)fn, "w")) ) {
+    for (i = 0; i < (int)planet_views.size(); i++)
+      planet_views[i]->export(f);
+
+    fclose(f);
+    return true;
+  }
+
+  return false;
+}
+
+
+/* modes within a view */
+
+int map_view::select_plamode(const int pm)
+{
+  if (pm != MW_READ) {
+    if (pm == MW_NEXT)
+      cur_pf++;
+   else if (pm == MW_PREV)
+      cur_pf--;
+    else
+      cur_pf = pm;
+
+    if (cur_pf < 0)
+      cur_pf = 0;
+    else if (cur_pf >= MAX_DISP_MODES)
+      cur_pf = MAX_DISP_MODES - 1;
+  }
+
+  return cur_pf;
+}
+
+
+void map_view::insert_plamode(void)
+{
+  int i;
+
+  // copy from MAX_DISP_MODES-1...cur_pf into cur_pf
+  for (i = MAX_DISP_MODES-1; i > cur_pf; i--)
+    planet_views[pview]->pla_modes[i] = planet_views[pview]->pla_modes[i-1];
+
+  // clear current
+  planet_views[pview]->pla_modes[pview].clear();
+}
+
+
+void map_view::delete_plamode(void)
+{
+  int i;
+
+  // copy from cur_pf+1...MAX_DISP_MODES into cur_pf
+  for (i = cur_pf+1; i < MAX_DISP_MODES; i++)
+    planet_views[pview]->pla_modes[i-1] = planet_views[pview]->pla_modes[i];
+
+  // put a nothing at the end
+  planet_views[pview]->pla_modes[MAX_DISP_MODES-1].clear();
+}
+
+
+const pf_operation& map_view::get_plamode(const int i = -1) const
+{
+  if (i >= 0 && i < MAX_DISP_MODES)
+    return planet_views[pview]->pla_modes[i];
+  else
+    return planet_views[pview]->pla_modes[cur_pf];
+}
+
+
+void map_view::set_plamode(const myString& pmn,
+			   const _dfmode pfm, const int pfmsk,
+			   const int* par)
+{
+  pf_operation& po = planet_views[pview]->pla_modes[cur_pf];
+
+  // change of function type
+  if (pmn.length())
+    if (pmn == "+") {
+      po.f = get_next_pfunction(po.f);
+      
+    } else if (pmn == "-") {
+      po.f = get_prev_pfunction(po.f);
+      
+    } else
+      po.f = find_pfunction(pmn);
+
+  if (!po.f)
+    po.f = find_pfunction("- (nothing) -");
+
+  if (po.f) {
+    // change of function mode
+    if (pfm == PF_NEXT)
+      po.mode = (_dfmode)((int)po.mode + 1);
+    else if (pfm == PF_PREV)
+      po.mode = (_dfmode)((int)po.mode - 1);
+    else if (pfm != PF_NULL)
+      po.mode = pfm;
+
+    if (po.mode < PF_SKIP)
+      po.mode = PF_OR;
+    if (po.mode > PF_OR)
+      po.mode = PF_SKIP;
+  }
+
+  // change of mode mask
+  po.modemask = pfmsk;
+
+  // setting of parameters
+  if (par)
+    memcpy(po.params, par, 16 * sizeof(int));
+}
+
+
+
+/* fleet views */
+
+
+void map_view::clone_fleet_view(fleet_view* orig)
+{
+  fleet_view* fv;
+
+  if (!orig)
+    fv = new fleet_view("Default fleet display");
+  else {
+    fv = new fleet_view(*orig); // clone
+  }
+
+  fleet_views.push_back(fv);
+  fview = fleet_views.size() - 1;
+}
+
+
+
+int map_view::select_fleet_view(const int i)
+{
+  if (i == MW_READ) {
+    // do nothing
+  } else if (i == MW_NEXT)
+    fview++;
+  else if (i == MW_PREV)
+    fview--;
+  else
+    fview = i;
+
+  if (fview > fleet_views.size() - 1)
+    fview = fleet_views.size() - 1;
+  if (fview < 0)
+    fview = 0;
+
+  return fview;
+}
+
+
+
+void map_view::delete_fleet_view(const int i)
+{
+  if (i > 0 && i < (int)fleet_views.size()) {
+    fleet_views.erase(fleet_views.begin() + i);
+    if (fview > fleet_views.size() - 1)
+      fview = fleet_views.size() - 1;
+  }
+}
+
+
+void map_view::move_fleet_view(const int i, const int dir)
+{
+  if (dir == 1 && i < (int)fleet_views.size()-1) {
+    fleet_view* fv = fleet_views[i];
+    fleet_views[i] = fleet_views[i+1];
+    fleet_views[i+1] = fv;
+
+  } else if (dir == -1 && i > 0) {
+    fleet_view* fv = fleet_views[i];
+    fleet_views[i] = fleet_views[i-1];
+    fleet_views[i-1] = fv;
+  }
+}
+
+
+
+bool map_view::import_fleet_views(const myString& fn)
 {
   FILE* f;
 
@@ -174,19 +465,134 @@ bool map_view::import_planet_views(const String& fn)
 
 
 
-bool map_view::save_planet_views(const String& fn)
+bool map_view::save_fleet_views(const myString& fn)
 {
   FILE* f;
+  int i;
 
   if ( (f = fopen((const char*)fn, "w")) ) {
-    for (planet_view* pv = planet_view::planet_view_table; pv; pv = pv->next)
-      pv->export(f);
+    for (i = 0; i < (int)fleet_views.size(); i++)
+      fleet_views[i]->export(f);
 
     fclose(f);
     return true;
   }
 
   return false;
+}
+
+
+fleet_view* map_view::get_fleet_view(const int i = -1) const
+{
+  if (i < 0)
+    return fleet_views[fview];
+  else if (i < (int)fleet_views.size())
+    return fleet_views[i];
+
+  return NULL;
+}
+
+
+
+
+int map_view::select_flemode(const int fm)
+{
+  if (fm != MW_READ) {
+    if (fm == MW_NEXT)
+      cur_ff++;
+   else if (fm == MW_PREV)
+      cur_ff--;
+    else
+      cur_ff = fm;
+
+    if (cur_ff < 0)
+      cur_ff = 0;
+    else if (cur_ff >= MAX_DISP_MODES)
+      cur_ff = MAX_DISP_MODES - 1;
+  }
+
+  return cur_ff;
+}
+
+
+
+void map_view::insert_flemode(void)
+{
+  int i;
+
+  // copy from MAX_DISP_MODES-1...cur_pf into cur_pf
+  for (i = MAX_DISP_MODES-1; i > cur_ff; i--)
+    fleet_views[fview]->fle_modes[i] = fleet_views[fview]->fle_modes[i-1];
+
+  // clear current
+  fleet_views[fview]->fle_modes[fview].clear();
+}
+
+
+void map_view::delete_flemode(void)
+{
+  int i;
+
+  // copy from cur_pf+1...MAX_DISP_MODES into cur_pf
+  for (i = cur_ff+1; i < MAX_DISP_MODES; i++)
+    fleet_views[fview]->fle_modes[i-1] = fleet_views[fview]->fle_modes[i];
+
+  // put a nothing at the end
+  fleet_views[fview]->fle_modes[MAX_DISP_MODES-1].clear();
+}
+
+
+const ff_operation& map_view::get_flemode(const int i = -1) const
+{
+  if (i >= 0 && i < MAX_DISP_MODES)
+    return fleet_views[fview]->fle_modes[i];
+  else
+    return fleet_views[fview]->fle_modes[cur_ff];
+}
+
+
+
+void map_view::set_flemode(const myString& fmn,
+			   const _dfmode ffm, const int ffmsk,
+			   const int* par)
+{
+  ff_operation& fo = fleet_views[fview]->fle_modes[cur_ff];
+
+  // change of function type
+  if (fmn.length())
+    if (fmn == "+") {
+      fo.f = get_next_ffunction(fo.f);
+      
+    } else if (fmn == "-") {
+      fo.f = get_prev_ffunction(fo.f);
+      
+    } else
+      fo.f = find_ffunction(fmn);
+
+  if (!fo.f)
+    fo.f = find_ffunction("- (nothing) -");
+
+  if (fo.f) {
+    // change of function mode
+    if (ffm == PF_NEXT)
+      fo.mode = (_dfmode)((int)fo.mode + 1);
+    else if (ffm == PF_PREV)
+      fo.mode = (_dfmode)((int)fo.mode - 1);
+    else if (ffm != PF_NULL)
+      fo.mode = ffm;
+
+    if (fo.mode < PF_SKIP)
+      fo.mode = PF_OR;
+    if (fo.mode > PF_OR)
+      fo.mode = PF_SKIP;
+  }
+
+  // change of mode mask
+  fo.modemask = ffmsk;
+
+  // setting of parameters
+  if (par)
+    memcpy(fo.params, par, 16 * sizeof(int));
 }
 
 
@@ -448,7 +854,7 @@ void map_view::set_window_title(void) const
 {
   display->set_window_title(map->name() +
 			    " (" + race_viewpoint->name() + ") " +
-			    pview->name);
+			    planet_views[pview]->name);
 }
 
 
@@ -498,8 +904,8 @@ void map_view::set_planet_display(void)
 
     // we can't do clipping since circles * lines are non-local
     //    if (pd.xy.x >= x0 && pd.xy.x < (x0+xw) && pd.xy.y >= y0 && pd.xy.y < (y0+yw))
-    for (pfi = 0; pfi < MAX_PLA_MODES; pfi++) {
-      pf_operation& po = pview->pla_modes[pfi];
+    for (pfi = 0; pfi < MAX_DISP_MODES; pfi++) {
+      pf_operation& po = planet_views[pview]->pla_modes[pfi];
 
       if (po.f) {
 	if (po.mode == PF_STOMP ||
@@ -524,7 +930,54 @@ void map_view::set_planet_display(void)
 }
 
 
+void map_view::set_fleet_display(void)
+{
+  fleet* f;
+  int i, ffi;
+  race* vp;
 
+  // now generate display part and draw markers
+  for (i = 0; i < map->number_of_players(); i++) {
+    vp = map->find_race(i);
+
+    for (f = vp->fleet_table; f; f = f->rnext) {
+      // reset the object display
+      object_display& fd = f->disp;
+
+      fd.reset();
+      // where will we draw it?
+      fd.xy = map_to_display(f->position(_when));
+      // default direction is fleet movement
+      fd.pie_dir = f->position(game_map->sim_future()) - f->position(_when);
+
+      for (ffi = 0; ffi < MAX_DISP_MODES; ffi++) {
+	ff_operation& fo = fleet_views[fview]->fle_modes[ffi];
+
+	if (fo.f) {
+	  if (fo.mode == PF_STOMP ||
+	      (fo.mode == PF_AND &&
+	       ( (fo.modemask & PF_DATA && fd.data_defined()) ||
+		 (fo.modemask & PF_MARKER && fd.marker_defined()) ||
+		 (fo.modemask & PF_FLAG && fd.flag_defined()) ||
+		 (fo.modemask & PF_CIRCLES && fd.circles_defined()) ||
+		 (fo.modemask & PF_LINES && fd.lines_defined()) ||
+		 (fo.modemask & PF_NAME && fd.name_defined()) )) ||
+	      (fo.mode == PF_OR &&
+	       ( (!(fo.modemask & PF_DATA) || !fd.data_defined()) &&
+		 (!(fo.modemask & PF_MARKER) || !fd.marker_defined()) &&
+		 (!(fo.modemask & PF_FLAG) || !fd.flag_defined()) &&
+		 (!(fo.modemask & PF_CIRCLES) || !fd.circles_defined()) &&
+		 (!(fo.modemask & PF_LINES) || !fd.lines_defined()) &&
+		 (!(fo.modemask & PF_NAME) || !fd.name_defined()) )) )
+	    fo.f->function(*this, f, fo.params, _when);
+	}
+      }
+    }
+  }
+}
+
+
+/*
 void map_view::set_fleet_display(void)
 {
   // for the moment use a hardwired display of triangle of player color + path
@@ -604,7 +1057,7 @@ void map_view::set_fleet_display(void)
     }
   }
 }
-
+*/
 
 
 void map_view::display_objects(void)
@@ -635,7 +1088,7 @@ void map_view::display_objects(void)
 void map_view::display_racenames(const int xp, const int yp)
 {
   int i;
-  String rn;
+  myString rn;
   char str[256];
 
   for (i = 0; i < map->number_races; i++) {
@@ -657,162 +1110,17 @@ void map_view::display_racenames(const int xp, const int yp)
 
 
 
-void map_view::clone_planet_view(planet_view* orig)
-{
-  if (!orig)
-    pview = new planet_view("Default planet display");
-  else {
-    pview = new planet_view(*pview); // clone
-  }
-}
-
-
-
-int map_view::select_planet_view(const int i)
-{
-  int j;
-
-  if (i == MW_READ) {
-
-  } else if (i == MW_NEXT) {
-    if (pview->next)
-      pview = pview->next;
-
-  } else {
-    if (i == MW_PREV)
-      j = get_planet_view_index() - 1;
-    else
-      j = i;
-  
-    planet_view* opv;
-    for (opv = pview = planet_view::planet_view_table;
-	 j > 0 && pview;
-	 opv = pview, pview = pview->next, j--);
-
-    if (!pview)
-      pview = opv;
-  }
-
-  return get_planet_view_index();
-}
-
-
-
-void map_view::select_fleet_view(const int i)
-{
-  if (i == 0)
-    fview = NULL;
-  else
-    fview = (fleet_view*)pview;
-}
-
-
-
-int map_view::get_planet_view_index(void) const
-{
-  planet_view* pv;
-  int i;
-  
-  for (i = 0, pv = planet_view::planet_view_table; pv; pv = pv->next, i++)
-    if (pv == pview)
-      break;
-
-  if (!pv)
-    return -1;
-  else
-    return i;
-}
-
-
-
-planet_view* map_view::extract_pview(const int i)
-{
-  planet_view* pv = NULL;
-
-  if (i == 0) {
-    if ( (planet_view::planet_view_table->next) ) {
-      pv = planet_view::planet_view_table;
-      pview = planet_view::planet_view_table = pv->next;
-      pv->next = NULL;
-    }
-  } else {
-    int j = i - 1;
-    planet_view* pvt;
-
-    for (pvt = planet_view::planet_view_table; pvt && j; pvt = pvt->next, j--);
-
-    if (pvt && pvt->next) {
-      pv = pvt->next;
-      pvt->next = pv->next;
-      pview = ((pvt->next)? pvt->next : pvt);
-      pv->next = NULL;
-    }
-  }
-
-  return pv;
-}
-
-
-void map_view::delete_planet_view(const int i)
-{
-  planet_view* pv = extract_pview(i);
-
-  delete pv;
-}
-
-
-void map_view::move_planet_view(const int i, const int dir)
-{
-  planet_view* pv;
-  planet_view* pvt;
-  int j;
-
-  pv = extract_pview(i);
-
-  if (pv) {
-    pview = pv;
-
-    j = i - 1 + dir;
-
-    if (j < 0) {
-      pv->next = planet_view::planet_view_table;
-      planet_view::planet_view_table = pv;
-    } else {
-      for (pvt = planet_view::planet_view_table; pvt->next && j; pvt = pvt->next, j--);
-
-      pv->next = pvt->next;
-      pvt->next = pv;
-    }
-  }
-}
-
-
 // management of planet_view
-planet_view::planet_view(const String& n) : name(n), next(NULL)
+planet_view::planet_view(const myString& n) : name(n)
 {
-  link();
   clear();
-}
-
-
-
-void planet_view::link(void)
-{
-  if (planet_view_table) {
-    planet_view* pv;
-    for (pv = planet_view_table; pv->next; pv = pv->next);
-    pv->next = this;
-  } else
-    planet_view_table = this;
 }
 
 
 
 planet_view::planet_view(const planet_view& pv) : name(pv.name)
 {
-  link();
-
-  for (int i = 0; i < MAX_PLA_MODES; i++)
+  for (int i = 0; i < MAX_DISP_MODES; i++)
     pla_modes[i] = pv.pla_modes[i];
 }
 
@@ -820,11 +1128,11 @@ planet_view::planet_view(const planet_view& pv) : name(pv.name)
 
 void planet_view::export(FILE* f)
 {
-  int i;
+  int i, j;
 
   fprintf(f, "planet_view \"%s\" {\n", name.chars());
 
-  for (i = 0; i < MAX_PLA_MODES; i++) {
+  for (i = 0; i < MAX_DISP_MODES; i++) {
     const pf_operation& po = pla_modes[i];
     char modemask[16];
 
@@ -847,117 +1155,16 @@ void planet_view::export(FILE* f)
       strcat(modemask, "F");
 
     // write out the spec
-    fprintf(f, "\t%d \"%s\" %d \"%s\" %d %d %d %d %d\n", i, (const char*)po.f->name(),
-	    (int)po.mode, modemask, po.params[0], po.params[1], po.params[2],
-	    po.params[3], po.params[4]);
+    fprintf(f, "\t%d \"%s\" %d \"%s\"", i, (const char*)po.f->name(),
+	    (int)po.mode, modemask);
+
+    for (j = 0; j < 16; j++)
+      fprintf(f, " %d", po.params[j]);
+
+    fprintf(f, "\n");
   }
 
   fprintf(f, "}\n");
-}
-
-
-
-int map_view::select_plamode(const int pm)
-{
-  if (pm != MW_READ) {
-    if (pm == MW_NEXT)
-      cur_pf++;
-   else if (pm == MW_PREV)
-      cur_pf--;
-    else
-      cur_pf = pm;
-
-    if (cur_pf < 0)
-      cur_pf = 0;
-    else if (cur_pf >= MAX_PLA_MODES)
-      cur_pf = MAX_PLA_MODES - 1;
-  }
-
-  return cur_pf;
-}
-
-
-
-void map_view::insert_plamode(void)
-{
-  int i;
-
-  // copy from MAX_PLA_MODES-1...cur_pf into cur_pf
-  for (i = MAX_PLA_MODES-1; i > cur_pf; i--)
-    pview->pla_modes[i] = pview->pla_modes[i-1];
-
-  // clear current
-  pview->pla_modes[cur_pf].clear();
-}
-
-
-
-void map_view::delete_plamode(void)
-{
-  int i;
-
-  // copy from cur_pf+1...MAX_PLA_MODES into cur_pf
-  for (i = cur_pf+1; i < MAX_PLA_MODES; i++)
-    pview->pla_modes[i-1] = pview->pla_modes[i];
-
-  // put a nothing at the end
-  pview->pla_modes[MAX_PLA_MODES-1].clear();
-}
-
-
-
-
-const pf_operation& map_view::get_plamode(const int i = -1) const
-{
-  if (i >= 0 && i < MAX_PLA_MODES)
-    return pview->pla_modes[i];
-  else
-    return pview->pla_modes[cur_pf];
-}
-
-
-
-void map_view::set_plamode(const String& pmn,
-			   const _pfmode pfm, const int pfmsk,
-			   const int* par)
-{
-  pf_operation& po = pview->pla_modes[cur_pf];
-
-  // change of function type
-  if (pmn.length())
-    if (pmn == "+") {
-      po.f = get_next_pfunction(po.f);
-      
-    } else if (pmn == "-") {
-      po.f = get_prev_pfunction(po.f);
-      
-    } else
-      po.f = find_pfunction(pmn);
-
-  if (!po.f)
-    po.f = find_pfunction("- (nothing) -");
-
-  if (po.f) {
-    // change of function mode
-    if (pfm == PF_NEXT)
-      po.mode = (_pfmode)((int)po.mode + 1);
-    else if (pfm == PF_PREV)
-      po.mode = (_pfmode)((int)po.mode - 1);
-    else if (pfm != PF_NULL)
-      po.mode = pfm;
-
-    if (po.mode < PF_SKIP)
-      po.mode = PF_OR;
-    if (po.mode > PF_OR)
-      po.mode = PF_SKIP;
-  }
-
-  // change of mode mask
-  po.modemask = pfmsk;
-
-  // setting of parameters
-  if (par)
-    memcpy(po.params, par, 16 * sizeof(int));
 }
 
 
@@ -966,6 +1173,75 @@ void planet_view::clear(void)
 {
   int i;
 
-  for (i = 0; i < MAX_PLA_MODES; i++)
+  for (i = 0; i < MAX_DISP_MODES; i++)
     pla_modes[i].clear();
+}
+
+
+
+// management of fleet_view
+fleet_view::fleet_view(const myString& n) : name(n)
+{
+  clear();
+}
+
+
+
+fleet_view::fleet_view(const fleet_view& fv) : name(fv.name)
+{
+  for (int i = 0; i < MAX_DISP_MODES; i++)
+    fle_modes[i] = fv.fle_modes[i];
+}
+
+
+
+void fleet_view::export(FILE* f)
+{
+  int i, j;
+
+  fprintf(f, "fleet_view \"%s\" {\n", name.chars());
+
+  for (i = 0; i < MAX_DISP_MODES; i++) {
+    const ff_operation& fo = fle_modes[i];
+    char modemask[16];
+
+    if (fo.f->name() == "- (nothing) -")
+      continue;
+
+    // build up the mask string
+    modemask[0] = 0;
+    if (fo.modemask & PF_CIRCLES)
+      strcat(modemask, "C");
+    if (fo.modemask & PF_LINES)
+      strcat(modemask, "L");
+    if (fo.modemask & PF_DATA)
+      strcat(modemask, "D");
+    if (fo.modemask & PF_MARKER)
+      strcat(modemask, "M");
+    if (fo.modemask & PF_NAME)
+      strcat(modemask, "N");
+    if (fo.modemask & PF_FLAG)
+      strcat(modemask, "F");
+
+    // write out the spec
+    fprintf(f, "\t%d \"%s\" %d \"%s\"", i, (const char*)fo.f->name(),
+	    (int)fo.mode, modemask);
+
+    for (j = 0; j < 16; j++)
+      fprintf(f, " %d", fo.params[j]);
+
+    fprintf(f, "\n");
+  }
+
+  fprintf(f, "}\n");
+}
+
+
+
+void fleet_view::clear(void)
+{
+  int i;
+
+  for (i = 0; i < MAX_DISP_MODES; i++)
+    fle_modes[i].clear();
 }

@@ -83,12 +83,17 @@ typedef union{
 #define	FLEETVIEW	333
 #define	COLOR	334
 #define	MAXPIERADIUS	335
-#define	PLUS	336
-#define	MINUS	337
-#define	MULTIPLY	338
-#define	DIVIDE	339
-#define	RAISE	340
-#define	UMINUS	341
+#define	DISPLAYRESOLUTION	336
+#define	DESIGN	337
+#define	HULL	338
+#define	MASS	339
+#define	ENGINE	340
+#define	PLUS	341
+#define	MINUS	342
+#define	MULTIPLY	343
+#define	DIVIDE	344
+#define	RAISE	345
+#define	UMINUS	346
 
 
 extern YYSTYPE yylval;

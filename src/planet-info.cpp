@@ -95,10 +95,13 @@ int planet::hab_when_max_terraformed(const race* owner, int when,
 
 
 
-int planet::tform_left(int when) const
+int planet::tform_left(race* owner, int when) const
 {
   int tfl = 0;
   int i, d, od;
+
+  if (!owner)
+    owner = _owner;
 
   when = fix_year(when);
 
@@ -106,13 +109,13 @@ int planet::tform_left(int when) const
     return 0; // no tform info available
 
   for (i = 0; i < 3; i++)
-    if (_owner->hab_min[i] != -1) {
-      if (_stats[when][i] != (_owner->hab_min[i] + _owner->hab_max[i]) / 2) {
-	od = abs(ori_stats[i] - (_owner->hab_min[i] + _owner->hab_max[i]) / 2);
-	d = abs(_stats[when][i] - (_owner->hab_min[i] + _owner->hab_max[i]) / 2);
+    if (owner->hab_min[i] != -1) {
+      if (_stats[when][i] != (owner->hab_min[i] + owner->hab_max[i]) / 2) {
+	od = abs(ori_stats[i] - (owner->hab_min[i] + owner->hab_max[i]) / 2);
+	d = abs(_stats[when][i] - (owner->hab_min[i] + owner->hab_max[i]) / 2);
 
-	if (od - d < _owner->tform_tech[when][i])
-	  tfl += _owner->tform_tech[when][i] - (od - d);
+	if (od - d < owner->tform_tech[when][i])
+	  tfl += owner->tform_tech[when][i] - (od - d);
       }
     }
 
@@ -147,13 +150,13 @@ void planet::dump_queue(void)
 {
   char tmsg[512];
 
-  add_message(PLA_INTERNAL, String("  Active queue:"));
+  add_message(RLO_PLAQUEUE, "  Active queue:");
   for (queue_obj* qo = queue; qo; qo = qo->next) {
     if (qo->active) {
       sprintf(tmsg, "    %s%s (%d)", 
 	      (qo->autob != queue_obj::Normal)? "autobuild " : "",
 	      (const char*)qo->proto->_name, qo->count);
-      add_message(PLA_INTERNAL, String(tmsg));
+      add_message(RLO_PLAQUEUE, tmsg);
     }
   }
 }
@@ -182,7 +185,7 @@ const char* planet::type_name(void) const
 
   switch(p_type) {
   case UNKNOWN:
-    return "undefined type??";
+    return "undefined type";
   case NEWCOLONY:
     return "new colony";
   case GENERIC:
@@ -345,7 +348,7 @@ int planet::maxdefenses(int when) const
     return 0;
 
   when = fix_year(when);
-  return 100; /* NEED THE FORMULA */
+  return max(10, min(100 * maxpop(when) / 250000, 100));
 }
 
 
@@ -399,7 +402,7 @@ int planet::maxcdefenses(int when) const
     return 0;
 
   when = fix_year(when);
-  return 100; /* NEED THE FORMULA */
+  return min(100 * _pop[when] / 250000, maxdefenses());
 }
 
 
@@ -544,7 +547,7 @@ void planet::report(const report_type rt)
 	    min_conc().iron, min_conc().bora, min_conc().germ);
 
     if (rt == Total) {
-      add_message(PLA_REPORTS, String(tmsg));
+      add_message(RLO_PLAREPORTS, tmsg);
       sprintf(tmsg, "%2d[%2d] (%2d-%2d)-> %2d%% / %2d[%2d] (%2d-%2d)-> %2d%% / %2d[%2d] (%2d-%2d)-> %2d%%",
 	      stats()[Grav], ori_stats[Grav], _owner->hab_min[Grav], _owner->hab_max[Grav], 
 	      (_owner->hab_min[Grav] + _owner->hab_max[Grav]) / 2 - stats()[Grav],
@@ -555,19 +558,19 @@ void planet::report(const report_type rt)
     }
   }
 
-  add_message(PLA_REPORTS, String(tmsg));
+  add_message(RLO_PLAREPORTS, tmsg);
 }
 
 
 
-message* planet::next_message(message* m, int when) const
+const message* planet::next_message(const message* m, int when) const
 {
-  message* nm;
+  const message* nm;
 
   if (m)
     nm = m->next;
   else
-    nm = msg_table[when];
+    nm = msg_table[when].first();
 
   while (nm && nm->filtered())
     nm = nm->next;
@@ -577,38 +580,17 @@ message* planet::next_message(message* m, int when) const
 
 
 
-message* planet::next_gmessage(message* m) const
+const message* planet::next_gmessage(const message* m) const
 {
-  message* nm;
+  const message* nm;
 
   if (m)
     nm = m->next;
   else
-    nm = global_msgs;
+    nm = global_msgs.first();
 
   while (nm && nm->filtered())
     nm = nm->next;
 
   return nm;
-}
-
-
-
-void planet::print_messages(FILE* of, int when) const
-{
-  when = fix_year(when);
-
-  for (message* m = next_message(NULL, when); m; m = next_message(m, when)) {
-    fprintf(of, "%s ", (const char*)header);
-    m->print(of);
-  }
-}
-
-
-void planet::print_gmessages(FILE* of) const
-{
-  for (message* m = next_gmessage(NULL); m; m = next_gmessage(m)) {
-    fprintf(of, "%s ", (const char*)header);
-    m->print(of);
-  }
 }

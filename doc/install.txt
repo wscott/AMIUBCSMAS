@@ -1,0 +1,73 @@
+AMIUBCSMAS 0.2
+
+or
+
+Alberto's Most Incomplete, Undocumented and Badly Coded
+Stars! Mapper, Analyzer and Simulator
+
+(called "StarAna", as in STARs! ANAlyzer, by friends)
+
+install.txt version 0.2, 29 Jan 1998
+
+
+WINDOWS INSTALLATION
+
+- you will need to have an "X server" installed to be able to run
+starana. I use the demo version of Xwin-32, available at:
+
+http://xwin-32/
+
+It has some requirements, i.e. to have some kind of network support
+installed. If you have a network card in your computer then you have
+network support and everything will be fine. If you have a modem then
+you probably have network support. The documentation and FAQ of
+Xwin-32 explains what to do to run the server, check it. (BTW I
+suggest download and try, if it doesn't work start reading the
+doc.....);
+
+- download the starana binaries and DLLs for win95 and the
+documentation/examples;
+
+- unpack it, you'll get a starana-0.2/bin directory with the files:
+one exe file, two dll libraries and a README. In order to use the
+program you also need default.pfl which is in the documentation
+package (it contains the default planet views). You should make a copy
+of default.pfl in the directory where you will put the "master file"
+for the game (you can do this later).
+
+- check "Running starana" in starana.txt for instructions on how to
+  run it (you can't just click on it.....but almost :)
+
+
+
+LINUX INSTALLATION / RECOMPILING STARANA
+
+Make sure you have some experience in dealing with C++
+compilations/errors/etc.
+
+If you have linux you need to have g++ and X11 development stuff
+installed. You also need to have the XForms library installed. You can
+fetch it from:
+
+http://xforms/
+
+If you want to recompile on win95 you need to use Cygnus' GNUwin32
+package, found at:
+
+http://cygnus/
+
+You also need XForms (see above for link) and X11R6 libraries. I also
+used egcs to compile instead of the classic g++. Follow the links from
+Cygnus' site to get to the pages where you can download those
+packages. Be prepared for a long (20+M) download.
+
+Then:
+
+- get the starana source distribution;
+
+- alter Makefile.local to suit your needs;
+
+Cd to src/ and type make.
+
+You SHOULD have no problem, as I tried both processes and they work.
+In any case you can contact me and I'll try to reply as fast as I can.

@@ -39,16 +39,17 @@ int race::fibonacci[26] = { 50, 80, 130, 210, 340,
 			    750250, 1213930, 1964180, 3178110, 5142290,
 			    8320400 };
 
-String race::prt_names[10] = {"HE", "SS", "WM", "CA", "IS",
+myString race::prt_names[10] = {"HE", "SS", "WM", "CA", "IS",
 			      "SD", "PP", "IT", "AR", "JoaT"};
 
-String race::lrt_names[14] = {"IFE", "TT", "ARM", "ISB", "GR", "UR", "MA",
+myString race::lrt_names[14] = {"IFE", "TT", "ARM", "ISB", "GR", "UR", "MA",
 			      "NRSE", "CE", "OBRM", "NAS", "LSP", "BET", "RS"};
 
 
-race::race(const String& n, const int i) :   
+race::race(const myString& n, const int i) :   
             _name(n), _names(n+"s"), id(i), reliab(1),
-	    can_analyze(false), col_res(1000), col_grow(15),
+	    can_analyze(false), has_report(false), 
+	    col_res(1000), col_grow(15),
 	    fact_res(10), fact_cost(10), fact_ctrl(10), fact_germ(4),
 	    mine_eff(10), mine_cost(5), mine_ctrl(10),
 	    _prt(SD), min_pop_move(100), maxpop(1000000),
@@ -95,15 +96,59 @@ race::race(const String& n, const int i) :
 }
 
 
-object* race::find_object(const String& n)
+object* race::find_object(const myString& n) const
 {
   object* o;
-
   for (o = object_table; o; o = o->next)
     if (o->_name == n)
       return o;
 
   return NULL;
+}
+
+
+design* race::find_design(const myString& n, const bool starbase = false) const
+{
+  object* o;
+
+  for (o = object_table; o; o = o->next)
+    if ( o->des &&
+	 ((starbase && !o->des->h->n_engines) ||
+	  (!starbase && o->des->h->n_engines)) &&
+	 o->des->alias == n )
+      return o->des;
+
+  // not found as alias: try as full name
+  for (o = object_table; o; o = o->next)
+    if ( o->des &&
+	 ((starbase && !o->des->h->n_engines) ||
+	  (!starbase && o->des->h->n_engines)) &&
+	 o->_name == n )
+      return o->des;
+
+  return NULL;
+}
+
+
+// find a design whose alias starts with n
+// NULL if not found OR if ambiguous
+
+design* race::find_design_alias(const myString& n, const bool starbase = false) const
+{
+  object* o;
+  design* d = NULL;
+
+  for (o = object_table; o; o = o->next)
+    if ( o->des &&
+	 ((starbase && !o->des->h->n_engines) ||
+	  (!starbase && o->des->h->n_engines)) &&
+	 o->des->alias.matches(n, 0) )
+      if (d)
+	return NULL;
+      else
+	d = o->des;
+
+  return d;
 }
 
 
@@ -121,20 +166,20 @@ void race::set_minimal_objects(void)
 {
   object *o;
 
-  if ( !(o = find_object(String("factory"))) ) {
-    add_object(String("factory"), fact_cost, 0, 0, fact_germ);
-    add_object(String("mine"), mine_cost, 0, 0, 0);
-    add_object(String("terraform"), lrt(TT)? 70 : 100, 0, 0, 0);
+  if ( !(o = find_object(myString("factory"))) ) {
+    add_object(myString("factory"), fact_cost, 0, 0, fact_germ);
+    add_object(myString("mine"), mine_cost, 0, 0, 0);
+    add_object(myString("terraform"), lrt(TT)? 70 : 100, 0, 0, 0);
 
     if (prt() == IS)
-      add_object(String("defense"), 10, 0, 0, 5);
+      add_object(myString("defense"), 9, 3, 3, 3);
     else
-      add_object(String("defense"), 15, 5, 5, 5);
+      add_object(myString("defense"), 15, 5, 5, 5);
   }
 }
 
 
-bool race::add_to_default_queue(const bool a, const String& n, const int c,
+bool race::add_to_default_queue(const bool a, const myString& n, const int c,
 				const int act, const int deact)
 {
   if (c <= 0)
@@ -158,6 +203,29 @@ bool race::add_to_default_queue(const bool a, const String& n, const int c,
   }
 
   return true;
+}
+
+
+
+int race::defense_level(int when) const
+{
+  int el = tech[when][Elec];
+  int dl = 0;
+
+  if (el >= 23) {
+    dl = 4;
+  } else if (el >= 16) {
+    dl = 3;
+  } else if (el >= 10) {
+    dl = 2;
+  } else if (el >= 5) {
+    dl = 1;
+  }
+
+  if (prt() == WM)
+    dl = min(1, dl);
+
+  return dl;
 }
 
 
@@ -236,12 +304,35 @@ int race::pla_scan_radius(int when) const
 
 
 
-void race::add_object(const String& n, const int r, const int i, const int b, const int g)
+object* race::create_object(const myString& n)
+{
+  object* o = new object(n);
+
+  o->next = object_table;
+  object_table = o;
+
+  return o;
+}
+
+
+
+design* race::create_design(const myString& n)
+{
+  object* o = create_object(n);
+  o->des = new design(o);
+  return o->des;
+}
+
+
+
+object* race::add_object(const myString& n, const int r, const int i, const int b, const int g)
 {
   object* o = new object(n, r, i, b, g);
 
   o->next = object_table;
   object_table = o;
+
+  return o;
 }
 
 
@@ -327,12 +418,12 @@ void race::advance_year(void)
 
 
 
-void race::check_data(FILE* of)
+void race::check_data(void)
 {
   set_terraform_tech();
 
   if (can_analyze) {
-    fprintf(of, "The %s race is flagged for analysis\n", (const char*)_name);
+    add_message(RLO_ERROR, "The " + _name + " race is flagged for analysis");
 
     // make sure that factory/mine/stuff are available for planet queues
     set_minimal_objects();
@@ -355,4 +446,28 @@ void race::check_data(FILE* of)
   maxfact = maxpop * fact_ctrl / 10000;
   maxmine = maxpop * mine_ctrl / 10000;
   maxres = maxpop / col_res + maxfact * fact_res / 10;
+}
+
+
+
+void race::add_message(const _msgtype mt, const myString& m)
+{
+  logmsgs.add(mt, m);
+}
+
+
+
+const message* race::next_message(const message* m) const
+{
+  const message* nm;
+
+  if (m)
+    nm = m->next;
+  else
+    nm = logmsgs.first();
+
+  while (nm && nm->filtered())
+    nm = nm->next;
+
+  return nm;
 }

@@ -1,0 +1,53 @@
+newcolony
+	red or yellow
+	less than 350 res
+	less than 250K people
+		suggest maxxing pop if red/yellow
+		suggest pop sources
+		inform of death bringing pop below 100%
+		check for germanium shortage
+
+generic
+	green
+	between 350 and 900 resources
+		suggest pop moving based on hab
+			> 65% move away in 25%-33% range
+			< 30% suggest maxxing and source
+		check for 25%/33%/48%
+		check for germanium shortage
+
+production center
+	hab > 70%
+	pop > 40%
+	good industrialization
+	good/balanced minerals
+		check for 48%/80%
+		suggest pop sources
+		check for lack of minerals
+		suggest mining sources
+
+breeders
+	hab >= 80%
+	low minerals and concentrations
+		warn of beyond 25%/33%/48%
+
+mining
+	good/unbalanced mineral concentrations
+	pop > 40%
+
+
+newcolony
+	import pop
+	import germ
+generic
+	(import all)
+	(export all)
+production
+	import pop
+	import minerals
+mining
+	export minerals
+	(export pop)
+breeder
+	(export minerals)
+	export pop

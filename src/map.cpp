@@ -4,6 +4,9 @@
 #include <ctype.h>
 
 
+const int DISPLAY_RESOLUTION = 600;
+
+
 // some terrible globals
 int PARmin_mineral_move;
 int PARmax_search_distance;
@@ -13,51 +16,52 @@ stars_map* game_map = NULL;
 map_view* mapview = NULL;
 graphics* display = NULL;
 int infile_lineno;
-String infile_name;
-String infile_path;
+myString infile_name;
+myString infile_path;
 
 
 
-bool initialize_map(const String& smff, const int mapres)
+bool initialize_map(const myString& smff)
 {
   game_map = new stars_map();
   mapview = new map_view(game_map);
 
   // set the default path for all includes
-  int i = -1, oi = -1;
+  string::size_type i = string::npos, oi = string::npos;
+  int j;
 
-  while ( (i = smff.index('/', i+1)) != -1)
+  while ( (i = smff.index('/', i+1)) != string::npos)
     oi = i;
 
-  if (oi == -1) // no path
+  if (oi == string::npos) // no path
     infile_path = "";
   else
-    infile_path = String(smff)(0, oi+1);
+    infile_path = myString(smff)(0, oi+1);
 
   // open report log
   game_map->open_report_log(infile_path + "report-log");
 
-  if (!game_map->read_smf_file(String(smff)))
+  if (!game_map->read_smf_file(smff))
     return false;
 
-  //  filter_out_messages(PLA_BUILD);
-  game_map->init_ownership(mapres);
+  game_map->init_ownership();
+  game_map->log_all_messages();
 
   // initialize the default view
   mapview->initialize();
 
   // see if we have some planet view
-  if (!planet_view::planet_view_table) {
+  if (!mapview->get_num_planet_views()) {
 
     // load default planet views, select 1st
     if (!mapview->import_planet_views(infile_path + "default.pfl")) {
       // we have a problem - set up some crap display
       int params[16];
-      for (i = 0; i < 16; i++)
-	params[i] = 0;
+      for (j = 0; j < 16; j++)
+	params[j] = 0;
 
       mapview->clone_planet_view(NULL);
-      mapview->get_planet_view()->name = String("PLEASE copy default.pfl into the directory containing the master file.");
+      mapview->get_planet_view()->name = myString("PLEASE copy default.pfl into the directory containing the master file.");
 
       mapview->select_plamode(0);
       params[0] = 3;
@@ -75,8 +79,27 @@ bool initialize_map(const String& smff, const int mapres)
   } else // select first planet view
     mapview->select_planet_view(0);
 
+  // see if we have some fleet view
+  if (!mapview->get_num_fleet_views()) {
+
+    // load default fleet views, select 1st
+    if (!mapview->import_fleet_views(infile_path + "default.ffl")) {
+      // we have a problem - set up some crap display
+      int params[16];
+      for (j = 0; j < 16; j++)
+	params[j] = 0;
+
+      mapview->clone_fleet_view(NULL);
+      mapview->get_fleet_view()->name = myString("PLEASE copy default.ffl into the directory containing the master file.");
+    }
+    mapview->select_fleet_view(0);
+
+  } else // select first fleet view
+    mapview->select_fleet_view(0);
+
   // select a random planet....
-  mapview->set_active_planet(_xypoint(0,0));
+  mapview->set_active_planet(_xypoint(0,0), 0);
+  mapview->set_active_planet(_xypoint(0,0), 1);
 
   return true;
 }
@@ -117,10 +140,13 @@ stars_map::stars_map(void) :
         xmin(100000), ymin(100000), xmax(-100000), ymax(-1000000), 
         total_planets(0), unexplored_planets(0), uninhabited_planets(0),
         unsorted_ptable(NULL), sorted_ptable(NULL), xregion_ptable(NULL),
-	n_regions(0), valtab(NULL), wfunc(wfunc_160), wfrange(160), wf_rspan(0),
+	n_regions(0), valtab(NULL), 
+	wfunc(wfunc_160), wfrange(160), wf_rspan(0),
+	view_res(DISPLAY_RESOLUTION),
         row_lengths(NULL), row_owners(NULL), row_posits(NULL),
-        number_races(0), number_alliances(-1), actual_sim_future(8),
-	report_log(NULL)
+        number_races(0), cur_alliance(-1),
+	ship_hulls(NULL),
+	actual_sim_future(8), report_log(NULL)
 {
   int i;
 
@@ -149,7 +175,7 @@ stars_map::~stars_map(void)
 
 
 
-void stars_map::open_report_log(const String& rln)
+void stars_map::open_report_log(const myString& rln)
 {
   report_log = fopen(rln, "w");
 
@@ -159,7 +185,7 @@ void stars_map::open_report_log(const String& rln)
 
 
 
-void stars_map::log(const String& m)
+void stars_map::log(const myString& m)
 {
   if (report_log) {
     fprintf(report_log, "%s", (const char*)m);
@@ -214,10 +240,10 @@ void stars_map::sort_universe(void)
   }
 
   // perform all checks
-  check_planets_step1(report_log);
+  check_planets_step1();
 
   // check fleets
-  check_fleets(report_log);
+  check_fleets();
 
   // count planets
   for (p = unsorted_ptable; p; p = p->next)
@@ -231,9 +257,9 @@ void stars_map::sort_universe(void)
       p->_owner->planet_table = p;
     }
 
-  evolve_planets(report_log);
-  check_planets_step2(report_log);
-  empire_report(report_log);
+  evolve_planets();
+  check_planets_step2();
+  empire_report();
 
   // generate regions and assign planets to them
   // regions are horizontal slices of the universe of height 1
@@ -308,7 +334,7 @@ void stars_map::sort_universe(void)
 
 
 
-void stars_map::init_ownership(const int bres)
+void stars_map::init_ownership(void)
 {
   int i;
 
@@ -324,7 +350,7 @@ void stars_map::init_ownership(const int bres)
 
   sort_universe();
 
-  base_res = bres * (1 << (max_zoom-1));
+  base_res = view_res * (1 << (max_zoom-1));
 
   // surface of the universe
   surface = base_res * base_res;
@@ -457,6 +483,8 @@ void stars_map::line_ownership(const int yg)
 }
 
 
+// find planet closest to specified point
+
 planet* stars_map::find_planet(const _xypoint& xy)
 {
   // scan all planets
@@ -479,8 +507,73 @@ planet* stars_map::find_planet(const _xypoint& xy)
 }
 
 
+// find planet closest to movement vector
 
-planet* stars_map::find_planet(const String& pn)
+planet* stars_map::find_planet(const _xypoint& xy, const _xypoint& dir)
+{
+  // approx angular resolution is 1/128
+  // assume this as error in target planet determination
+  // closer planets are preferred (not a good idea, maybe?)
+
+  // longitudinal vector
+  double lx = dir.x, ly = dir.y;
+  double lmod = sqrt(lx*lx + ly*ly);
+  lx /= lmod;
+  ly /= lmod;
+
+  // transversal vector
+  double tx = -ly, ty = lx;
+
+  planet* p;
+  double px, py;
+  double ld, td, best_d = 1e10;
+  planet* best_p = NULL;
+
+  //  fprintf(stderr, "Trajectory is %d,%d --> %g,%g\n", 
+  //	  xy.x, xy.y, lx, ly);
+
+  for (p = game_map->unsorted_ptable; p; p = p->next) {
+    px = p->pos.x - xy.x;
+    py = p->pos.y - xy.y;
+
+    //    fprintf(stderr, "  planet %s (%d,%d)", p->name().chars(),
+    //	    p->pos.x, p->pos.y);
+
+    ld = px*lx + py*ly;
+    if (ld < 0.0) {
+      //      fprintf(stderr, "  behind!!\n");
+      continue; // planet is behind fleet
+    }
+
+    td = px*tx + py*ty;
+
+    //    fprintf(stderr, "  L=%g T=%g", ld, td);    
+
+    // note: I have artificially extended the cone by a factor of
+    // two to include possible rounding errors, the real value
+    // should be ld/128 and NOT ld/64
+
+    if (fabs(td) < ld / 64.0) {
+      // planet is inside cone, it's a possible destination
+
+      //      fprintf(stderr, "  inside cone!\n");
+
+      if (ld < best_d) {
+	best_d = ld;
+	best_p = p;
+      }
+    } else {
+      //      fprintf(stderr, "\n");
+    }
+  }
+
+  return best_p;
+}
+
+
+// find planet from name
+
+planet* stars_map::find_planet(const myString& pn)
 {
   planet* p;
   int rv;
@@ -510,7 +603,7 @@ planet* stars_map::find_planet(const int st_id)
 }
 
 
-planet* stars_map::grab_planet(const String& pn)
+planet* stars_map::grab_planet(const myString& pn)
 {
   planet* p;
 
@@ -545,7 +638,7 @@ void stars_map::add_planet(planet* p)
 }
 
 
-race* stars_map::add_race(const String& arg0)
+race* stars_map::add_race(const myString& arg0)
 {
   int i;
 
@@ -573,6 +666,84 @@ race* stars_map::add_race(const String& arg0)
 
 
 
+void stars_map::add_message(const _msgtype mt, const myString& m)
+{
+  logmsgs.add(mt, m);
+}
+
+
+
+void stars_map::all_races_message(const _msgtype mt, const myString& m)
+{
+  int i;
+
+  for (i = 0; i < number_races; i++)
+    race_list[i]->add_message(mt, m);
+}
+
+
+
+void stars_map::log_all_messages(void)
+{
+  const message* msg = logmsgs.first();
+
+  for (; msg; msg = msg->next)
+    if (!msg->filtered())
+      log(msg->msg + "\n");
+}
+
+
+
+hull* stars_map::create_hull(const myString& hn)
+{
+  hull* h = new hull(hn);
+
+  h->next = ship_hulls;
+  ship_hulls = h;
+
+  return h;
+}
+
+
+
+hull* stars_map::find_hull(const myString& hn)
+{
+  hull* h;
+
+  for (h = ship_hulls; h; h = h->next)
+    if (h->name == hn)
+      return h;
+
+  return NULL;
+}
+
+
+
+engine* stars_map::create_engine(const myString& en)
+{
+  engine* e = new engine(en);
+
+  e->next = ship_engines;
+  ship_engines = e;
+
+  return e;
+}
+
+
+
+engine* stars_map::find_engine(const myString& en)
+{
+  engine* e;
+
+  for (e = ship_engines; e; e = e->next)
+    if (e->name == en)
+      return e;
+
+  return NULL;
+}
+
+
+
 void stars_map::add_fleet(fleet* f, const int source)
 {
   // parse the fleet name
@@ -581,6 +752,7 @@ void stars_map::add_fleet(fleet* f, const int source)
   unsigned int ownernlen = 0;
   fleet* df;
   fleet* of;
+  myString msg;
 
   // try to guess the owner.....
   for (ownerid = 0; ownerid < number_races; ownerid++)
@@ -599,7 +771,7 @@ void stars_map::add_fleet(fleet* f, const int source)
   // we have owner, try to see if we have stars id number
   f->_owner = race_list[owner];
 
-  String fn = f->_starsname.after((int)ownernlen);
+  myString fn = f->_starsname.after((int)ownernlen);
 
   // look for a #[0-9]+ at the end
   const char* p = (const char*)fn + fn.length() - 1;
@@ -612,23 +784,31 @@ void stars_map::add_fleet(fleet* f, const int source)
     f->_name = fn.before(p - (const char*)fn - 1);
     sscanf(++p, "%d", &f->stars_id);
 
+    // if source == owner then it's not an enemy fleet...
+    if (source == owner)
+      f->enemy = false;
+
     // initial scan for duplicates, with owner & id we will get it
     for (of = NULL, df = f->_owner->fleet_table; df; of = df, df = df->rnext) {
 
       if (f->stars_id == df->stars_id) {
 	// we have duplicate, if source == owner we prefer source
-	log("Duplicate fleet " + f->_starsname + " and " + df->_starsname);
+	msg = "Duplicate fleet " + f->_starsname + ", was " + df->_starsname;
 
 	// check consistency
-	if (f->mass != df->mass)
-	  log(" (mass is non-consistent)");
-	if (f->n_ships != df->n_ships)
-	  log(" (number of ships is non-consistent)");
+	if (f->_mass != df->_mass)
+	  msg += " (mass is non-consistent)";
+	if (f->numships[0] != df->numships[0])
+	  msg += " (number of ships is non-consistent)";
 	if (f->pos[0] != df->pos[0])
-	  log(" (position is non-consistent)");
+	  msg += " (position is non-consistent)";
 
-	if (owner == source) {
-	  log(" old replaced\n");
+	if (!f->enemy) {
+	  // non-enemy fleets are given priority (if it's not
+	  // enemy's than it's yours and you have more info)
+
+	  msg += " old replaced";
+
 	  // replace existing fleet
 	  f->rnext = df->rnext;
 
@@ -640,10 +820,13 @@ void stars_map::add_fleet(fleet* f, const int source)
 	  delete df;
 
 	} else {
-	  log(" old kept\n");
+	  msg += " old kept";
+
 	  // trash current fleet
 	  delete f;
 	}
+
+	f->_owner->add_message(RLO_FLEETDUP, msg);
 
 	break;
       }
@@ -668,7 +851,7 @@ void stars_map::add_fleet(fleet* f, const int source)
 
 
 
-race* stars_map::find_race(const String& n)
+race* stars_map::find_race(const myString& n)
 {
   int i;
 
@@ -680,7 +863,7 @@ race* stars_map::find_race(const String& n)
       return race_list[i];
 
   if (fully_visual)
-    display->error_dialog(String("Request for non-existent race ") + n + " done");
+    display->error_dialog(myString("Request for non-existent race ") + n + " done");
   else
     fprintf(stderr, "Request for non-existent race %s done\n", (const char*)n);
 
@@ -702,21 +885,26 @@ race* stars_map::find_race(const int id) const
 
 
 
-void stars_map::create_alliance(const String& n)
+void stars_map::create_alliance(const myString& n)
 {
-  number_alliances++;
-  alliance_names[number_alliances] = n;
+  cur_alliance = -1;
+  cur_alliance_name = n;
 }
 
 
-bool stars_map::add_to_alliance(const String& rn)
+bool stars_map::add_to_alliance(const myString& rn)
 {
   race* r;
 
   if ( !(r = find_race(rn)) )
     yyerror("Unknown race specified in alliance");
 
-  race_alliances[r->id] = number_alliances;
+  if (cur_alliance == -1) {
+    cur_alliance = r->id;
+    alliance_names[cur_alliance] = cur_alliance_name;
+  }
+
+  race_alliances[r->id] = cur_alliance;
   return true;
 }
 
@@ -733,10 +921,10 @@ bool stars_map::are_allies(const race* r1, const race* r2)
 
 
 extern FILE* yyin;
-extern String infile_name;
+extern myString infile_name;
 
 
-bool stars_map::read_smf_file(const String& name)
+bool stars_map::read_smf_file(const myString& name)
 {
   if ( !(yyin = fopen((const char*)name, "r")) )
     return false;
@@ -745,19 +933,23 @@ bool stars_map::read_smf_file(const String& name)
 
   fprintf(report_log, "************* Reading data from %s *************\n\n",
 	  (const char*)name);
+  if (do_display)
+    display->set_intro_loadingfile("Loading file: " + name);
 
   yyparse();
 
   fclose(yyin);
+  if (do_display)
+    display->set_intro_loadingfile("Loading completed.");
 
   // set simulation parameters
   parameter* p;
 
-  p = get_parameter(String("min_mineral_move"));
+  p = get_parameter(myString("min_mineral_move"));
   PARmin_mineral_move = (p)? (int)(*p) : 250;
-  p = get_parameter(String("max_search_distance"));
+  p = get_parameter(myString("max_search_distance"));
   PARmax_search_distance = (p)? (int)(*p) : 243;
-  p = get_parameter(String("min_pop_for_scanner"));
+  p = get_parameter(myString("min_pop_for_scanner"));
   PARmin_pop_for_scanner = (p)? (int)(*p) : 150000;
 
   fprintf(report_log, "\n\n");

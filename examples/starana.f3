@@ -1,0 +1,13 @@
+Fleet Name	X	Y	Planet	Destination	Battle Plan	Ship Cnt	Iron	Bora	Germ	Col	Fuel	Owner	ETA	Warp	Mass	Cloak	Scan	Pen	Task	Mining	Sweep	Laying	Terra	Unarmed	Scout	Warship	Utility	Bomber
+Rabbitoid Scout #6	1282	1178	Pop	0.0		1	0	0	0	0	0	2	0	0	8	0	0	0		0	0	0	0	0	1	0	0	0
+Rabbitoid Privateer #7	1282	1178	Pop	0.0		2	0	0	0	0	0	2	0	0	130	0	0	0		0	0	0	0	0	0	0	2	0
+Antetheral Smaugarian Peeping Tom #1	1099	1070	Moonbeam	-- 	Default	1	0	0	0	0	72	3	0	0	22	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Antetheral Medium Freighter #2	1280	1043		Nowhere	Default	1	57	41	67	0	511	3	1y	6	237	0	0	0	QuikDrop	0	0	0	0	1	0	0	0	0
+Antetheral Little Hen #3	1228	1128	Blue Dwarf	-- 	Default	1	0	0	0	0	347	3	0	0	121	0	0	0	Lay Mine Field	0	0	320	0	0	0	0	1	0
+Antetheral Speed Turtle #4	1312	1090	Fluffy	-- 	Default	1	0	0	0	0	284	3	0	0	421	0	0	0	Lay Mine Field	0	0	160	0	0	0	0	1	0
+Antetheral Potato Bug #5	1297	1011	Rutebaga	-- 	Default	2	0	0	0	0	420	3	0	0	358	0	0	0	Remote Mining	20	0	0	0	2	0	0	0	0
+Antetheral Smaugarian Peeping Tom #6	1228	1128	Blue Dwarf	-- 	Default	1	0	0	0	0	149	3	0	0	22	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Antetheral Smaugarian Peeping Tom #7	1282	1178	Pop	-- 	Default	1	0	0	0	0	61	3	0	0	22	0	0	0	(no task here)	0	0	0	0	0	1	0	0	0
+Antetheral Medium Freighter #8	1272	1057	Nowhere	Moonbeam	Default	1	0	0	0	210	700	3	5y	6	282	0	0	0	QuikDrop	0	0	0	0	1	0	0	0	0
+Antetheral Medium Freighter #9	1272	1057	Nowhere	Blue Dwarf	Default	1	0	0	0	210	700	3	3y	6	282	0	0	0	QuikDrop	0	0	0	0	1	0	0	0	0
+Antetheral Santa Maria #10	1272	1057	Nowhere	-- 	Default	1	0	0	0	0	200	3	0	0	61	0	0	0	(no task here)	0	0	0	0	1	0	0	0	0
