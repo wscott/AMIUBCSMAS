@@ -469,25 +469,40 @@ void pfcb_close(FL_OBJECT *ob, long data)
 
 void pfcb_computepacket(FL_OBJECT *ob, long data)
 {
-
+  switch(data) {
+  case -1:
+  case -2:
+    display->packet_choosemass(-data);
+    break;
+  case 0:
+  case 1:
+    display->packet_updatevalues(data);
+    break;
+  default:
+    break;
+  }
+  display->packet_computedamage();
 }
 
 
 void pfcb_increasewarp(FL_OBJECT *ob, long data)
 {
-
+  display->packet_driverwarp(data, 1);
+  display->packet_computedamage();
 }
 
 
 void pfcb_decreasewarp(FL_OBJECT *ob, long data)
 {
-
+  display->packet_driverwarp(data, -1);
+  display->packet_computedamage();
 }
 
 
 void pfcb_switchdirection(FL_OBJECT *ob, long data)
 {
-
+  display->packet_switchdirection();
+  display->packet_computedamage();
 }
 
 

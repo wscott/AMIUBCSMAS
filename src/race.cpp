@@ -298,6 +298,21 @@ int race::defense_level(int when) const
 
 
 
+const double deftable[] = {0.0099, 0.0199, 0.0239, 0.0299, 0.0379};
+
+ 
+int race::compute_percent_from_def(const int d)
+{
+  return (int)(10000 * (1.0 - pow(1-deftable[defense_level(0)], d)));
+}
+ 
+ 
+int race::compute_def_from_percent(const int dp)
+{
+  return (int)(0.5 + log(1 - dp / 10000.0)/log(1 - deftable[defense_level(0)]));
+}
+
+
 int race::pla_penscan_radius(int when) const
 {
   if (lrt(NAS))

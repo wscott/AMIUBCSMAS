@@ -78,7 +78,7 @@ void planet::check_data(void)
 
     } else {
       // guess number from def%
-      _defenses[0] = compute_def_from_percent(def_coverage[0]);
+      _defenses[0] = _owner->compute_def_from_percent(def_coverage[0]);
 
       if (_defenses[0] > 100) {
 	_defenses[0] = 100;
@@ -90,7 +90,7 @@ void planet::check_data(void)
     }
 
   } else if (def_coverage[0] < 0) {
-    def_coverage[0] = compute_percent_from_def(_defenses[0]);
+    def_coverage[0] = _owner->compute_percent_from_def(_defenses[0]);
   }
 
   // choose if we have scanners or not on the planet

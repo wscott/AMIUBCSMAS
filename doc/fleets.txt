@@ -1,3 +1,6 @@
+AMIUBCSMAS 0.3
+
+
 DESCRIPTION OF FLEET DISPLAY
 
 If you have not read the planets.txt file then go and read it. The

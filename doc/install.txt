@@ -1,4 +1,4 @@
-AMIUBCSMAS 0.2
+AMIUBCSMAS 0.3
 
 or
 
@@ -7,7 +7,7 @@ Stars! Mapper, Analyzer and Simulator
 
 (called "StarAna", as in STARs! ANAlyzer, by friends)
 
-install.txt version 0.2, 29 Jan 1998
+install.txt version 0.3, 22 Nov 1998
 
 
 WINDOWS INSTALLATION

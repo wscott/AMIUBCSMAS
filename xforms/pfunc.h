@@ -242,6 +242,7 @@ typedef struct {
 	FL_OBJECT *racenotes[2];
 	FL_OBJECT *cheapkiller;
 	FL_OBJECT *packetdirection;
+        int dir;
 	FL_OBJECT *fastkiller;
 	FL_OBJECT *population[2];
 	FL_OBJECT *ndefenses[2];
@@ -253,6 +254,7 @@ typedef struct {
 	FL_OBJECT *defdestroy[4];
 	FL_OBJECT *terraform[4];
 	FL_OBJECT *driverwarp[2];
+        int dwarp[2];
 } FD_PacketFiring;
 
 extern FD_PacketFiring * create_form_PacketFiring(void);

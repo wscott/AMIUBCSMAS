@@ -1,10 +1,13 @@
-Welcome to the 5 Jul 1998 version of AMIUBCSMAS/StarAna.
+Welcome to the 25 Nov 1998 version of AMIUBCSMAS/StarAna.
 
 Ok, so you know how to decompress the archive......it's a good sign.
 
-The package is divided in 4 parts, and you need more than one to do
-anything. Make sure you have at bin/windll/doc for use under windows
-95 and src/doc for use under linux.
+If you downloaded just a component you should know that the package is
+divided in 4 parts, and you need more than one to do anything. Make
+sure you have at bin/windll/doc for use under windows 95 and src/doc
+for use under linux.
+If you have downloaded the "big" package then you already have enough
+stuff.
 
 Check the files in the doc/ subdirectory. The info is subdivided in
 several files.
@@ -17,13 +20,12 @@ start from this file.
 Then starana.txt, for a "normal user" description of what the program
 does and how to use it.
 
-Pfdisplay.txt comes next, with the explanation of how to manipulate
-the planetary display functions. Fleets will work like that one day,
-too.
+Planets.txt and fleets.txt come next, with the explanation of how to
+manipulate the planetary/fleet display functions.
 
 If you feel like trying you can look in technicalia.txt for technical
-details.  It's outdated, I have added some stuff which is not
-described in there.
+details.  It's badly outdated, I have added lots stuff which is not
+described in there, also, several things have been changed.
 
 If you're on linux you need to edit Makefile.local to suit your needs
 before entering src/ for the compilation.

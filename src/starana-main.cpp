@@ -37,7 +37,7 @@ int report_log_filter = 0
 
 void usage(void)
 {
-  puts("StarAna 0.2f16 -- 21 Nov 1998 -- usage:\n");
+  puts("StarAna 0.2f18 -- 27 Nov 1998 -- usage:\n");
   puts("starana [-a] [-v] [master .smf file]\n");
   puts("-a    just generate report-log and quit\n");
   puts("-v    open a window to ask for the master file\n");

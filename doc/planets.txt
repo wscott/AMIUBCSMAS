@@ -1,3 +1,6 @@
+AMIUBCSMAS 0.3
+
+
 HOW PLANETARY DISPLAY *REALLY* WORKS
 
 If you tried to play a bit with the planetary display editor you're

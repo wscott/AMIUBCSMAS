@@ -1,7 +1,7 @@
 fleet_view "Default fleet display" {
 	0 "Filter: orbiting" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-	1 "Set Data" 3 "F" 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-	2 "Set Marker" 4 "F" 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Data" 3 "F" 0 0 0 80 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 "F" 0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 0
 	3 "Filter: owner" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 	4 "Color: data" 3 "F" 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 	5 "Color: marker" 3 "F" 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -11,4 +11,25 @@ fleet_view "Default fleet display" {
 	9 "Color: name" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 }
 fleet_view "Empty (all nothing)" {
+}
+fleet_view "Fleets with color of owner" {
+	0 "Set Data" 2 "CLDMNF" 0 0 0 80 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Color: data" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set # of ships" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+fleet_view "Fleets going to an enemy world" {
+	0 "Filter: destination" 2 "CLDMNF" 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Filter: owner" 3 "F" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Data" 3 "F" 0 0 0 80 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Color: data" 3 "F" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Destination" 3 "F" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	5 "Line: color" 3 "F" 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	6 "Set # of ships" 3 "F" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+fleet_view "Fleet scanning" {
+	0 "Set Marker" 2 "CLDMNF" 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Filter: owner" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Color: marker" 3 "F" 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Scanning" 3 "F" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Color: marker" 4 "F" 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 }

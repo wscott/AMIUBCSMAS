@@ -412,10 +412,279 @@ void graphics::load_planetstatus(void)
 }
 
 
+// make sure that the minerals spent correspond to a possible value
 
-void graphics::compute_packetfiring(void)
+void graphics::packet_validatemins(void)
+{
+  int source, step;
+  race* badguy;
+
+  source = (xf_pak->dir)? 1 : 0;
+
+  badguy = mapview->get_active_planet(source)->owner();
+  if (!badguy)
+    badguy = mapview->viewpoint();
+
+  if (badguy->prt() == PP)
+    step = 70;
+  else if (badguy->prt() == IT)
+    step = 120;
+  else
+    step = 110;
+
+  fl_set_counter_step(xf_pak->mineralspent, step, step*10);
+
+  // verify that current value is good
+  int value = (int)fl_get_counter_value(xf_pak->mineralspent);
+
+  value = (value / step) * step;
+
+  fl_set_counter_value(xf_pak->mineralspent, value);
+}
+
+
+const double pktdecay[4] = { 0.0, 0.1, 0.25, 0.5 };
+
+
+void graphics::packet_computedamage(void)
+{
+  int source, dest, sdw, w, ddw, pktmass, dpopulation, ddefenses;
+  int overfiring, warp, traveltime, d, td, massloss, caughtmass;
+  int hitplanet, dmgraw, colkill, defdestroy, minrecovered, distance;
+  int colleft, defleft, orig_pktmass;
+  double defcoverage, decay, tforming, tformingp;
+  planet* sp;
+  planet* dp;
+  char str[64];
+
+  fl_freeze_form(xf_pak->PacketFiring);
+
+  // use direction to choose source & destination
+  source = 0;
+  dest = 1;
+
+  if (xf_pak->dir) {
+    source = 1;
+    dest = 0;
+  }
+
+  sdw = xf_pak->dwarp[source];
+  sp = mapview->get_active_planet(source);
+  orig_pktmass = (int)fl_get_counter_value(xf_pak->mineralspent);
+  dp = mapview->get_active_planet(dest);
+
+  if (sdw == 0 || sp == dp || orig_pktmass == 0)
+    w = 0;
+
+  else {
+    ddw = xf_pak->dwarp[dest];
+    if (ddw)
+      ddw += fl_get_button(xf_pak->twindriver[dest]);
+
+    race* badguy = sp->owner();
+    if (!badguy)
+      badguy = mapview->viewpoint();
+
+    race* victim = dp->owner();
+    if (!victim)
+      victim = mapview->viewpoint();
+
+    dpopulation = atoi(fl_get_input(xf_pak->population[dest]));
+    ddefenses = atoi(fl_get_input(xf_pak->ndefenses[dest]));
+    defcoverage = (double)victim->compute_percent_from_def(ddefenses)/10000.0;
+
+    // "firing tax"
+    if (badguy->prt() == IT)
+      orig_pktmass = orig_pktmass * 10 / 12;
+    else if (badguy->prt() != PP)
+      orig_pktmass = orig_pktmass * 10 / 11;
+
+    // compute packet damage
+    for (w = 0; w < 4 && (sdw+w) < 17; w++) {
+      // decay rate
+      overfiring = max(0, w-fl_get_button(xf_pak->twindriver[source]));
+
+      if (badguy->prt() == IT)
+	overfiring++;
+
+      if (overfiring > 3)
+	overfiring = 3;
+
+      decay = pktdecay[overfiring];
+      if (badguy->prt() == PP)
+	decay /= 2;
+
+      warp = sdw + w;
+      traveltime = -1;
+
+      distance = sp->distance(dp);
+      pktmass = orig_pktmass;
+
+      // travelled distance this year
+      d = warp*warp / 2;
+
+      do {
+	td = min(d, distance);
+
+	massloss = (int)(pktmass * decay*td/(warp*warp));
+	if (decay != 0.0)
+	  if (badguy->prt() == PP)
+	    massloss = max(5, massloss);
+	  else
+	    massloss = max(10, massloss);
+
+	pktmass -= massloss;
+	if (pktmass < 0)
+	  pktmass = 0;
+	distance -= d;
+	d = warp*warp;
+	traveltime++;
+      } while (distance > 0);
+
+      // pktmass kT of minerals hit planet
+      // compute mass caught by MD
+      if (ddw)
+	caughtmass = min(pktmass, pktmass * (ddw*ddw) / (warp*warp));
+      else
+	caughtmass = 0;
+
+      hitplanet = pktmass - caughtmass;
+
+      if (hitplanet) {
+	dmgraw = (int)((1.0 - defcoverage) * ((warp*warp - ddw*ddw) * hitplanet / 160));
+	colkill = max(dpopulation * dmgraw / 1000, dmgraw * 100);
+	defdestroy = min(ddefenses, max(dmgraw * ddefenses / 1000, dmgraw / 20));
+	minrecovered = caughtmass + hitplanet / 3;
+	tforming = 0.5 * hitplanet / 100;
+	tformingp = 0.001 * hitplanet / 100;
+
+      } else {
+	// all minerals caught, no damage
+	colkill = 0;
+	defdestroy = 0;
+	minrecovered = caughtmass;
+	tforming = 0.0;
+	tformingp = 0.0;
+      }
+
+      if (colkill > dpopulation)
+	fl_set_object_label(xf_pak->colkill[w], "ALL / -");
+      else {
+	colleft = dpopulation - colkill;
+	fl_set_object_label(xf_pak->colkill[w], int_to_str(colkill) + " / " + int_to_str(colleft));
+      }
+
+      defleft = ddefenses - defdestroy;
+
+      fl_set_object_label(xf_pak->warp[w], int_to_str(warp));
+      fl_set_object_label(xf_pak->mineral[w], 
+			  int_to_str(pktmass) + " / " + int_to_str(minrecovered));
+      fl_set_object_label(xf_pak->travel[w], int_to_str(traveltime));
+      fl_set_object_label(xf_pak->defdestroy[w], 
+			  int_to_str(defdestroy) + " / " + int_to_str(defleft));
+      if (badguy->prt() == PP)
+	sprintf(str, "%g / %g", tforming, tformingp);
+      else
+	strcpy(str, "- / -");
+      fl_set_object_label(xf_pak->terraform[w], str);
+    }
+  }
+
+  for (;w < 4; w++) {
+    fl_set_object_label(xf_pak->warp[w], "-");
+    fl_set_object_label(xf_pak->colkill[w], "- / -");
+    fl_set_object_label(xf_pak->mineral[w], "- / -");
+    fl_set_object_label(xf_pak->travel[w], "-");
+    fl_set_object_label(xf_pak->defdestroy[w], "- / -");
+    fl_set_object_label(xf_pak->terraform[w], "- / -");
+  }
+
+  fl_unfreeze_form(xf_pak->PacketFiring);
+}
+
+
+
+void graphics::packet_switchdirection(void)
+{
+  xf_pak->dir = !xf_pak->dir;
+
+  if (xf_pak->dir)
+    fl_set_object_label(xf_pak->packetdirection, "@4");
+  else
+    fl_set_object_label(xf_pak->packetdirection, "@6");
+
+  packet_validatemins();
+  packet_computedamage();
+}
+
+
+
+void graphics::packet_driverwarp(const int who, const int dir)
+{
+  race* r = mapview->get_active_planet(who)->owner();
+  if (!r)
+    r = mapview->viewpoint();
+
+  int warp = xf_pak->dwarp[who];
+
+  if (r->prt() == PP) {
+    warp += dir;
+
+    if (warp > 13)
+      warp = 13;
+    if (warp < 5)
+      warp = 5;
+  } else {
+    if (warp == 0 && dir == 1)
+      warp = 7;
+    else if (warp == 7)
+      if (dir == 1)
+	warp = 10;
+      else
+	warp = 0;
+    else
+      if (dir == -1)
+	warp = 7;
+  }
+
+  if (warp != xf_pak->dwarp[who]) {
+    xf_pak->dwarp[who] = warp;
+    fl_set_object_label(xf_pak->driverwarp[who], int_to_str(warp));
+    packet_computedamage();
+  }
+}
+
+
+
+void graphics::packet_choosemass(const int type)
 {
 }
+
+
+
+void graphics::packet_updatevalues(const int who)
+{
+  char str[64];
+
+  // we need to update def coverage values
+  int ndefenses = atoi(fl_get_input(xf_pak->ndefenses[who]));
+
+  if (ndefenses < 0) {
+    ndefenses = 0;
+    fl_set_input(xf_pak->ndefenses[who], int_to_str(ndefenses));
+  } else if (ndefenses > 100) {
+    ndefenses = 100;
+    fl_set_input(xf_pak->ndefenses[who], int_to_str(ndefenses));
+  }
+
+  race* r = mapview->get_active_planet(who)->owner();
+  if (!r)
+    r = mapview->viewpoint();
+
+  sprintf(str, "(%.2f%%)", (float)r->compute_percent_from_def(ndefenses)/100.0);
+  fl_set_object_label(xf_pak->defcoverage[who], str);
+}
+
 
 
 void graphics::load_packetfiring(void)
@@ -434,8 +703,6 @@ void graphics::load_packetfiring(void)
     fl_set_object_label(xf_pak->planetname[i], p->name());
     fl_set_input(xf_pak->population[i], int_to_str(p->population(when)));
     fl_set_input(xf_pak->ndefenses[i], int_to_str(p->defenses(when)));
-    sprintf(str, "%.2f%%", (float)p->defense_coverage(when)/100);
-    fl_set_object_label(xf_pak->defcoverage[i], str);
 
     msg = "";
     dw = 0;
@@ -452,7 +719,10 @@ void graphics::load_packetfiring(void)
 	goto computewarp;
 	break;
       case WM:
-	msg = "Your defenses suck, try to have a driver\nto catch part of the pachet, ok?";
+	msg = "Your defenses suck, try to have a driver\nto catch part of the packet, ok?";
+	goto computewarp;
+      case CA:
+	msg = "Your instaforming ability makes you\nsomewhat more resistant to packet\ndeterraforming attacks.";
 computewarp:
 	if (dw == 8 || dw == 11) {
 	  dw--;
@@ -460,17 +730,29 @@ computewarp:
 	}
 	break;
       default:
+	msg = "Nothing special.";
 	break;
       }
     }
 
-    fl_set_object_label(xf_pak->driverwarp[i], int_to_str(p->driver_warp()));
+    xf_pak->dwarp[i] = dw;
+    fl_set_object_label(xf_pak->driverwarp[i], int_to_str(dw));
     fl_set_button(xf_pak->twindriver[i], twin);
     fl_set_object_label(xf_pak->racenotes[i], msg);
   }
 
   sprintf(str, "%d l.y.", mapview->get_active_planet(0)->distance(mapview->get_active_planet(1)));
   fl_set_object_label(xf_pak->planetdistance, str);
+
+  // set correct step for mineral counter
+  packet_validatemins();
+
+  // update values
+  packet_updatevalues(0);
+  packet_updatevalues(1);
+
+  // compute damage
+  packet_computedamage();
 
   fl_unfreeze_form(xf_pak->PacketFiring);
 }

@@ -56,14 +56,14 @@ race "Humanoid" {
  * ship information. In this case if we omit the cargo and fuel
  * specification we'll get the default ones of the Privateer hull.
  */
-		minerals 75 3 10
-		resources 80
+		minerals 73 3 3
+		resources 68
 /*
  * production cost: by defining a design you also automatically define
  * an object which can be included in queues and that will appear in
  * the planet status window.
  */
-		mass 80
+		mass 83
 /*
  * Ship mass, it's used in consistency checks, so make sure you type
  * it in right.
@@ -79,13 +79,54 @@ race "Humanoid" {
 		engine "Fuel Mizer"
 /*
  * Ship enigine. The number of engines is taken from the base hull.
+ * NOTE: right now it's completely useless, i.e. you can omit it.
  */
 		composition "Pr"
 /*
  * Abbreviation used in fleet names to give the composition. Read
  * fleets.txt for a description on how to use it.
- * REMEMER!!! *it can't* contain numbers!!!!
+ * REMEMBER!!! *it can't* contain numbers!!!!
  */
+	}
+
+	design "Long Range Scout" {
+		hull "Scout"
+		minerals 18 2 7
+		resources 22
+		mass 25
+		fuel 300
+		composition "LRS"
+	}
+
+	design "Cotton Picker" {
+		hull "Mini-Miner"
+		minerals 87 0 23
+		resources 239
+		mass 574
+		composition "RM"
+	}
+
+	design "Stalwart Defender" {
+		hull "Destroyer"
+		minerals 49 12 25
+		resources 90
+		mass 186
+		fuel 530
+		composition "SD"
+	}
+
+	design "Teamster" {
+		hull "Medium Freighter"
+		minerals 34 0 22
+		resources 61
+		mass 130
+		composition "MF"
+	}
+
+	design "Starbase" {
+		hull "Space Station"
+		minerals 122 167 236
+		resources 672
 	}
 
 	queue {
@@ -95,7 +136,7 @@ race "Humanoid" {
 	}
 }
 
-fleet "Humanoid Strike Fleet #12" composition "12De 2SFX"
+fleet "Humanoid Remote Miners #6" composition "RM1"
 /*
  * if you want to use a name you like for the fleet or if the
  * composition string gets too large for the Stars! input dialog you

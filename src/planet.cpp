@@ -254,21 +254,6 @@ void planet::set_power(void)
 */
 
 
-const double deftable[] = {0.0099, 0.0199, 0.0239, 0.0299, 0.0379};
-
- 
-int planet::compute_percent_from_def(const int d)
-{
-  return (int)(10000 * (1.0 - pow(1-deftable[_owner->defense_level(0)], d)));
-}
- 
- 
-int planet::compute_def_from_percent(const int dp)
-{
-  return (int)(0.5 + log(1 - dp / 10000.0)/log(1 - deftable[_owner->defense_level(0)]));
-}
-
-
 // hab formula from Loren Webster
 
 int planet::habitability(const int* st, const race* owner) const
@@ -937,7 +922,7 @@ void planet::init_turn(void)
 
   // update defense coverage (done here to take into account the tech
   // level of the year AFTER the construction has been done)
-  def_coverage[curr_year] = compute_percent_from_def(_defenses[curr_year]);
+  def_coverage[curr_year] = _owner->compute_percent_from_def(_defenses[curr_year]);
 
   // compute resources available this year
   avail_res = resources();

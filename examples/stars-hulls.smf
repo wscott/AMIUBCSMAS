@@ -209,7 +209,7 @@ hull "Midget Miner" {
 	fuel 210
 }
 
-hull "Mini Miner" {
+hull "Mini-Miner" {
 	engine 1
 	mass 80
 	cargo 0

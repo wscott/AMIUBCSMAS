@@ -481,6 +481,8 @@ public:
   int defense_level(int when = 0) const;
   int pla_penscan_radius(int when = 0) const;
   int pla_scan_radius(int when = 0) const;
+  int compute_percent_from_def(const int d);
+  int compute_def_from_percent(const int dp);
   void set_terraform_tech(int when = 0);
   const char* tech_cost(void) const
     { return techcost; }
@@ -590,8 +592,6 @@ static int planet_pop_needs[][6];
   void calc_habitability(void);
   int tform_left(race* owner = NULL, int when = -1) const;
   void instaform(void);
-  int compute_percent_from_def(const int d);
-  int compute_def_from_percent(const int dp);
   int habitability(const int* st, const race* owner = NULL) const;
   bool set_planet_stats(int *st, double g, const double& t, const double& r);
   void add_to_queue(queue_obj* qo);
