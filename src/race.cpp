@@ -53,8 +53,8 @@ race::race(const myString& n, const int i) :
 	    fact_res(10), fact_cost(10), fact_ctrl(10), fact_germ(4),
 	    mine_eff(10), mine_cost(5), mine_ctrl(10),
 	    _prt(SD), min_pop_move(100), maxpop(1000000),
-	    default_queue(NULL), object_table(NULL),
-	    fleet_table(NULL), planet_table(NULL), 
+	    default_queue(NULL), object_table(NULL), last_object(NULL),
+	    fleet_table(NULL), last_fleet(NULL), planet_table(NULL), 
 	    number_fleets(0), explored_planets(0), owned_planets(0),
 	    curr_year(0)
 {
@@ -215,6 +215,38 @@ void race::set_minimal_objects(void)
 }
 
 
+
+void race::add_fleet(fleet* f)
+{
+  f->rnext = NULL;
+
+  if (!fleet_table)
+    fleet_table = last_fleet = f;
+  else {
+    last_fleet->rnext = f;
+    last_fleet = f;
+  }
+}
+
+
+
+void race::replace_fleet(fleet* pof, fleet* of, fleet* nf)
+{
+  nf->rnext = of->rnext;
+
+  if (pof)
+    pof->rnext = nf;
+  else
+    fleet_table = nf;
+
+  if (of == last_fleet)
+    last_fleet = nf;
+
+  delete of;
+}
+
+
+
 bool race::add_to_default_queue(const bool a, const myString& n, const int c,
 				const int act, const int deact)
 {
@@ -343,9 +375,14 @@ int race::pla_scan_radius(int when) const
 object* race::create_object(const myString& n)
 {
   object* o = new object(n);
+  o->next = NULL;
 
-  o->next = object_table;
-  object_table = o;
+  if (!object_table)
+    object_table = last_object = o;
+  else {
+    last_object->next = o;
+    last_object = o;
+  }
 
   return o;
 }

@@ -769,8 +769,12 @@ void map_view::draw_object(object_display* pd, const int stage)
 	}
       }
 
-      // move "object" down to avoid clobbering marker with name
-      pd->nameyshift = r / 4;
+      // for pie charts we move name DOWN (assuming a planet)
+      // for triangle pies we move it UP (assuming a fleet)
+      if (pd->pie_type == PIE_TRIANG)
+	pd->nameyshift -= r / 4 - 2;
+      else
+	pd->nameyshift += r / 4;
     }
     break;
 
@@ -949,6 +953,9 @@ void map_view::set_fleet_display(void)
       fd.xy = map_to_display(f->position(_when));
       // default direction is fleet movement
       fd.pie_dir = f->position(game_map->sim_future()) - f->position(_when);
+
+      // shift name upwards
+      fd.nameyshift = -13;
 
       for (ffi = 0; ffi < MAX_DISP_MODES; ffi++) {
 	ff_operation& fo = fleet_views[fview]->fle_modes[ffi];

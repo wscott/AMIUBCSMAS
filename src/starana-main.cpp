@@ -37,7 +37,7 @@ int report_log_filter = 0
 
 void usage(void)
 {
-  puts("StarAna 0.2f11 -- 8 Nov 1998 -- usage:\n");
+  puts("StarAna 0.2f15 -- 15 Nov 1998 -- usage:\n");
   puts("starana [-a] [-v] [master .smf file]\n");
   puts("-a    just generate report-log and quit\n");
   puts("-v    open a window to ask for the master file\n");
@@ -124,6 +124,7 @@ int main(int argc, char** argv)
 
     } else {
       myString title = game_map->name() + " - year " + int_to_str(game_map->year());
+      filter_out_messages(report_log_filter);
       display->create_palette();
       display->form_initial_update();
       display->wait_title_form();
@@ -140,5 +141,5 @@ int main(int argc, char** argv)
 
   delete game_map;
 
-  return 1;
+  return 0;
 }

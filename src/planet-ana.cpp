@@ -80,9 +80,12 @@ void planet::check_data(void)
       // guess number from def%
       _defenses[0] = compute_def_from_percent(def_coverage[0]);
 
-      if (_defenses[0] > 100)
+      if (_defenses[0] > 100) {
+	_owner->add_message(RLO_PLANETINI, 
+			    header + " impossible def coverage %%!! Check energy tech level!");
 	game_map->add_message(RLO_PLANETINI, 
 			      header + " impossible def coverage %%!! Check energy tech level!");
+      }
     }
 
   } else if (def_coverage[0] < 0) {

@@ -838,14 +838,7 @@ void stars_map::add_fleet(fleet* f, const int source)
 	  msg += " old replaced";
 
 	  // replace existing fleet
-	  f->rnext = df->rnext;
-
-	  if (of)
-	    of->rnext = f;
-	  else
-	    f->_owner->fleet_table = f;
-
-	  delete df;
+	  f->_owner->replace_fleet(of, df, f);
 
 	} else {
 	  msg += " old kept";
@@ -860,11 +853,9 @@ void stars_map::add_fleet(fleet* f, const int source)
       }
     }
 
-    if (!df) {
+    if (!df)
       // no duplicate, add to race list
-      f->rnext = f->_owner->fleet_table;
-      f->_owner->fleet_table = f;
-    }
+      f->_owner->add_fleet(f);
 
   } else {
     // unable to parse name, problems will arise?
@@ -872,8 +863,7 @@ void stars_map::add_fleet(fleet* f, const int source)
     log("Unable to parse fleet name " + f->_starsname + "\n");
 
     // add to race list
-    f->rnext = f->_owner->fleet_table;
-    f->_owner->fleet_table = f;
+    f->_owner->add_fleet(f);
   }
 }
 

@@ -3,6 +3,9 @@ WS = Wayne Smith
 
 Version 0.3
 
+- added many fleet functions.
+- modified fleet name/number positioning to be above syumbol.
+- activated objects window.
 - closing a secondary window doesn't kill the application anymore.
 - activated race comparison graphs & race habitability ranges.
 - activated filtering form.

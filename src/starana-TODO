@@ -1,5 +1,5 @@
 aggiornare la versione!!!
-Filtri su surface minerals / concentrations & C.
+* Filtri su surface minerals / concentrations & C.
 Filtri su factories?
 correggere la multilinear
 aggiungere sia il form che le funzioni di bombing di un pianeta
@@ -9,7 +9,12 @@ aggiungere le funzioni di packeting di un pianeta
 usare CRLF alla fine delle linee -> no, indicare che serve WORDPAD!!!!
 aggiungere member functions apply/selplanet(selfleet) alle pfunctions(ffunctions)
   serve per trasformare in leggibile un parametro numerico
-sistemare la Design window: aggiungerne una seconda per object / bases,
-*  aggiungere un titolo, colorare i quadratini
-aggiungere una window per selezionare i message filters
-* correggere il parsing dei nomi: NON assumere un blank prima di #
+* capire perche' sotto win il filtering e' inizializzato male
+aggiungere fleet functions!!!
+	filter on generic composition
+	filter on designs
+*	filter on cargo
+*	filter on empty cargo space
+fare in modo che sulle lines ci sia una direzione (per routing/packets/movement)
+sistemare la storia del sim_future-1 in modo che richiedere 10 anni DIA 10 anni
+sistemare i casini con il calcolo del numero di difese!!!

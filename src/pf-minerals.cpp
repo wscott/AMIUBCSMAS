@@ -225,11 +225,11 @@ pla_min_shortage pla_min_shortage_proto;
 
 // filter on surface minerals
 
-class pla_F_surfminkill : public planetary_function {
+class pla_F_surfmin : public planetary_function {
 public:
-  pla_F_surfminkill(void)
+  pla_F_surfmin(void)
   {
-    _name = "Filter: germanium";
+    _name = "Filter: surface";
     _type = "Minerals";
     _desc = "Filters planets depending on their surface mineral availability.\n[3..8] use min=0 max=0 to ignore the mineral.";
     _pardesc[1] = "Fields affect mask";
@@ -278,4 +278,62 @@ public:
   }
 };
 
-pla_F_surfminkill pla_F_surfminkill_proto;
+pla_F_surfmin pla_F_surfmin_proto;
+
+
+// filter on mineral concentration
+
+class pla_F_minconc : public planetary_function {
+public:
+  pla_F_minconc(void)
+  {
+    _name = "Filter: concentration";
+    _type = "Minerals";
+    _desc = "Filters planets depending on their mineral cncentration.\n[3..8] use min=0 max=0 to ignore the mineral.";
+    _pardesc[1] = "Fields affect mask";
+    _pardesc[2] = "Negate filter";
+    _pardesc[3] = "Min ironium";
+    _pardesc[4] = "Max ironium";
+    _pardesc[5] = "Min boranium";
+    _pardesc[6] = "Max boranium";
+    _pardesc[7] = "Min germanium";
+    _pardesc[8] = "Max germanium";
+  }
+
+  virtual void function(map_view& mw, planet* p, const int* par, const int when)
+  {
+    // let's create a nice alias
+    object_display& d = p->disp;
+
+    int nf = 0;
+
+    // we can do something if we have the data
+    if (p->data_available()) {
+      int i;
+
+      for (i = 0; i < 3; i++)
+	if (par[3+i*2] != 0 && par[4+i*2] != 0) {
+	  int val = p->min_conc(when)[i];
+
+          if ( (par[3+i*2] <= par[4+i*2] && val >= par[3+i*2] && val <= par[4+i*2]) ||
+	    (par[3+i*2] > par[4+i*2] && (val >= par[3+i*2] || val <= par[4+i*2])) )
+	    nf++;
+	  else
+            nf++;
+	}
+    }
+
+    bool f = (nf == 3);
+
+    if (par[2])
+      f = !f;
+
+    if (par[1]) {
+      if (f)
+	d.reset_something(par[1]);
+    } else
+      d.flag = f;
+  }
+};
+
+pla_F_minconc pla_F_minconc_proto;

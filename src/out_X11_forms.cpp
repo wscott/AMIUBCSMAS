@@ -557,7 +557,7 @@ void graphics::load_rrcomparisons(const int type = -1)
     if (!do_comparison) {
       dcolor[0] = FL_WHITE-FL_FREE_COL1;
       for (i = 0; i < npts; i++)
-	switch(type) {
+	switch(curr_comparison_graph) {
 	case RC_RESOURCES:
 	  data[0][i] = r->total_res[i];
 	  break;
@@ -583,7 +583,7 @@ void graphics::load_rrcomparisons(const int type = -1)
 	  data[0][i] = r->total_min[i].germ;
 	  break;
 	}
-    
+
     } else
       for (rid = 0, fields = 0; rid < game_map->number_of_players(); rid++) {
 	r = game_map->find_race(rid);
@@ -591,7 +591,7 @@ void graphics::load_rrcomparisons(const int type = -1)
 	if (r->do_analysis()) {
 	  dcolor[fields] = XFCOL_RACES + rid;
 	  for (i = 0; i < npts; i++)
-	    switch(type) {
+	    switch(curr_comparison_graph) {
 	    case RC_RESOURCES:
 	      data[fields][i] = r->total_res[i];
 	      break;
@@ -725,9 +725,12 @@ void graphics::load_racialreport(const int rid)
     fl_set_habdial(xf_rrinfo->habdial[i], r->habmin()[i], r->habmax()[i],
 		   0, 0, mapview->viewpoint()->terraform_tech()[i], 0);
 
-  str = int_to_str(r->explored_planets) + "/" + 
-    int_to_str(game_map->number_of_planets()) + " (" +
-    int_to_str(100 * r->explored_planets / game_map->number_of_planets()) + "%)";
+  c = game_map->number_of_unexplored_planets();
+  i = game_map->number_of_planets();
+  str = int_to_str(r->explored_planets) + " / " + 
+    int_to_str(i - c) + " / " +
+    int_to_str(i) + " (" +
+    int_to_str(100 * (i - c) / i) + "%)";
   fl_set_object_label(xf_rrinfo->explored, str);
   // FL_OBJECT *habgraph;
 
@@ -767,6 +770,62 @@ void graphics::load_racialreport(const int rid)
     fl_set_object_label(xf_rrdes->resources[i], "--");
     fl_set_object_label(xf_rrdes->weight[i], "--");
     fl_set_object_label(xf_rrdes->basehull[i], "- none -");
+  }
+
+  // objects form: 1 - starbases
+  for (i = 0, o = NULL; ; ) {
+    do {
+      o = r->next_object(o);
+    } while (o && !(o->is_design() && o->d()->is_starbase()));
+
+    if (!o || i == 8)
+      break;
+
+    fl_set_object_label(xf_rrobj->design[i], o->name());
+    fl_set_object_label(xf_rrobj->minerals[i][0], int_to_str(o->minerals().iron));
+    fl_set_object_label(xf_rrobj->minerals[i][1], int_to_str(o->minerals().bora));
+    fl_set_object_label(xf_rrobj->minerals[i][2], int_to_str(o->minerals().germ));
+    fl_set_object_label(xf_rrobj->resources[i], int_to_str(o->resources()));
+    fl_set_object_label(xf_rrobj->basehull[i], o->d()->basehull()->name);
+    i++;
+  }
+
+  for (; i < 8; i++) {
+    fl_set_object_label(xf_rrobj->design[i], "-- empty slot --");
+    fl_set_object_label(xf_rrobj->minerals[i][0], "--");
+    fl_set_object_label(xf_rrobj->minerals[i][1], "--");
+    fl_set_object_label(xf_rrobj->minerals[i][2], "--");
+    fl_set_object_label(xf_rrobj->resources[i], "--");
+    fl_set_object_label(xf_rrobj->basehull[i], "- none -");
+  }
+
+  // 2 - objects.
+  for (i = 0; i < 4; i++) {
+    switch(i) {
+    case 0:
+      o = r->find_object("factory");
+      break;
+    case 1:
+      o = r->find_object("mine");
+      break;
+    case 2:
+      o = r->find_object("defense");
+      break;
+    case 3:
+      o = r->find_object("terraform");
+      break;
+    }
+
+    if (o) {
+      str = (o->minerals().iron)? int_to_str(o->minerals().iron) : myString("--");
+      fl_set_object_label(xf_rrobj->minerals[i+8][0], str);
+      str = (o->minerals().bora)? int_to_str(o->minerals().bora) : myString("--");
+      fl_set_object_label(xf_rrobj->minerals[i+8][1], str);
+      str = (o->minerals().germ)? int_to_str(o->minerals().germ) : myString("--");
+      fl_set_object_label(xf_rrobj->minerals[i+8][2], str);
+      str = (i == 3 && r->prt() == CA)? myString("--") : int_to_str(o->resources());
+      fl_set_object_label(xf_rrobj->resources[i+8], str);
+    }
   }
 
   // load comparisons

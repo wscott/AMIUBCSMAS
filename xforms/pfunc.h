@@ -346,6 +346,10 @@ typedef struct {
 	void *vdata;
 	char *cdata;
 	long  ldata;
+        FL_OBJECT *design[8];
+        FL_OBJECT *minerals[12][3];
+        FL_OBJECT *resources[12];
+        FL_OBJECT *basehull[8];
 } FD_RR_Objects;
 
 extern FD_RR_Objects * create_form_RR_Objects(void);

@@ -276,7 +276,7 @@ void fleet::check_data(void)
     // if destination is a planet some more checks are needed
     if (_destin) {
       if (_destin->owner()) {
-	if (_destin->owner() == _owner)
+	if (_destin->owner() == _owner) {
 	  if (_min.total() != 0 || _pop != 0) {
 	    _owner->add_message(RLO_FLEETTROK, myString(destmsg) + " and unload all cargo");
 
@@ -285,7 +285,7 @@ void fleet::check_data(void)
 	  } else if (_maxcargo != 0)
 	    _owner->add_message(RLO_FLEETTROK, myString(destmsg) + ", ready to pick up stuff");
 
-	else {
+	} else {
 	  if (game_map->are_allies(_owner, _destin->owner()))
 	    _owner->add_message(RLO_FLEETTROK, myString(destmsg) + " (allied world)");
 

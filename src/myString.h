@@ -8,7 +8,9 @@
 #include <string>
 #include <vector>
 #include <sys/types.h>
+extern "C" {
 #include <regex.h>
+}
 
 class myRegexp;
 

@@ -907,6 +907,12 @@ void graphics::form_initial_update(void)
     fl_set_object_lcol(xf_rrdes->minerals[i][2], FL_FREE_COL1 + XFCOL_GERM);
   }
 
+  for (i = 0; i < 12; i++) {
+    fl_set_object_lcol(xf_rrobj->minerals[i][0], FL_FREE_COL1 + XFCOL_IRON+1);
+    fl_set_object_lcol(xf_rrobj->minerals[i][1], FL_FREE_COL1 + XFCOL_BORA);
+    fl_set_object_lcol(xf_rrobj->minerals[i][2], FL_FREE_COL1 + XFCOL_GERM);
+  }
+
   // set message filtering buttons
   for (i = 0; ; i++)
     if ( (mt = message_get_mask(i)) ) {
@@ -1237,17 +1243,17 @@ void graphics::draw_triangle_pie(const _xypoint& p, const _xypoint& dir,
   // check for valid direction, assume 100,60 if none given
   rdir = dir;
   if (rdir == _xypoint(0, 0))
-    rdir = _xypoint(100, 60);
-  
+    rdir = _xypoint(-50, -50);
+
   // renormalize direction vector to real radius
   rdir = rdir * rr / (int)sqrt(rdir.x*rdir.x + rdir.y*rdir.y);
 
-  xpoints[0].x = p.x + rdir.x; //- rdir.x / 2 
-  xpoints[0].y = p.y - rdir.y; //+ rdir.y / 2 
-  xpoints[1].x = p.x - rdir.y; //- rdir.x / 2 
-  xpoints[1].y = p.y - rdir.x; //+ rdir.y / 2 
-  xpoints[2].x = p.x + rdir.y; //- rdir.x / 2 
-  xpoints[2].y = p.y + rdir.x; //+ rdir.y / 2 
+  xpoints[0].x = p.x + rdir.x - rdir.x / 2;
+  xpoints[0].y = p.y - rdir.y + rdir.y / 2;
+  xpoints[1].x = p.x - rdir.y - rdir.x / 2;
+  xpoints[1].y = p.y - rdir.x + rdir.y / 2;
+  xpoints[2].x = p.x + rdir.y - rdir.x / 2;
+  xpoints[2].y = p.y + rdir.x + rdir.y / 2;
 
   //  if (se != 0) {
   //    XSetForeground(x_display, fillGC, my_to_x[c1 + (4 - se)]);
@@ -1279,8 +1285,8 @@ void graphics::draw_circle(const _xypoint& p, const int r,
 void graphics::draw_planetname(const int xp, const int yp, const int color, const myString& name)
 {
   // correction for font should go here
-  display->draw_smallstring(xp - 4*name.length()/2 - 1,
-			    yp + 8, color, name);
+  display->draw_smallstring(xp - 4*name.length()/2 + 1,
+			    yp + 9, color, name);
 }
 
 

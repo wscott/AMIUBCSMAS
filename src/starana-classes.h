@@ -379,7 +379,9 @@ static myString prt_names[10];
 
   queue_obj* default_queue;
   object* object_table;
+  object* last_object;
   fleet* fleet_table;
+  fleet* last_fleet;
   planet* planet_table;
 
   // totals
@@ -461,6 +463,8 @@ public:
   design* find_design(const myString& n, const bool starbase = false) const;
   design* find_design_alias(const myString& n, const bool starbase = false) const;
   object* next_object(const object* o) const;
+  void add_fleet(fleet* f);
+  void replace_fleet(fleet* pof, fleet* of, fleet* nf);
   bool add_to_default_queue(const bool a, const myString& n, const int c, const int act = 0, const int deact = SIM_FUTURE);
   void advance_year(void);
   void choose_next_tech_field(void);
@@ -828,6 +832,8 @@ class fleet {
   friend class stars_map;
   friend class map_view;
   friend int yyparse(void);  
+  friend void race::add_fleet(fleet* f);
+  friend void race::replace_fleet(fleet* pof, fleet* of, fleet* nf);
 
   fleet* rnext;
   fleet* pnext;
@@ -1151,6 +1157,8 @@ public:
     { return number_races; }
   int number_of_planets(void)
     { return total_planets; }
+  int number_of_unexplored_planets(void)
+    { return unexplored_planets; }
   void add_message(const int mt, const myString& m);
   void all_races_message(const int mt, const myString& m);
 };

@@ -10,7 +10,9 @@ PFMODULES = pf-basic.cpp \
 	pf-minerals.cpp \
 	pf-lines.cpp \
 	ff-basic.cpp \
+	ff-names.cpp \
 	ff-movement.cpp \
+	ff-composition.cpp \
 	ff-capabilities.cpp 
 
 
@@ -25,7 +27,7 @@ PFMODULES = pf-basic.cpp \
 all: starana
 
 clean:
-	rm -f *.o starana out core z gram.output gram.c lex.c report-log
+	rm -f *.o starana out core z gram.output gram.c gram.h lex.c report-log
 	(cd ../xforms ; make clean)
 	(cd ../examples ; rm -f report-log *.auto core)
 
