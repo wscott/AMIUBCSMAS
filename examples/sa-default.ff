@@ -1,0 +1,14 @@
+fleet_view "Default fleet display" {
+	0 "Filter: orbiting" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	1 "Set Data" 3 "F" 80 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	2 "Set Marker" 4 "F" 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	3 "Filter: owner" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	4 "Color: data" 3 "F" 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	5 "Color: marker" 3 "F" 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	6 "Color: data" 4 "F" 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	7 "Color: marker" 4 "F" 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	8 "Set # of ships" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+	9 "Color: name" 2 "CLDMNF" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}
+fleet_view "Empty (all nothing)" {
+}

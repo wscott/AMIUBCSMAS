@@ -149,6 +149,7 @@ public:
   void hide_planetsimulation(void);
   void select_planet(const _xypoint& mousepos);
   void load_planetstatus(void);
+  void compute_packetfiring(void);
   void load_packetfiring(void);
   void show_packetfiring(void);
   void hide_packetfiring(void);

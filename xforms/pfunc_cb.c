@@ -467,13 +467,25 @@ void pfcb_close(FL_OBJECT *ob, long data)
 }
 
 
-void pfcb_fastkiller(FL_OBJECT *ob, long data)
+void pfcb_computepacket(FL_OBJECT *ob, long data)
 {
 
 }
 
 
-void pfcb_cheapkiller(FL_OBJECT *ob, long data)
+void pfcb_increasewarp(FL_OBJECT *ob, long data)
+{
+
+}
+
+
+void pfcb_decreasewarp(FL_OBJECT *ob, long data)
+{
+
+}
+
+
+void pfcb_switchdirection(FL_OBJECT *ob, long data)
 {
 
 }

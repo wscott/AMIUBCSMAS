@@ -1,4 +1,4 @@
-AMIUBCSMAS 0.2
+AMIUBCSMAS 0.3
 
 or
 
@@ -17,11 +17,13 @@ WHAT THIS PROGRAM DOES
   construction, mineral usage, mineral mining, concentration decay,
   terraforming (approximate), fleets carrying pop/minerals.
 
-- Creates a report-log file with too much information: habitability
-  tables, planetary growth/production/mining/terraforming,
-  "suggestions" about pop filling threshold crossing and mineral
-  shipment, global empire stats (pop growth, resource growth, total
-  minerals/mining, etc).
+- The information (both the one from the files and from the simulation)
+  can be accessed on-screen through windows and browsers. Also, a
+  report-log file with all the information is generated.  The
+  information includes: habitability tables, planetary
+  growth/production/mining/terraforming, "suggestions" about pop filling
+  threshold crossing and mineral shipment, global empire stats (pop
+  growth, resource growth, total minerals/mining, etc).
 
 - Generate a set of maps not normally available in stars, the list is
   too long to be written, since it features some kind of "basic
@@ -40,17 +42,21 @@ WHAT THIS PROGRAM DOES
   * Surface minerals
   * "Global" habitability
 
-The last 4 displays use a method which is more intuitive than the
-Stars! histogram, which basically makes a planet look bigger if it's
-good, the marker is a pie chart indicating the proportion.  A 100/1/1
-mineral concentration world is a fat blue ball, while a 1/50/100 one
-is a fat ball 2/3 yellow and 1/3 green. "Global" habitability exploits
-this method to put the habitability for ALL races on a single
-display. Useful in team games.
+The multi-valued displays such as surface minerals or concentrations
+use a method which is more intuitive than the Stars! histogram:
+basically makes a planet look bigger if it's good, the marker is a pie
+chart indicating the proportion.  A 100/1/1 mineral concentration
+world is a fat blue ball, while a 1/50/100 one is a fat ball 2/3
+yellow and 1/3 green. "Global" habitability exploits this method to
+put the habitability for ALL races on a single display. Useful in team
+games.
 
-- the new version provides a window-based intuitive interface as well
-  as the useful "key shortcuts" that you'll learn to use after a
-  while....
+- The fleet information can be displayed in the same way as the
+  planetary one. Unfortunately, the reduced amount of data of the .fle
+  files make this display less useful. It can provide some useful
+  displays, anyway, such as drawing the "triangles" of a size related to
+  the fleet composition, mass or cargo, which allows for very fast
+  spotting of the important fleets.
 
 
 WHAT THIS PROGRAM DOES NOT
@@ -66,12 +72,10 @@ You can see some screen shots and read a sample report-log file at:
 
 http://mokulen.univ-lille1.fr/games/stars/starana.html
 
-You can download the AMIUBCSMAS 0.2 package from that page as well.
+You can download the AMIUBCSMAS 0.3 package from that page as well.
 
-Note: as indicated in the name it will be incomplete, undocumented and
-badly coded. Still, I have included enough documentation to "quickly"
-set the program up and use it for your games. You need only to type in
-the racial information and some more stuff (filenames of reports,
-mostly).  Contrary to the old version, a well-commented example is
-provided as a basis for a step-by-step generation of the "master file"
-with the racial information.
+Note: this version is definitely more user-friendly than the old ones,
+including more and more windows which permit to access all the data in
+an intuitive way. Still, it's not an "install and click" application:
+you'll need to use your brain to use it. Anyway, if you're able to
+play Stars! you should have no difficulty.

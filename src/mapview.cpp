@@ -614,9 +614,12 @@ int map_view::set_scanner_eff(const int e)
   if (e != MW_READ) {
     if (e == MW_PREV)
       scanner_eff -= 10;
-    else if (e == MW_NEXT)
-      scanner_eff += 10;
-    else
+    else if (e == MW_NEXT) {
+      if (scanner_eff == 2)
+	scanner_eff += 8;
+      else
+	scanner_eff += 10;
+    } else
       scanner_eff = e;
 
     if (scanner_eff < 2)

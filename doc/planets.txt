@@ -10,8 +10,8 @@ steps: choosing what information to display and choosing how to
 compose the different pieces of information.
 
 When a planetary map is requested, a sequence of operations is
-performed to associate some "display data" to the planet. The display
-data defines how the planet will be represented onscreen.
+performed to associate some "display data" to every planet. The
+display data defines how the planet will be represented on-screen.
 The display data is composed of 5+1 parts:
 - the circles
 - the marker
@@ -41,8 +41,7 @@ data.  The actual effect depends very much on the function:
 'Population' just creates some data which is used for the "fat dot" in
 the population display. 'Set names' just puts the name under every
 planet.  'Mineral concentrations' generates data for the pie
-chart. 'Inhabited' just associates a white square to every inhabited
-world.
+chart.
 
 There is also a second "class" of functions: filters. They are used to
 filter the display information associated to a planet according to
@@ -167,7 +166,7 @@ Now let's add the actual surface minerals pie for the viewpoint:
 * And mode (on flag) - to operate only on viewpoint's planets
 * Full circle at 0kT (which means use default value)
 
-Ok, we now have a problem: data and marker are non-exlusive, so if we
+Ok, we now have a problem: data and marker are non-exclusive, so if we
 end here we will have the pie of the surface minerals with a white box
 marker on it. Since we don't want the marker we just kill it:
 
@@ -191,7 +190,461 @@ Easy, isn't it? :)
 
 AVAILABLE PLANETARY FUNCTIONS
 
-[I don't have time, select them and read the descriptions! :PP ]
+
+
+********* null function
+	name:		- (nothing) -
+	category: 	General
+	description:	This function does nothing at all.
+	parameters:	none
+
+
+********* associate a marker to a planet
+	name:		Set Marker
+	category:	General
+	description:	This function associates a marker to a planet.
+	parameters:	[3]  Marker type
+			     1=dot, 2=cross, 3=box, 4=square,
+			     5=circle, 6=flag.
+
+
+*********  associate fixed data to a planet
+	name:		Set Data
+	category:	General
+	description:	This function associates single value data to
+			a planet.
+	parameters:	[3]  Data value
+			     data is assumed to be in the range [0,100].
+
+
+********* associate circles to a planet
+	name:		Set Circles
+	category:	General
+	description:	This function associates a series of circles to
+			a planet.
+	parameters:	[0]  Color
+			     use 0 to specify the owner's color.
+			[3]  Circle radius
+			[4]  Number of circles
+			     The radii are multiples of the one given in [3].
+
+
+********* the default planet name functions
+	name:		Set Planet Name
+	category:	Names
+	description:	This function associates a name to a planet, '??' if unexplored,\ngrey if uninhabited white if inhabited.
+
+
+
+********* set planet name as name + stars id number
+
+	name:		Set Planet Name+Id
+	category:	Names
+	description:	This function associates to a planet a name consisting of the actual\nplanet name followed by the Stars! id#.
+
+
+
+********* set planet name as only stars id number
+
+	name:		Set Planet Id
+	category:	Names
+	description:	This function associates to a planet a name consisting of its Stars! id#.
+
+
+
+********* set name color
+
+	name:		Color: name
+	category:	Names
+	description:	This function sets the color of the name of the planet.\n[0] use 0 to specify the owner's color.
+    _pardesc[0] = "Color";
+
+
+
+********* set marker color
+
+	name:		Color: marker
+	category:	General
+	description:	This function sets the color of the marker of the planet.\n[0] use 0 to specify the owner's color.
+			[0] = "Color";
+
+
+
+*********  set color of single pieslice data
+
+	name:		Color: data
+	category:	General
+	description:	This function sets the color of the data associated to a planet\n(only if it's single-valued).\n[0] use 0 to specify the owner's color.
+			[0] = "Color";
+
+
+
+********* filter randomly
+
+	name:		Filter: random
+	category:	General
+	description:	Randomly filters the planet out.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Chance %";
+			[4] = "Random seed";
+
+
+
+********* unconditional filter
+
+	name:		Filter: unconditional
+	category:	General
+	description:	Filters out all planets.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+
+
+
+********* filter if unexplored
+
+	name:		Filter: unexplored
+	category:	General
+	description:	Filters unexplored planets.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+
+
+
+********* filter if planet has a starbase
+
+	name:		Filter: starbase
+	category:	General
+	description:	Filters planets equipped with a starbase.\n [3,4] they types are 0=none, 1=Fort 2=Dock 3=Station 4=Ultra 5=Death Star.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min. type";
+			[4] = "Max. type";
+
+
+
+********* filter if owned
+
+	name:		Filter: owner
+	category:	General
+	description:	Filters planets depending on their owner.\n[0] use race number or 0 for current viewpoint, -1 for any.
+			[0] = "Race";
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+
+
+
+********* filter  on distance
+
+	name:		Filter: distance
+	category:	General
+	description:	Filter planets depending on their distance from the given one.\nSet min.=max.=0 to filter the given planet.\n[0] use -1 or -2 to specify the first or second selected planet.
+			[0] = "Planet id";
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min. distance";
+			[4] = "Max. distance";
+
+
+
+********* show report age
+
+	name:		Report age
+	category:	General
+	description:	Create a circle whose radius depends on the report age.\nGreen if <= [3], yellow if <= [4], red beyond.
+			[3] = "Green";
+			[4] = "Yellow";
+
+
+
+********* filter on report age
+
+	name:		Filter: report age
+	category:	General
+	description:	Filters planets depending on report age of the information.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min. age";
+			[4] = "Max. age";
+
+
+
+********* habitability display (stars-like)
+
+	name:		Habitability - Stars!
+	category:	Habitability
+	description:	This function works like the planet habitability display in Stars!\nfor the requested race.\n[0] use 0 to indicate the current viewpoint.
+			[0] = "Race";
+
+
+
+********* habitability display (current)
+
+	name:		Habitability - now
+	category:	Habitability
+	description:	This function displays the current habitability value of the\nplanet (i.e. no yellows) for the requested race.\n[0] use 0 to indicate the current viewpoint.
+			[0] = "Race";
+
+
+
+********* habitability display (when max terraformed)
+
+	name:		Habitability - terraformed
+	category:	Habitability
+	description:	This function displays the maximum habitability value of the\nplanet (max terraforming) for the current race viewpoint.[0] use 0 to indicate the current viewpoint.\n[5,6,7] use 0 to indicate the race's own ability.
+			[0] = "Race";
+			[5] = "Gravity";
+			[6] = "Tempreature";
+			[7] = "Radiation";
+
+
+
+********* habitability display (global)
+
+	name:		Habitability - 'global'
+	category:	Habitability
+	description:	This function generates a pie for the planet with a radius based\non the maximum of the habitability for the various races. For all\nthe races with a positive habitability a slice is drawn, with an\nangle proportional to the race habitability value.
+
+
+
+********* habitability display (global w/max tform)
+
+	name:		Habitability 'global' tformed.
+	category:	Habitability
+	description:	This function generates a pie for the planet with a radius based\non the maximum of the maximum possible habitability for the\nvarious races. For all the races with a positive habitability a slice\nis drawn, with an angle proportional to the race habitability value.\n[5,6,7] use 0 to indicate the race's own ability.
+			[5] = "Gravity";
+			[6] = "Tempreature";
+			[7] = "Radiation";
+  }
+
+
+
+
+********* filter on current hab value
+
+	name:		Filter: habitability now
+	category:	Habitability
+	description:	Filters planets depending on their current habitability value.\n[0] use 0 for the current viewpoint.
+			[0] = "Race";
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min value %";
+			[4] = "Max value %";
+
+
+
+********* defense coverage display
+
+	name:		Def. coverage %
+	category:	Installations
+	description:	This function generates a disk with a size based on the planet's\ndefense coverage %.
+
+
+
+********* factories display
+
+	name:		Factories
+	category:	Installations
+	description:	This function generates a pie whose radius depends on the maximum number\nof factories on the planet, with a green section for operated,\nred for built but not operated, yellow for operable but not built and\nwhite for the remaining to maximum.
+
+
+
+********* mines display
+
+	name:		Mines
+	category:	Installations
+	description:	This function generates a pie whose radius depends on the maximum number\nof mines on the planet, with a green section for operated,\nred for built but not operated, yellow for operable but not built and\nwhite for the remaining to maximum.
+
+
+
+********* scanner coverage
+
+	name:		Scanning
+	category:	Installations
+	description:	This function generates a circle with a size based on the planet's\nscanning ranges.
+
+
+
+********* gate coverage
+
+	name:		Gate coverage
+	category:	Installations
+	description:	This function generates a circle with a size based on the planet's\ngate ranges.
+
+
+
+********* filter on gate presence
+
+	name:		Filter: stargate
+	category:	Installations
+	description:	This function filters planet based on their gate statistics.\nA planet will be filtered if its range and mass are superior or equal to the required ones.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Minimum range";
+			[4] = "Minimum mass";
+
+
+
+********* associate a line corresponding to the routing
+
+	name:		Routing
+	category:	Lines
+	description:	This function adds a line from the planet to its routing destination.
+
+
+
+********* associate a line corresponding to the packet driver destination
+
+	name:		Mass Driver
+	category:	Lines
+	description:	This function adds a line from the planet to its mass driver destination.\nBy default the line will turn red if the destination planet is unable to safely catch the packet.
+  }
+  
+
+
+*********  this function sets the color of the line
+
+	name:		Line: color
+	category:	Lines
+	description:	This function sets the color of a line associated to a planet.\n[0] specify the color number or 0 to indicate the color of the owner.
+			[0] = "Color";
+
+
+
+********* surface minerals display
+
+	name:		Surface Minerals
+	category:	Minerals
+	description:	This function generates a pie chart with a radius proportional to\nthe maximum of a single surface mineral, but with every slice with\nan angle proportional to every surface mineral.[4] amount for which the maximum radius is reached (0 -> 6000 kT)\n[5,6,7] use a non-zero value to hide the mineral.
+			[4] = "Full circle at";
+			[5] = "Hide ironium";
+			[6] = "Hide boranium";
+			[7] = "Hide germanium";
+
+
+
+********* mining display
+
+	name:		Mining
+	category:	Minerals
+	description:	This function generates a pie chart with a radius proportional to\nthe maximum of a single mining rate, but with every slice with an\nangle proportional to every mineral mining rate.[4] amount for which the maximum radius is reached (0 -> 1000 kT)\n[5,6,7] use a non-zero value to hide the mineral.
+			[4] = "Full circle at";
+			[5] = "Hide ironium";
+			[6] = "Hide boranium";
+			[7] = "Hide germanium";
+
+
+
+********* mineral concentrations
+
+	name:		Mineral concentrations
+	category:	Minerals
+	description:	This function generates a pie chart with a radius proportional to\nthe maximum of a single mineral concentration, but with every\nslice with an angle proportional to every mineral concentration.[4] amount for which the maximum radius is reached (0 -> 120 kT)\n[5,6,7] use a non-zero value to hide the mineral.
+			[4] = "Full circle at";
+			[5] = "Hide ironium";
+			[6] = "Hide boranium";
+			[7] = "Hide germanium";
+
+
+
+********* mineral shortage display
+
+	name:		Mineral Shortage
+	category:	Minerals
+	description:	This function generates a pie chart similat to that of surface,\nbut indicating the mineral shortages for the current year (as obtained\nfrom the production queue requirements).\n[4] amount for which the maximum radius is reached (0 -> 200 kT)\n[5,6,7] use a non-zero value to hide the mineral.
+			[4] = "Full circle at";
+			[5] = "Hide ironium";
+			[6] = "Hide boranium";
+			[7] = "Hide germanium";
+
+
+
+********* filter on surface minerals
+
+	name:		Filter: surface
+	category:	Minerals
+	description:	Filters planets depending on their surface mineral availability.\n[3..8] use min=0 max=0 to ignore the mineral.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min ironium";
+			[4] = "Max ironium";
+			[5] = "Min boranium";
+			[6] = "Max boranium";
+			[7] = "Min germanium";
+			[8] = "Max germanium";
+
+
+
+********* filter on mineral concentration
+
+	name:		Filter: concentration
+	category:	Minerals
+	description:	Filters planets depending on their mineral cncentration.\n[3..8] use min=0 max=0 to ignore the mineral.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min ironium";
+			[4] = "Max ironium";
+			[5] = "Min boranium";
+			[6] = "Max boranium";
+			[7] = "Min germanium";
+			[8] = "Max germanium";
+
+
+
+********* population display
+
+	name:		Population
+	category:	Population
+	description:	This function generates a white disk with a size proportional to\nthe total population. The disk turns yellow if beyond 100%\ncapacity and red beyond 300%
+
+
+
+********* population growth display
+
+	name:		Population growth
+	category:	Population
+	description:	This function generates a disk with a size based on the population\ngrowth on the planet.
+
+
+
+********* population filling display
+
+	name:		Population Filling
+	category:	Population
+	description:	This function generates a disk with a size based on the current\npopulation filling. The disk is green for filling below 25%, yellow\nfor 25%-33% and red beyond 33%
+
+
+
+********* resources display
+
+	name:		Resources
+	category:	Population
+	description:	This function generates a white disk with a size based on the\nplanet's total resource output
+
+
+
+********* filter on population
+
+	name:		Filter: population
+	category:	Population
+	description:	This function filters planets depending on their population.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min value";
+			[4] = "Max value";
+
+
+
+********* filter on resources
+
+	name:		Filter: resources
+	category:	Population
+	description:	This function filters planets depending on their total resource output.
+			[1] = "Fields affect mask";
+			[2] = "Negate filter";
+			[3] = "Min value";
+			[4] = "Max value";
+
 
 
 

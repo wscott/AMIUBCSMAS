@@ -48,7 +48,7 @@ You also have:
 starsinclude filename.smf starsreport.??
 
 which works exactly like include, but it will auto-convert the
-starsreport file to smf format before inclusion. Autoconversion only
+starsreport file to smf format before inclusion. Auto conversion only
 works with patch 'i' reports.
 
 
@@ -283,7 +283,7 @@ planets.
 If you want to add more map types you should look in
 display_planetinfo() and copy the examples given there.  Adding it to
 the "menu" (whahahaha :) is harder, check the array at the beginning
-of starana.cc, it contains a list of the map types. You will need to
+of starana.cpp, it contains a list of the map types. You will need to
 add an element in the enum _maptype in starana.h and then add a line
 in this array to specify: map type as in _maptype, NEXT _maptype to be
 used when you hit 'p', map name.  You will also have to change another
@@ -294,12 +294,12 @@ line to make it point at your maptype.
 MESSAGE FILTERING
 
 Some basic message-handling and message-filtering is possible.
-Check the message class and the functions in stuff.cc.
+Check the message class and the functions in stuff.cpp.
 
 
 TECH-RELATED STUFF
 
-There's the table of costs in a comment in stuff.cc one day it will go
+There's the table of costs in a comment in stuff.cpp one day it will go
 in, but not now. Right now the tech is ONLY used (together with the TT
 lrt) to determine the max terraforming possible for a specified race,
 which is used in the tform_left planet function (computes how many

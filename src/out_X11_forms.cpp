@@ -413,9 +413,66 @@ void graphics::load_planetstatus(void)
 
 
 
+void graphics::compute_packetfiring(void)
+{
+}
+
+
 void graphics::load_packetfiring(void)
 {
+  int when = mapview->when(MW_READ);
+  char str[64];
+  int i, twin, dw;
+  planet* p;
+  myString msg;
 
+  fl_freeze_form(xf_pak->PacketFiring);
+
+  for (i = 0; i < 2; i++) {
+    p = mapview->get_active_planet(i);
+
+    fl_set_object_label(xf_pak->planetname[i], p->name());
+    fl_set_input(xf_pak->population[i], int_to_str(p->population(when)));
+    fl_set_input(xf_pak->ndefenses[i], int_to_str(p->defenses(when)));
+    sprintf(str, "%.2f%%", (float)p->defense_coverage(when)/100);
+    fl_set_object_label(xf_pak->defcoverage[i], str);
+
+    msg = "";
+    dw = 0;
+    twin = 0;
+    if (p->owner()) {
+      dw = p->driver_warp();
+
+      switch(p->owner()->prt()) {
+      case PP:
+	msg = "Your packets cost less, travel faster,\ndecay less and terraform planets.\nGo on, smite'em all!";
+	break;
+      case IT:
+	msg = "Your drivers suck (-1 rating), packets\ncost more and decay more.\nBuild a lot of defenses.";
+	goto computewarp;
+	break;
+      case WM:
+	msg = "Your defenses suck, try to have a driver\nto catch part of the pachet, ok?";
+computewarp:
+	if (dw == 8 || dw == 11) {
+	  dw--;
+	  twin = 1;
+	}
+	break;
+      default:
+	break;
+      }
+    }
+
+    fl_set_object_label(xf_pak->driverwarp[i], int_to_str(p->driver_warp()));
+    fl_set_button(xf_pak->twindriver[i], twin);
+    fl_set_object_label(xf_pak->racenotes[i], msg);
+  }
+
+  sprintf(str, "%d l.y.", mapview->get_active_planet(0)->distance(mapview->get_active_planet(1)));
+  fl_set_object_label(xf_pak->planetdistance, str);
+
+  fl_unfreeze_form(xf_pak->PacketFiring);
 }
 
 

@@ -1,11 +1,9 @@
-AMIUBCLOSMAS 0.2
+AMIUBCLOSMAS 0.3 - ?? Nov 1998
 
 or
 
 Alberto's Most Incomplete, Undocumented and Badly Coded
 Stars! Mapper, Analyzer and Simulator
-
-[Yes, the "LO" for Linux Only is gone in this version]
 
 (called "StarAna", as in STARs! ANAlyzer, by friends)
 
@@ -16,15 +14,16 @@ This is the "user guide", you should check:
 
 - install.txt for installation instructions;
 
-- technicalia.txt for technical information about compilation,
-  installation, technical details, hacking, etc. The normal user
-  does not need to read that (that file it's not up-to-date, also!);
-
 - planets.txt for some information on how the planetary display
   really works.
 
 - fleets.txt is the equivalent of planets.txt, but it applies to 
   fleet display.
+
+- technicalia.txt for technical information about compilation,
+  installation, technical details, hacking, etc. The normal user
+  does not need to read that (that file it's not up-to-date, also!);
+
 
 
 WHAT THIS PROGRAM IS
@@ -67,7 +66,7 @@ Mapper, Analyzer and Simulator
 
 RUNNING STARANA
 
-WIN95 QUICKSTART: create a shortcut to "starana" and put it on your
+WIN95 QUICK START: create a shortcut to "starana" and put it on your
 desktop.  Click on it to obtain a file selector asking you for the
 master file to use. Starana can also be started by passing to it the
 name of the master file, so you can create a shortcut which
@@ -113,8 +112,8 @@ Using the program includes three separate steps:
 - running the program to generate the report-log file which includes
   the checks/simulation/analysis;
 
-- playing with the graphical window to see the various map
-  representations.
+- playing with the graphical and report windows to see the various map
+  representations and the simulation results.
 
 
 FORMAT OF THE INPUT FILE
@@ -152,7 +151,10 @@ The typical master file contains the following stuff:
 
 Again, rather than typing in an example I suggest you to take a look
 in examples/ at the file sa.smf.
-
+After having read sa.smf you can have a look at the more complete
+sa-complex.smf. This example file is for the same universe, but it
+includes all the ship design information needed to properly handle
+fleets.
 
 
 PLAYING WITH THE MAP DISPLAY
@@ -182,11 +184,11 @@ you provide some information in the master file you'll get nothing
 useful (the program should not crash, since races are "always" defined
 to be Humanoids if you don't provide any information...).
 
+By right-clicking on the race name you can bring up the racial report
+window, which contains information about the specified race.
+
 The map control window also gives access to additional windows /
 operations.
-
-By right-clicking on the race name you can bring up the racial report
-window, which cnotains information about the specified race.
 
 Two buttons are available for the planetary display control: a newbie
 user is STRONGLY advised to use the "list" function. You can play with
@@ -195,7 +197,7 @@ you won't be able to obtain anything beyond the simpler displays.
 Reread the above with "fleet" at the place of "planet" for an
 explanation of the two buttons immediately to the right... :)
 
-There's a nice "quit" button, in the lower left corner, too....
+There's a nice "quit" button, in the lower right corner, too....
 
  
 - Planetary view list
@@ -212,6 +214,8 @@ Some buttons at the bottom provide extra power:
 "export" saves the selected entry to a file, appending it if the
          file already exists. You can pick you favorites and then
          mail them to your friends :)
+         [Note that these file are pure ASCII text, so you can transfer
+          them around with no problems.]
 "rename" renames a list entry to your favorite name/language. Make
          sure you SAVE your changes as it doesn't happen automatically.
 
@@ -230,7 +234,7 @@ Somehow more "advanced"
   (Fleet function editor windows is identical)
 
 Allows you to alter the planetary functions used for the current
-planetary display. Read planets.txt (or fleets.txt)
+planetary display. Read planets.txt (or fleets.txt).
 
 Clicking on the number brings up the list of functions used, while
 clicking on the name opens a menu of all the available functions.  You
@@ -238,15 +242,31 @@ can control mode with the choice which is below the description and
 set the flag mask. You can enter numeric values for the 10 function
 parameters.
 NOTE: the display (and function used list) are not updated until you
-select another function or hit "apply".
+select another function or hit "apply". "Cancel" will undo the changes
+you have done to the function currently displayed.
 
 
 - Racial report window(s)
 
-....contain info about the race.....
-[to be written]
-
-
+The racial report window is a tabbed folder containing the information
+about the race. A good part of it is the stuff you typed in in the
+master file. :)
+The folders are:
+ - race design
+	General information about the race, as you would expect
+	in the Stars! Race Wizard.
+ - report-log
+	Analysis/check/simulation messages relative to the race.
+ - simulation
+	Simulation graphs.
+ - designs
+ - objects
+	Race's ship/starbase designs and other object costs.
+ - filtering
+	Filtering of messages (to decide what type of messages you
+	want to read in the report browsers). Note that if you want
+	the changes to apply to the current race you have to re-select
+	it to force an update of the report-log folder.
 
 
 - Planet status display
@@ -256,12 +276,12 @@ appears automatically if you left-click on the map. Its objective is
 to give information about the planet you clicked on (or near to).  Any
 Stars! player can probably recognize at first sight most of the
 information contained there. You can pop-up a second one by holding
-shift when you left-click on the map. The second one is relevant for
+control when you left-click on the map. The second one is relevant for
 packeting calculations.
 
 From top to bottom it contains:
 
-Planet name, '(HW)' if it's a homeworld and then #xxx with xxx being
+Planet name, '(HW)' if it's a home world and then #xxx with xxx being
 the Stars! id number. On the right you then have some useless
 information such as the x/y position and the "planet type" which is
 available only for planets owned by races with the do_analysis flag.
@@ -290,7 +310,8 @@ authoritative MIGHT differ, in that case I don't dare to think what
 happens to the planetary simulation. BTW you probably won't be
 flagging for analysis races which you don't trust as allies, since
 without the report files from them you'll constantly get crappy
-simulation. REAL crappy.
+simulation. REAL crappy. (Anyway, it may work to compute the planetary
+population growth, if you know your enemies's growth rate, of course).
 
 Going down you have now the population and starbase frames.  The
 population frame gives the current population, it also provides some
@@ -299,8 +320,8 @@ according to region) and population growth.
 
 The starbase frame contains the starbase design name, damage %, gate
 characteristics and mass driver statistics. They all have the usual
-meaning.  For the mass driver you only have the current warp, since
-the reports only contain this.
+meaning.  For the mass driver you only have the current warp and not
+the rating, since the reports only contain this.
 
 Then you have the installations box: the factory/mine display works
 like this:
@@ -325,7 +346,7 @@ in the small menu available in the upper left corner. The possibilities
 are:
 
 - logarithmic: this scale works differently from Stars!, first of all
-it's a logarithmic scale: the scale starts at 10 kT (get nothing at
+it's a logarithmic scale: the scale starts at 10 kT (you get nothing
 when you have < 10 kT). The big ticks are at 10 (at the left), then
 100, 1000, 10000 and 100000 kT (at the extreme right). Between two big
 ticks you have 10 small ones corresponding to multiples of the one on
@@ -376,15 +397,15 @@ terraforming tech you have a yellow section which indicates a range
 which can become "green" if you do the terraforming. Outside you have
 red.
 Four markers appear on every horizontal bar, a diamond indicating the
-original planetary stat and a long vertical bar indicating the current
+current planetary stat and a long vertical bar indicating the original
 stat. An horizontal bar (identical to Stars') which indicates how much
 your terraforming ability can influence the stat. You also have a
 small vertical bar which is the terraforming that you can perform at
 maximum tech.
 
-At the bottom you can access the information obtained from the
-simulation (and written in the report-log file) by scrolling the
-browser present in the lower part.
+At the bottom you have a button to access the information obtained
+from the simulation (and written in the report-log file).
+[yes, the other buttons are for the moment non-operational]
 
 MISSING INFO IN PLANET STATUS WINDOW: production queue (this one is a mess)
 
@@ -409,8 +430,16 @@ r R
 v V
 	change the current planetary view (cycle).
 
+c C
+	change the current fleet view (cycle) (mnemonic: left of
+	the planet views).
+
 f F
 	increase/decrease the "years in the future" value.
+
+s S
+	increase/decrease by 10% the scanner efficiency. 0% corresponds
+	to 2%, useful to spot 98% cloaked fleets....
 
 p
 	toggle open/close the planet view list window
@@ -457,11 +486,6 @@ useless.
 
 - Specifying a new "planetary power" formula to generate a map display
 is something which is needed. Right now you must edit and recompile.
-
-- Fleets handling is missing. This is because I still have some
-problems treating the data (I didn't have time to test
-seriously). Also, some decisions must be made on HOW to display
-stuff. The aim is something identical to planetary views/functions.
 
 - The whole "controlled space" thing sucks. The algorithm is too slow
 and completely idiotic (it does the computation for EVERY point, no

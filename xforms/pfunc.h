@@ -70,8 +70,10 @@ extern void pscb_viewsimulation(FL_OBJECT *, long);
 
 extern void pmcb_close(FL_OBJECT *, long);
 
-extern void pfcb_fastkiller(FL_OBJECT *, long);
-extern void pfcb_cheapkiller(FL_OBJECT *, long);
+extern void pfcb_computepacket(FL_OBJECT *, long);
+extern void pfcb_increasewarp(FL_OBJECT *, long);
+extern void pfcb_decreasewarp(FL_OBJECT *, long);
+extern void pfcb_switchdirection(FL_OBJECT *, long);
 extern void pfcb_close(FL_OBJECT *, long);
 
 extern void rrcb_close(FL_OBJECT *, long);
@@ -232,7 +234,6 @@ typedef struct {
 	void *vdata;
 	char *cdata;
 	long  ldata;
-	FL_OBJECT *frameuno;
 	FL_OBJECT *planetname[2];
 	FL_OBJECT *planetdistance;
 	FL_OBJECT *close;
@@ -251,12 +252,7 @@ typedef struct {
 	FL_OBJECT *warp[4];
 	FL_OBJECT *defdestroy[4];
 	FL_OBJECT *terraform[4];
-	FL_OBJECT *framedue;
 	FL_OBJECT *driverwarp[2];
-	FL_OBJECT *increasewarp1;
-	FL_OBJECT *lowerwarp1;
-	FL_OBJECT *increasewarp2;
-	FL_OBJECT *lowerwarp2;
 } FD_PacketFiring;
 
 extern FD_PacketFiring * create_form_PacketFiring(void);

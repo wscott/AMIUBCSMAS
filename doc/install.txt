@@ -15,7 +15,7 @@ WINDOWS INSTALLATION
 - you will need to have an "X server" installed to be able to run
 starana. I use the demo version of Xwin-32, available at:
 
-http://xwin-32/
+http://www.starnet.com/product.htm
 
 It has some requirements, i.e. to have some kind of network support
 installed. If you have a network card in your computer then you have
@@ -24,6 +24,9 @@ you probably have network support. The documentation and FAQ of
 Xwin-32 explains what to do to run the server, check it. (BTW I
 suggest download and try, if it doesn't work start reading the
 doc.....);
+[There are other servers available, check:
+http://www.rahul.net/kenton/xsites.html
+for a comprehensive list.]
 
 - download the starana binaries and DLLs for win95 and the
 documentation/examples;
@@ -49,12 +52,12 @@ If you have linux you need to have g++ and X11 development stuff
 installed. You also need to have the XForms library installed. You can
 fetch it from:
 
-http://xforms/
+http://bragg.phys.uwm.edu/xforms
 
-If you want to recompile on win95 you need to use Cygnus' GNUwin32
-package, found at:
+If you want to recompile on win95 you need to use the Cygnus' Project
+Cygwin package, found at:
 
-http://cygnus/
+http://sourceware.cygnus.com/cygwin/
 
 You also need XForms (see above for link) and X11R6 libraries. I also
 used egcs to compile instead of the classic g++. Follow the links from

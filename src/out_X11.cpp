@@ -170,6 +170,14 @@ void graphics::display_handle_event(XEvent* ev)
       mapview->when(MW_PREV);
       auto_redraw_map();
       break;
+    case 's':
+      mapview->set_scanner_eff(MW_NEXT);
+      auto_redraw_map();
+      break;
+    case 'S':
+      mapview->set_scanner_eff(MW_PREV);
+      auto_redraw_map();
+      break;
     case 'p':
       toggle_pfunclist();
       break;

@@ -95,7 +95,7 @@ FLEET INFORMATION "GENERATED" By STARANA
 
 Starana uses the position and movement vector of enemy fleets to
 determine the origin and destination of the fleet. In order to avoid
-ridiculous results (e.g. scout will arive at XXX in 120 turns) it
+ridiculous results (e.g. scout will arrive at XXX in 120 turns) it
 limits the ETA of the fleets to the number of turns in the future
 which was requested. For friendly fleets (whose destination is known)
 only the origin determination is performed.
@@ -103,7 +103,231 @@ only the origin determination is performed.
 
 AVAILABLE FLEET FUNCTIONS
 
-[I don't have time, select them and read the descriptions! :PP ]
+
+********* null function, do nothing at all
+	name:		- (nothing) -
+	category:	General
+	description:	This function does nothing at all.
+
+
+********* associate a marker to a fleet
+	name:		Set Marker
+	category:	General
+	description:	This function associates a marker to a fleet:\n[3]1=dot, 2=cross, 3=box, 4=square, 5=circle, 6=flag.
+			[3]  Marker type
+
+
+********* associate fixed data to a fleet
+	name:		Set Data
+	category:	General
+	description:	This function associates single value data to a fleet.\n[3] Data is assumed to be in the range [0,100].
+			[3]  Data value
+
+
+********* set marker color
+	name:		Color: marker
+	category:	General
+	description:	This function sets the color of the marker of the fleet.\n[0] specify the color number or 0 to indicate the color of the owner.
+			[0]  Color
+
+
+********* set color of single pieslice data
+	name:		Color: data
+	category:	General
+	description:	This function sets the color of the data associated to a fleet\n(only if it's single-valued).\n[0] specify the color number or 0 to indicate the color of the owner.
+			[0]  Color
+
+
+*********  associate circles to a fleet
+	name:		Set Circles
+	category:	Movement
+	description:	This function associates a series of circles to a fleet.\n[0] use 0 to specify the owner's color.
+			[0]  Color
+			[3]  Circle radius
+			[4]  N. of circles
+
+
+********* random filter
+	name:		Filter: random
+	category:	General
+	description:	Randomly filters the fleet out.
+			[1]  Fields affect mask
+			[2]  Negate filter
+			[3]  Chance %
+			[4]  Random seed
+
+
+********* unconditional filter
+	name:		Filter: unconditional
+	category:	General
+	description:	Filters out all fleets.
+			[1]  Fields affect mask
+			[2]  Negate filter
+
+
+********* filter on owner
+	name:		Filter: owner
+	category:	General
+	description:	Filters fleets depending on their owner.\n[0] use race number or 0 for current viewpoint.
+			[0]  Race
+			[1]  Fields affect mask
+			[2]  Negate filter
+
+
+********* filter if orbiting a world
+	name:		Filter: orbiting
+	category:	General
+	description:	Filters fleets which are orbiting around a planet.
+			[1]  Fields affect mask
+			[2]  Negate filter
+
+
+********* filter on distance
+	name:		Filter: distance
+	category:	General
+	description:	Filter fleets depending on their distance from a planet.[0] use -1 or -2 to specify the first or second selected planet.
+			[0]  Planet id
+			[1]  Fields affect mask
+			[2]  Negate filter
+			[3]  Min. distance
+			[4]  Max. distance
+
+
+********* associate scanning circle(s) to a fleet
+	name:		Scanning
+	category:	Capabilities
+	description:	This function generates a circle with a size based on the fleet's\nscanning ranges.
+
+
+********* associate pie with size depending on cargo
+	name:		Cargo
+	category:	Capabilities
+	description:	This function associates data to a fleet depending on its cargo.\nNOTE: right now it's a single-value display!
+			[4]  Full triangle at
+			[5]  Show ironium
+			[6]  Show boranium
+			[7]  Show germanium
+			[8]  Show colonists
+
+
+********* associate pie with size depending on cargo space
+	name:		Cargo space
+	category:	Capabilities
+	description:	This function associates data to a fleet depending on its cargo space.\n[5] wheneter to use the total cargo space or the currently available space.
+			[4]  Full triangle at
+			[5]  Show available
+
+
+*********  filter on ship cargo
+	name:		Filter: cargo
+	category:	Capabilities
+	description:	Filters fleets depending on their cargo.\n[3..8] use min=0 max=0 to ignore the field.
+			[1]  Fields affect mask
+			[2]  Negate filter
+			[3]  Min ironium
+			[4]  Max ironium
+			[5]  Min boranium
+			[6]  Max boranium
+			[7]  Min germanium
+			[8]  Max germanium
+
+
+********* filter on ship colonists
+	name:		Filter: colonists
+	category:	Capabilities
+	description:	Filters fleets depending on their colonists cargo.\n[3,4] selected interval.
+			[1]  Fields affect mask
+			[2]  Negate filter
+			[3]  Min colonists
+			[4]  Max colonists
+
+
+********* filter fleet on available cargo space
+	name:		Filter: cargo space
+	category:	Capabilities
+	description:	Filters fleets depending on their current empty cargo space.\n[3,4] selected range.
+			[1]  Fields affect mask
+			[2]  Negate filter
+			[3]  Min space
+			[4]  Max space
+
+
+********* associate pie with size depending on mass
+	name:		Mass
+	category:	Composition
+	description:	This function associates data to a fleet depending on the total fleet mass.
+			[4]  Full triangle at
+
+
+********* associate pie with size depending on generic composition
+	name:		Composition
+	category:	Composition
+	description:	This function associates data to a fleet depending on the number of\nships in the fleet. You can exclude certain classes from the count.\n[5..9] select what classes NOT to include in the count.
+			[4]  Full triangle at
+			[5]  Exclude scouts
+			[6]  Exclude unarmed
+			[7]  Exclude warship
+			[8]  Exclude utility
+			[9]  Exclude bomber
+
+
+********* add a line from fleet to its origin
+	name:		Destination
+	category:	Movement
+	description:	This function adds a line which indicates where the fleet is going.
+
+
+********* add a line from fleet to its destination
+	name:		Origin
+	category:	Movement
+	description:	This function adds a line which indicates where the fleet is coming from.
+
+
+********* this function sets the color of the line
+	name:		Line: color
+	category:	Movement
+	description:	This function sets the color of a line associated to a fleet.\n[0] specify the color number or 0 to indicate the color of the owner.
+			[0]  Color
+
+
+********* kill on destination planet
+	name:		Filter: destination
+	category:	Movement
+	description:	Filter fleets whose destination is the specified planet.\n[0] specify id 0 for any planet or -1/-2 to indicate the 1st or 2nd selected.\n[3] specify 0 to ignore, 1 to filter only friendly fleets, 2 for enemy fleets\n
+			[0]  Planet ID
+			[1]  Fields affect mask
+			[2]  Negate filter
+			[3]  Friend
+
+
+********* the default fleet name functions
+
+	name:		Set Fleet Name
+	category:	Names
+	description:	This function associates a name (but no ID) to a fleet.
+
+
+********* set name composed of fleet name and fleet id
+	name:		Set Fleet Name+Id
+	category:	Names
+	description:	This function associates to a fleet a name identical to that used in Stars!.
+
+********* use the # of ships in a fleet to set the name
+	name:		Set # of ships
+	category:	Names
+	description:	This function associates to a fleet a name which is the number of ships\nin the fleet.\nNOTE: contrary to Stars! superimposed fleets are NOT summed.\n[5..9] select what classes NOT to include in the count.
+			[5]  Exclude scouts
+			[6]  Exclude unarmed
+			[7]  Exclude warship
+			[8]  Exclude utility
+			[9]  Exclude bomber
+
+
+********* set name color
+	name:		Color: name
+	category:	Names
+	description:	This function sets the color of the name of the fleet.\n[0] use 0 to specify the owner's color.
+			[0]  Color
 
 
 
